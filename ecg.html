@@ -50,7 +50,8 @@
 	<div class="header w3-blue-grey">
 		<div class="w3-bar w3-card-4 w3-center">
 			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>Electrocardiogrammes</b></span>
-			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle"></i></b></button>
+			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle fa-lg"></i></b></button>
+			<button class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><b><i class="fas fa-home fa-lg"></i></b></button>
 		</div> 
 	</div>
 
@@ -97,14 +98,20 @@
 	<div id="modal" class="w3-modal">
     <div class="w3-modal-content w3-animate-top w3-card-4">
       <header class="w3-container w3-teal"> 
-        <span onclick="document.getElementById('modal').style.display='none'" 
-        class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
+        <span onclick="document.getElementById('modal').style.display='none'" class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
         <h2>À propos</h2>
       </header>
       <div class="w3-container">
-        <p>Description</p>
-		<p>Coordonnées</p>
-		<p>Licence</p>
+				<div class="w3-container w3-cell"><p><i class="fas fa-info-circle fa-2x"></i></p></div>
+				<div class="w3-container w3-cell"><p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tristique convallis posuere. Sed interdum fringilla dolor in tincidunt. Pellentesque nunc est, mollis sollicitudin velit ac, pulvinar aliquam mauris. Duis et augue laoreet libero accumsan pulvinar. Aenean eu vestibulum lectus. Vestibulum gravida tortor quis elit feugiat, pharetra rutrum enim molestie. Vivamus libero turpis, imperdiet id auctor vel, varius sed purus. Morbi ut accumsan tortor. Etiam maximus mi eget tincidunt vestibulum. Nunc eu enim nec neque vulputate dignissim. </p></div>
+			</div>
+			<div class="w3-container">
+				<div class="w3-container w3-cell"><p><i class="fas fa-envelope fa-2x"></i></p></div>
+				<div class="w3-container w3-cell"><p> pro.wal@protonmail.com</p></div>
+			</div>
+			<div class="w3-container">
+				<div class="w3-container w3-cell"><p><i class="fas fa-copyright fa-2x"></i></p></div>
+				<div class="w3-container w3-cell"><p> MIT Licence</p></div>
       </div>
     </div>
   </div>
