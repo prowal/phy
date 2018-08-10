@@ -1,0 +1,515 @@
+<!-- 
+MIT License
+
+PhyECG
+ 
+Copyright (c) 2018 Gaétan Walter
+ 
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+
+	<link rel="icon" href="favicon.ico" />
+
+	<title>Electrocardiogrammes</title>
+	
+	<script src="lib/ecg.js"></script>
+
+	<script src="lib/Chart.min.js"></script>
+
+	<link rel="stylesheet" href="lib/w3.css"> 
+
+	<link rel="stylesheet" href="lib/fontawesome/css/all.min.css">
+
+	<style>
+		/* Remove borders when highlighted in Chrome*/
+		button:focus {outline:0;}
+	</style>
+</head>
+<body class="w3-light-grey">
+	<!-- Header bar -->
+	<div class="header w3-blue-grey">
+		<div class="w3-bar w3-card-4 w3-center">
+			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>Electrocardiogrammes</b></span>
+			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle"></i></b></button>
+		</div> 
+	</div>
+
+	<div class="w3-row">
+		<div class="w3-col w3-right" style="width: 280px">
+			<!-- Top-right card -->
+			<div class="w3-card-4 w3-margin">
+				<header class="w3-container w3-blue-grey">
+					<h3>Choix du sportif</h3>
+				</header>
+				<div class="w3-container" style="padding: 0px">
+					<button class="w3-button w3-block w3-hover-green" id="sportButton1">Sportif 1</button>
+					<button class="w3-button w3-block w3-hover-green" id="sportButton2">Sportif 2</button>
+					<button class="w3-button w3-block w3-hover-green" id="sportButton3">Sportif 3</button>
+					<button class="w3-button w3-block w3-hover-green" id="sportButton4">Sportif 4</button>
+					<button class="w3-button w3-block w3-hover-green" id="sportButton5">Sportif 5</button>
+				</div>
+			</div>
+			<!-- Middle-right card -->
+			<div class="w3-card-4 w3-margin">
+				<header class="w3-container w3-blue-grey">
+					<h3>Etat du sportif</h3>
+				</header>
+				<div class="w3-container" style="padding: 0px">
+					<button class="w3-button w3-block w3-hover-green" id="stateButton1">Au repos</button>
+					<button class="w3-button w3-block w3-hover-green" id="stateButton2">Après l'effort</button>
+					<button class="w3-button w3-block w3-hover-green" id="stateButton3">Après récupération</button>
+				</div>
+			</div>
+			<!-- Bottom-right card -->
+			<div class="w3-card-4 w3-margin">
+					<button class="w3-button w3-block w3-hover-red" id="pauseButton"><h3 style="margin:0"><i class="fas fa-pause"></i> Pause</h3></button>
+			</div>
+		</div>
+		<!-- Canvas card -->
+		<div class="w3-card-4 w3-rest w3-margin w3-white">
+			<div class="w3-container w3-margin canvas" style="height: 80vh">
+				<canvas class="canvas"></canvas>
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal card -->
+	<div id="modal" class="w3-modal">
+    <div class="w3-modal-content w3-animate-top w3-card-4">
+      <header class="w3-container w3-teal"> 
+        <span onclick="document.getElementById('modal').style.display='none'" 
+        class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
+        <h2>À propos</h2>
+      </header>
+      <div class="w3-container">
+        <p>Description</p>
+		<p>Coordonnées</p>
+		<p>Licence</p>
+      </div>
+    </div>
+  </div>
+
+	<script>
+		const $ = document.querySelector.bind(document);
+
+		// Define the colors used in the app CHANGE TO USE W3.CSS COLORSSSSSSSSSSSSSSSSSSSS
+		chartColors = {
+			// Copy from w3-blue
+			blue: "rgb(33, 150, 243)",
+		};
+
+		// Declare vars
+		const pointPerPeriod = 40;
+
+		// Canvas length
+		let totalTime = 5;
+
+		let periodPerFrame;
+		let blanckECGIntervalTime = 0.5;
+		let blanckECGInterval;
+		
+		// ECG pattern
+		let rawECG = [];
+		// Full arythmic ECG array
+		let rawRandomECG = [];
+
+		let chart;
+
+		// data1 = current frame array; data2 = past frame array
+		let data1 = [];
+		let data2 = [];
+
+		let startTime;
+		let time;
+
+		let paused = false;
+
+		// Used to seek in rawRandomECG faster
+		let indexCursor = 0;
+
+		let activeSportButtonID = 0;
+		let activeStateButtonID = 0;
+
+		// Get canvas context
+		const canvasCtx = $("canvas.canvas").getContext("2d");
+
+		// Set the periods
+		let period;
+		let periods = [];
+		periods[0] = [0.9,0.4,0.7];
+		periods[1] = [0.8,0.4,0.7];
+		periods[2] = [0.8,0.4,0.7];
+		periods[3] = [0.8,0.4,0.7];
+		periods[4] = [0.8,0.4,0.7];
+		periods[5] = [0.8,0.4,0.7];
+
+		// Get buttons contexts
+		let sportButtons = [];
+		sportButtons[0] = $("#sportButton1");
+		sportButtons[1] = $("#sportButton2");
+		sportButtons[2] = $("#sportButton3");
+		sportButtons[3] = $("#sportButton4");
+		sportButtons[4] = $("#sportButton5");
+
+		sportButtons[0].addEventListener("click", onSportButtonClick1);
+		sportButtons[1].addEventListener("click", onSportButtonClick2);
+		sportButtons[2].addEventListener("click", onSportButtonClick3);
+		sportButtons[3].addEventListener("click", onSportButtonClick4);
+		sportButtons[4].addEventListener("click", onSportButtonClick5);
+
+		let stateButtons = [];
+		stateButtons[0] = $("#stateButton1");
+		stateButtons[1] = $("#stateButton2");
+		stateButtons[2] = $("#stateButton3");
+
+		stateButtons[0].addEventListener("click", onStateButtonClick1);
+		stateButtons[1].addEventListener("click", onStateButtonClick2);
+		stateButtons[2].addEventListener("click", onStateButtonClick3);
+
+		let pauseButton = $("#pauseButton");
+		pauseButton.addEventListener("click", onPauseButtonClick);
+
+		let infoButton = $("#infoButton");
+		infoButton.addEventListener("click", onInfoButtonClick);
+
+		/*----------------------------------------------------------------------------------------------
+		-----------------------------------------GRAPH SETTINGS-----------------------------------------
+		----------------------------------------------------------------------------------------------*/
+		// Hack to hide ticks
+		let withTicks = {
+			display: true,
+			min: 0,
+			max: totalTime,
+			stepSize: 0.1
+		};
+
+		let noTicks = {
+			display: false,
+			autoSkip: false,
+			min: 0,
+			max: totalTime,
+			stepSize: 0.06
+		};
+
+		let config = {
+			type: "line",
+			data: {
+				datasets: [{
+					label: "ECG",
+					borderColor: chartColors.blue,
+					// Hides the points...
+					radius: 0,
+					fill: false
+				},
+				{
+					label: "ECG2",
+					borderColor: chartColors.blue,
+					radius: 0,
+					fill: false
+				}
+				]
+			},
+			options: {
+				lineTension: 0,
+				responsive: true,
+				animation: false,
+				maintainAspectRatio: false,
+				legend: {
+						display: false
+					},
+				title: {
+					display: false,
+				},
+				scales: {
+					xAxes: [{
+						display: true,
+						type: "linear",
+						position: "bottom",
+						scaleLabel: {
+							display: true,
+							labelString: "Temps (s)"
+						},
+						ticks: withTicks,
+					}],
+					yAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							padding: 0,
+							labelString: "Amplitude"
+						},
+						ticks: {
+							suggestedMin: -2,
+							suggestedMax: 6,
+						}
+					}]
+				}
+			}
+		};
+
+		/*----------------------------------------------------------------------------------------------
+		---------------------------------GENERATE RANDOM PERIODS ARRAY----------------------------------
+		----------------------------------------------------------------------------------------------*/
+		function generateRandomPeriods(){
+			let timeCursor = 0;
+			let randomPeriods = [];
+			rawRandomECG[0] = {x: 0, y: 0};
+			for(let i = 0; i < 1000; i++){
+				randomPeriods[i] = period + 0.25 - Math.random() * 0.5;
+				for(let j = 0; j < pointPerPeriod; j++){
+					rawRandomECG[i * pointPerPeriod + j] = {
+						x: timeCursor,
+						y: rawECG[j].y
+					};
+					timeCursor += randomPeriods[i] / pointPerPeriod;
+				};
+			};
+		};
+
+		/*----------------------------------------------------------------------------------------------
+		-------------------------------------GENERATE ECG FUNCTIONS-------------------------------------
+		----------------------------------------------------------------------------------------------*/
+		function drawRegularECG(){
+			// Generate the active frame data
+			let frame = Math.floor(time / totalTime);
+			let activeFramePeriodCount = frame * periodPerFrame;
+			let activeFramePeriodCountInFrame = activeFramePeriodCount - Math.floor(activeFramePeriodCount);
+			let activeFrameStartIndex = Math.floor(activeFramePeriodCountInFrame * pointPerPeriod);
+			let activeFrameEndIndex = Math.floor((time - frame * totalTime) / period * pointPerPeriod);
+
+			data1.length = 0;
+			for(let i = 0; i < activeFrameEndIndex; i++){
+				data1[i] = {
+					x: i / pointPerPeriod * period,
+					y:rawECG[(i + activeFrameStartIndex) % pointPerPeriod].y
+				};
+			};
+
+			// Generate the past frame data
+			if(time > totalTime){
+				let pastFramePeriodCount = (frame - 1) * periodPerFrame;
+				let pastFramePeriodCountInFrame = pastFramePeriodCount - Math.floor(pastFramePeriodCount);
+				let pastFrameStartIndex = Math.floor(pastFramePeriodCountInFrame * pointPerPeriod);
+				let pastFrameEndIndex = periodPerFrame * pointPerPeriod;
+
+				data2.length = 0;
+				for(let i = activeFrameEndIndex + blanckECGInterval; i < pastFrameEndIndex; i++){
+					data2[i - (activeFrameEndIndex + blanckECGInterval)] = {
+						x: i / pointPerPeriod * period,
+						y:rawECG[(i + pastFrameStartIndex) % pointPerPeriod].y
+					};
+				};
+			};
+
+		};
+
+		function drawArythmicECG(){
+			// Reset when we reach "the end" of rawRandomECG
+			if(time > 500){
+				changePeriod();
+			};
+			// Find the usefull part of rawRandomECG
+			let frame = Math.floor(time / totalTime);
+			while(rawRandomECG[indexCursor].x < frame * totalTime){
+				indexCursor++;
+			};
+			// Draw the active frame
+			data1.length = 0;
+			let ind = 0;
+			while(rawRandomECG[ind + indexCursor].x < time){
+				data1[ind] = {
+					x: rawRandomECG[ind + indexCursor].x % totalTime,
+					y: rawRandomECG[ind + indexCursor].y
+				};
+				ind++;
+			};
+			// Draw the past frame
+			data2.length = 0;
+			if(time > totalTime){
+				let ind2 = 1;
+				while(rawRandomECG[indexCursor - ind2].x > time - totalTime + blanckECGIntervalTime){
+					data2[ind2] = {
+						x: rawRandomECG[indexCursor - ind2].x % totalTime,
+						y: rawRandomECG[indexCursor - ind2].y
+					};
+					ind2++;
+				};
+			};
+		};
+
+		/*----------------------------------------------------------------------------------------------
+		------------------------------------BUTTON CLICK FUNCTIONS--------------------------------------
+		----------------------------------------------------------------------------------------------*/
+		function sportButtonClick(id){
+			// Grey out all buttons
+			for(let i = 0; i < 5; i++){
+				sportButtons[i].classList.add("w3-white");
+			}
+
+			// Highlight the active button
+			sportButtons[id].classList.remove("w3-white");
+			sportButtons[id].classList.add("w3-green");
+			activeSportButtonID = id;
+
+			if(id == 1){
+				// Hack to hide the ticks
+				chart.options.scales.xAxes[0].ticks = noTicks;
+			}
+			else{
+				chart.options.scales.xAxes[0].ticks = withTicks;
+			}
+
+			stateButtonClick(activeStateButtonID);
+		}
+
+		function stateButtonClick(id){
+			// Grey out all buttons
+			for(let i = 0; i < 3; i++){
+				stateButtons[i].classList.add("w3-white");
+			}
+
+			// Highlight the active button
+			stateButtons[id].classList.remove("w3-white");
+			stateButtons[id].classList.add("w3-green");
+			activeStateButtonID = id;
+
+			changePeriod();
+		}
+
+		/*----------------------------------------------------------------------------------------------
+		-------------------------------------CHANGE PERIOD FUNCTION-------------------------------------
+		----------------------------------------------------------------------------------------------*/
+		function changePeriod(){
+			// Restart the time and set the period
+			startTime = Date.now() / 1000;
+			time = 0;
+			period = periods[activeSportButtonID][activeStateButtonID];
+			periodPerFrame = totalTime / period;
+			blanckECGInterval = Math.trunc(pointPerPeriod / period * blanckECGIntervalTime); // 0.5s
+
+			// randomECG special init
+			indexCursor = 0;
+			generateRandomPeriods();
+
+			// empty the datas
+			data1.length = 0;
+			data2.length = 0;
+		}
+
+		/*----------------------------------------------------------------------------------------------
+		---------------------------------------------EVENTS---------------------------------------------
+		----------------------------------------------------------------------------------------------*/
+		window.onload = function() {
+
+			// Generate the raw ECG wave
+			rawECG = ecg(pointPerPeriod);
+
+			// Create the graph and link the datas
+			chart = new Chart(canvasCtx, config);
+			chart.data.datasets[0].data = data1;
+			chart.data.datasets[1].data = data2;
+
+			// Set the default  settings
+			sportButtonClick(0);
+
+			// Initial graph draw
+			draw();
+		};
+
+		function onSportButtonClick1() {
+			sportButtonClick(0);
+		}
+
+		function onSportButtonClick2() {
+			sportButtonClick(1);
+		}
+
+		function onSportButtonClick3() {
+			sportButtonClick(2);
+		}
+
+		function onSportButtonClick4() {
+			sportButtonClick(3);
+		}
+
+		function onSportButtonClick5() {
+			sportButtonClick(4);
+		}
+
+		function onStateButtonClick1() {
+			stateButtonClick(0);
+		}
+
+		function onStateButtonClick2() {
+			stateButtonClick(1);
+		}
+
+		function onStateButtonClick3() {
+			stateButtonClick(2);
+		}
+
+		function onPauseButtonClick() {
+			if(paused == true){
+				paused = false;
+				pauseButton.classList.remove("w3-red");
+				pauseButton.classList.add("w3-white");
+			}
+			else{
+				paused = true;
+				pauseButton.classList.remove("w3-white");
+				pauseButton.classList.add("w3-red");
+			}
+		}
+
+		function onInfoButtonClick() {
+			$("#modal").style.display="block";
+		}
+
+		/*----------------------------------------------------------------------------------------------
+		------------------------------------------DRAW FUNCTION-----------------------------------------
+		----------------------------------------------------------------------------------------------*/
+		function draw() {
+			// Make sure we get called 60 times a second
+			requestAnimationFrame(draw);
+
+			// Get the time
+			if(paused == true){
+				startTime += Date.now() / 1000 - startTime - time;
+			}
+			time = Date.now() / 1000 - startTime;
+
+
+			// Draw the ECG
+			if(activeSportButtonID == 3){
+				drawArythmicECG();
+			}
+			else{
+				drawRegularECG();
+			}
+
+			chart.update();
+		}
+	</script>
+</body>
+</html> 
