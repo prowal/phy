@@ -28,22 +28,20 @@
 	SOFTWARE.
 	-->
 
-	<link rel="icon" href="img/ecg.ico" />
-
 	<title>Electrocardiogrammes</title>
-	
-	<script src="lib/ecg.js"></script>
 
-	<script src="lib/Chart.min.js"></script>
+	<link rel="icon" href="img/ecg.ico" />
 
 	<link rel="stylesheet" href="lib/w3.css"> 
 
 	<link rel="stylesheet" href="lib/fontawesome/css/all.min.css">
 
-	<style>
-		/* Remove borders when highlighted in Chrome*/
-		button:focus {outline:0;}
-	</style>
+	<link rel="stylesheet" href="lib/phy.css"> 
+
+	<script src="lib/Chart.min.js"></script>
+
+	<script src="lib/ecg.js"></script>
+
 </head>
 <body class="w3-light-grey">
 	<!-- Header bar -->
@@ -88,7 +86,7 @@
 		</div>
 		<!-- Canvas card -->
 		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div class="w3-container w3-margin canvas" style="height: 80vh">
+			<div class="w3-container w3-margin" style="height: 80vh">
 				<canvas class="canvas"></canvas>
 			</div>
 		</div>
@@ -194,10 +192,10 @@
 		stateButtons[1].addEventListener("click", onStateButtonClick2);
 		stateButtons[2].addEventListener("click", onStateButtonClick3);
 
-		let pauseButton = $("#pauseButton");
+		const pauseButton = $("#pauseButton");
 		pauseButton.addEventListener("click", onPauseButtonClick);
 
-		let infoButton = $("#infoButton");
+		const infoButton = $("#infoButton");
 		infoButton.addEventListener("click", onInfoButtonClick);
 
 		/*----------------------------------------------------------------------------------------------

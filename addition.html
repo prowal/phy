@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<!-- 
+	MIT License
+
+	phy
+
+	Copyright (c) 2018 Gaétan Walter
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+	-->
+
+	<title>Addition d'onde et analyse spectrale</title>
+
+	<link rel="icon" href="img/index.ico" />
+
+	<link rel="stylesheet" href="lib/w3.css"> 
+
+	<link rel="stylesheet" href="lib/fontawesome/css/all.min.css">
+
+	<link rel="stylesheet" href="lib/phy.css">
+
+	<script src="lib/Chart.min.js"></script>
+
+	<script src="lib/fft.js"></script>
+
+	<style>
+		/* Remove borders when highlighted in Chrome*/
+		button:focus {outline:0;}
+
+		/* Remove the underline on card links*/
+		a.w3-card-4{text-decoration: none;}
+
+
+	</style>
+</head>
+<body class="w3-light-grey">
+	<!-- Header bar -->
+	<div class="header w3-blue-grey">
+		<div class="w3-bar w3-card-4 w3-center">
+			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>Addition d'onde et analyse spectrale</b></span>
+			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle fa-lg"></i></b></button>
+			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><b><i class="fas fa-home fa-lg"></i></b></a>
+		</div> 
+	</div>
+	<div class="w3-row">
+			<div class="w3-col w3-right" style="width: 350px">
+				<!-- Top-right card -->
+				<div class="w3-card-4 w3-margin w3-white">
+					<header class="w3-container w3-blue">
+						<h3>
+							Onde 1
+							<label class="switch w3-right">
+								<input type="checkbox" id="checkBox1">
+								<span class="toggleSlider round"></span>
+							</label>
+						</h3>
+					</header>
+					<div class="w3-container">
+						<p class="">Fréquence :</p>
+						<input class="range-slider_range" id="frequencySlider1" type="range" value="50" min="20" max="200">
+						<span class="range-slider_value" id="frequencyValue1">50 Hz</span>
+						<p>Amplitude :</p>
+						<input class="range-slider_range" id="amplitudeSlider1" type="range" value="20" min="0" max="20">
+						<span class="range-slider_value" id="amplitudeValue1">20</span>
+					</div>
+				</div>
+				<!-- Middle-right card -->
+				<div class="w3-card-4 w3-margin w3-white">
+					<header class="w3-container w3-deep-orange">
+						<h3>
+							Onde 2
+							<label class="switch w3-right">
+								<input type="checkbox" id="checkBox2">
+								<span class="toggleSlider round"></span>
+							</label>
+						</h3>
+					</header>
+					<div class="w3-container">
+						<p>Fréquence :</p>
+						<input class="range-slider_range" id="frequencySlider2" type="range" value="100" min="20" max="200">
+						<span class="range-slider_value" id="frequencyValue2">100 Hz</span>
+						<p>Amplitude :</p>
+						<input class="range-slider_range" id="amplitudeSlider2" type="range" value="10" min="0" max="20">
+						<span class="range-slider_value" id="amplitudeValue2">10</span>
+					</div>
+				</div>
+				<!-- Bottom-right card -->
+				<div class="w3-card-4 w3-margin w3-white">
+					<header class="w3-container w3-pink">
+						<h3>
+							Somme des ondes
+							<label class="switch w3-right">
+								<input type="checkbox" id="sumCheckBox">
+								<span class="toggleSlider round"></span>
+							</label>
+						</h3>
+					</header>
+					<div class="w3-container">
+						<h3>
+							Analyse spectrale :
+							<label class="switch w3-right">
+								<input type="checkbox" id="fftCheckBox">
+								<span class="toggleSlider round"></span>
+							</label>
+						</h3>
+					</div>
+				</div>
+			</div>
+			<!-- Canvas card 1-->
+			<div class="w3-card-4 w3-rest w3-margin w3-white">
+				<div class="w3-container w3-margin" style="height: 54vh">
+					<canvas class="canvas1"></canvas>
+				</div>
+			</div>
+			<!-- Canvas card 2-->
+			<div class="w3-card-4 w3-rest w3-margin w3-white grelaga" >
+				<div class="w3-container w3-margin canvas" style="height: 26vh">
+					<canvas class="canvas2"></canvas>
+				</div>
+			</div>
+		</div>
+	<!-- Modal card -->
+	<div id="modal" class="w3-modal">
+			<div class="w3-modal-content w3-animate-top w3-card-4">
+				<header class="w3-container w3-teal"> 
+					<span onclick="document.getElementById('modal').style.display='none'" class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
+					<h2>À propos</h2>
+				</header>
+				<div class="w3-container">
+					<div class="w3-container w3-cell"><p><i class="fas fa-info-circle fa-2x"></i></p></div>
+					<div class="w3-container w3-cell"><p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tristique convallis posuere. Sed interdum fringilla dolor in tincidunt. Pellentesque nunc est, mollis sollicitudin velit ac, pulvinar aliquam mauris. Duis et augue laoreet libero accumsan pulvinar. Aenean eu vestibulum lectus. Vestibulum gravida tortor quis elit feugiat, pharetra rutrum enim molestie. Vivamus libero turpis, imperdiet id auctor vel, varius sed purus. Morbi ut accumsan tortor. Etiam maximus mi eget tincidunt vestibulum. Nunc eu enim nec neque vulputate dignissim. </p></div>
+				</div>
+				<div class="w3-container">
+					<div class="w3-container w3-cell"><p><i class="fas fa-envelope fa-2x"></i></p></div>
+					<div class="w3-container w3-cell"><p> pro.wal@protonmail.com</p></div>
+				</div>
+				<div class="w3-container">
+					<div class="w3-container w3-cell"><p><i class="fas fa-copyright fa-2x"></i></p></div>
+					<div class="w3-container w3-cell"><p> MIT Licence</p></div>
+				</div>
+			</div>
+		</div>
+
+	<script>
+		const $ = document.querySelector.bind(document);
+
+		// Define the colors used in the app CHANGE TO USE W3.CSS COLORSSSSSSSSSSSSSSSSSSSS
+		chartColors = {
+			// Copy from w3-xxx
+			blue: "rgb(33, 150, 243)",
+			deepOrange: "rgb(255, 87, 34)",
+			pink: "rgb(233, 30, 99)",
+			blueGrey: "rgb(96, 125, 139)"
+		};
+
+		// Declare vars
+		let wave1= {a: 0, f: 0};
+		let wave2 = {a: 0, f: 0};
+
+		let samplingFrequency = 4096;
+		let numSample = 8192;
+
+		let chart1;
+		let chart2;
+
+		let data1;
+		let data2;
+		let dataSum = [];
+
+		// Create the fft object
+		var fft = new FFTNayuki(numSample * 2);
+
+		// Get canvas contexts and hide the FFT's canvas
+		const canvasCtx1 = $("canvas.canvas1").getContext("2d");
+		const canvasCtx2 = $("canvas.canvas2").getContext("2d");
+
+		// Get DOM Elements
+		const amplitudeSliderElt1 = $("#amplitudeSlider1");
+		amplitudeSliderElt1.addEventListener("input", onAmplitudeSliderChange1);
+
+		const frequencySliderElt1 = $("#frequencySlider1");
+		frequencySliderElt1.addEventListener("input", onfrequencySliderChange1);
+
+		const amplitudeSliderElt2 = $("#amplitudeSlider2");
+		amplitudeSliderElt2.addEventListener("input", onAmplitudeSliderChange2);
+
+		const frequencySliderElt2 = $("#frequencySlider2");
+		frequencySliderElt2.addEventListener("input", onfrequencySliderChange2);
+
+		const checkBoxElt1 = $("#checkBox1");
+		checkBoxElt1.addEventListener("click", onCheckBoxChange1);
+		checkBoxElt1.checked = true;
+
+		const checkBoxElt2 = $("#checkBox2");
+		checkBoxElt2.addEventListener("click", onCheckBoxChange2);
+		checkBoxElt2.checked = true;
+
+		const sumCheckBoxElt = $("#sumCheckBox");
+		sumCheckBoxElt.addEventListener("click", onSumCheckBoxChange);
+
+		const fftCheckBoxElt = $("#fftCheckBox");
+		fftCheckBoxElt.addEventListener("click", onFftCheckBoxChange);
+
+		const infoButton = $("#infoButton");
+		infoButton.addEventListener("click", onInfoButtonClick);
+
+		/*----------------------------------------------------------------------------------------------
+		-------------------------------------GENERATE WAVE FUNCTION-------------------------------------
+		----------------------------------------------------------------------------------------------*/
+		function generateWave(_frequency, _amplitude){
+			var wave = [];
+			for (let i = 0; i < numSample; i++){
+				wave[i] = {x: i / samplingFrequency, y:_amplitude * Math.sin(2*Math.PI * (i / samplingFrequency) * _frequency)};
+			}
+			return wave;
+		}
+
+		/*----------------------------------------------------------------------------------------------
+		-------------------------------------------FFT FUNCTION-----------------------------------------
+		----------------------------------------------------------------------------------------------*/
+		function computeFFT(_wave){
+			let FFTreal = [];
+			let FFTimag = [];
+			let spectrum = [];
+
+			// Compute the sum and build the FFT's arrays
+			for(let i = 0; i < numSample; i++){
+				FFTreal[i] = _wave[i].y;
+				FFTimag[i] = 0;
+			}
+
+			// FFT Zero-padding
+			for(let i = numSample; i < numSample * 2; i++){
+				FFTreal[i] = 0;
+				FFTimag[i] = 0;
+			}
+
+			// Plot the FFT (only the first half is useful)
+			fft.forward(FFTreal, FFTimag);
+			//transform(FFTreal, FFTimag);
+
+			// Determine how many Hz represented by each sample
+			let hzPerSample = samplingFrequency / numSample;
+
+			// Get the magnitude of each FFT sample (/19.5 is enough to reach 210 Hz)
+			for(let i = 0; i < numSample / 19.5; i++){
+				// The zero-padding implies only one out of two sample is useful... I guess (3.1?!?)
+				spectrum[i] = {x: i * hzPerSample, y: Math.abs(3.1 * FFTreal[i*2+1]) / numSample};
+			}
+			return spectrum;
+		}
+
+		/*----------------------------------------------------------------------------------------------
+		-----------------------------------------GRAPH SETTINGS-----------------------------------------
+		----------------------------------------------------------------------------------------------*/
+		let config1 = {
+			type: "line",
+			data: {
+				datasets: [{
+					label: "Onde 1",
+					//data: data1,
+					borderColor: chartColors.blue,
+					// Hides the points...
+					radius: 0,
+					fill: false
+				},
+				{
+					label: "Onde 2",
+					//data: data2,
+					borderColor: chartColors.deepOrange,
+					// Hides the points...
+					radius: 0,
+					fill: false,
+				},
+				{
+					label: "Somme des ondes",
+					//data: data2,
+					borderColor: chartColors.pink,
+					// Hides the points...
+					radius: 0,
+					fill: false,
+					hidden: true
+				}
+				]
+			},
+			options: {
+				lineTension: 0,
+				responsive: true,
+				animation: false,
+				maintainAspectRatio: false,
+				legend: {
+						display: false
+					},
+				title: {
+					display: false,
+				},
+				scales: {
+					xAxes: [{
+						display: true,
+						type: "linear",
+						position: "bottom",
+						scaleLabel: {
+							display: true,
+							labelString: "Temps (s)"
+						},
+						ticks: {
+							min: 0,
+							max: 0.1,
+							//autoSkip: true,
+							//maxTicksLimit: 10,
+							stepSize: .01
+						}
+					}],
+					yAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: "Amplitude"
+						},
+						ticks: {
+							suggestedMin: -50,
+							suggestedMax: 50,
+						}
+					}]
+				}
+			}
+		};
+
+		let config2 = {
+			type: "line",
+			data: {
+				datasets: [{
+					label: "Somme des ondes",
+					//data: data1,
+					borderColor: chartColors.pink,
+					// Hides the points...
+					radius: 0,
+					fill: false
+				}]
+			},
+			options: {
+				lineTension: 0,
+				responsive: true,
+				animation: false,
+				maintainAspectRatio: false,
+				legend: {
+						display: false
+					},
+				title: {
+					display: false,
+				},
+				scales: {
+					xAxes: [{
+						display: true,
+						type: "linear",
+						position: "bottom",
+						scaleLabel: {
+							display: true,
+							labelString: "Fréquence (Hz)"
+						},
+						ticks: {
+							min: 0,
+							max: 210,
+							//autoSkip: true,
+							//maxTicksLimit: 10,
+							stepSize: 10
+						}
+					}],
+					yAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: "Amplitude"
+						},
+						ticks: {
+							suggestedMin: 0,
+							suggestedMax: 40,
+						}
+					}]
+				}
+			}
+		};
+
+		/*----------------------------------------------------------------------------------------------
+		---------------------------------------------EVENTS---------------------------------------------
+		----------------------------------------------------------------------------------------------*/
+		window.onload = function() {
+			// Get the sliders' value
+			wave1.a = amplitudeSliderElt1.value;
+			wave1.f = frequencySliderElt1.value;
+			wave2.a = amplitudeSliderElt2.value;
+			wave2.f = frequencySliderElt2.value;
+
+			data1 = generateWave(wave1.f,wave1.a);
+			data2 = generateWave(wave2.f,wave2.a);	
+
+			// Create the charts
+			chart1 = new Chart(canvasCtx1, config1);
+			chart2 = new Chart(canvasCtx2, config2);
+
+			draw();
+		};
+
+				function onAmplitudeSliderChange1() {
+			wave1.a = amplitudeSliderElt1.value;
+			$("#amplitudeValue1").innerHTML = wave1.a;
+			data1 = generateWave(wave1.f,wave1.a);
+			draw();
+		}
+
+		function onfrequencySliderChange1() {
+			wave1.f = frequencySliderElt1.value;
+			$("#frequencyValue1").innerHTML = wave1.f + " Hz";
+			data1 = generateWave(wave1.f,wave1.a);
+			draw();
+		}
+
+		function onAmplitudeSliderChange2() {
+			wave2.a = amplitudeSliderElt2.value;
+			$("#amplitudeValue2").innerHTML = wave2.a;
+			data2 = generateWave(wave2.f,wave2.a);
+			draw();
+		}
+
+		function onfrequencySliderChange2() {
+			wave2.f = frequencySliderElt2.value;
+			$("#frequencyValue2").innerHTML = wave2.f + " Hz";
+			data2 = generateWave(wave2.f,wave2.a);
+			draw();
+		}
+
+		function onCheckBoxChange1() {
+			if(checkBoxElt1.checked) {
+				chart1.data.datasets[0].hidden = false;
+			}
+			else{
+				chart1.data.datasets[0].hidden = true;
+			}
+			draw();
+		}
+
+		function onCheckBoxChange2() {
+			if(checkBoxElt2.checked) {
+				chart1.data.datasets[1].hidden = false;
+			}
+			else{
+				chart1.data.datasets[1].hidden = true;
+			}
+			draw();
+		}
+
+		function onSumCheckBoxChange() {
+			if(sumCheckBoxElt.checked) {
+				chart1.data.datasets[2].hidden = false;
+			}
+			else{
+				chart1.data.datasets[2].hidden = true;
+			}
+			draw();
+		}
+
+		function onFftCheckBoxChange() {
+			if(fftCheckBoxElt.checked) {
+				$("div.grelaga").style.display="block";
+			}
+			else{
+				$("div.grelaga").style.display="none";
+			}
+			draw();
+		}
+
+		function onInfoButtonClick() {
+			$("#modal").style.display="block";
+		}
+
+		/*----------------------------------------------------------------------------------------------
+		------------------------------------------DRAW FUNCTION-----------------------------------------
+		----------------------------------------------------------------------------------------------*/
+		function draw() {
+			// Compute the sum and build the FFT's arrays
+			for(let i = 0; i < numSample; i++){
+				dataSum[i] = {x: data1[i].x, y: data1[i].y + data2[i].y};
+			}
+
+			if(fftCheckBoxElt.checked){
+				// Compute the FFT
+				let spectrum = computeFFT(dataSum);
+
+				// Update the fft chart
+				chart2.data.datasets[0].data = spectrum;
+				chart2.update();
+			}
+
+			// Update the first chart
+			// Only draw the visible part
+			chart1.data.datasets[0].data = data1.slice(0,0.1 * samplingFrequency);
+			chart1.data.datasets[1].data = data2.slice(0,0.1 * samplingFrequency);
+			chart1.data.datasets[2].data = dataSum.slice(0,0.1 * samplingFrequency);
+			chart1.update();
+		}
+	</script>
+</body>
+</html> 

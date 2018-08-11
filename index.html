@@ -28,22 +28,16 @@
 	SOFTWARE.
 	-->
 
-	<link rel="icon" href="img/index.ico" />
-
 	<title>La Belle Physique</title>
-	
-	<script src="lib/ecg.js"></script>
+
+	<link rel="icon" href="img/index.ico" />
 
 	<link rel="stylesheet" href="lib/w3.css"> 
 
 	<link rel="stylesheet" href="lib/fontawesome/css/all.min.css">
+	
+	<link rel="stylesheet" href="lib/phy.css"> 
 
-	<style>
-		/* Remove borders when highlighted in Chrome*/
-		button:focus {outline:0;}
-		/* Remove the underline on card links*/
-		a.w3-card-4{text-decoration: none;}
-	</style>
 </head>
 <body class="w3-light-grey">
 	<!-- Header bar -->
@@ -98,7 +92,7 @@
 	<script>
 		const $ = document.querySelector.bind(document);
 
-		let infoButton = $("#infoButton");
+		const infoButton = $("#infoButton");
 		infoButton.addEventListener("click", onInfoButtonClick);
 
 		/*----------------------------------------------------------------------------------------------

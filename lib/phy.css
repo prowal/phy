@@ -1,0 +1,156 @@
+﻿		/* Remove borders when highlighted in Chrome*/
+		button:focus {outline:0;}
+
+		/* Remove the underline on card links*/
+		a.w3-card-4{text-decoration: none;}
+		
+		/*----------------------------------------------------------------------------------------------
+		--------------------------------------------CHECKBOX--------------------------------------------
+		----------------------------------------------------------------------------------------------*/
+		/* The switch - the box around the slider */
+		.switch {
+			position: relative;
+			display: inline-block;
+			vertical-align: middle;
+			width: 60px;
+			height: 34px;
+		}
+
+		/* Hide default HTML checkbox */
+		.switch input {display:none;}
+
+		/* The slider */
+		.toggleSlider {
+			position: absolute;
+			cursor: pointer;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: #ccc;
+			-webkit-transition: .4s;
+			transition: .4s;
+		}
+
+		.toggleSlider:before {
+			position: absolute;
+			content: "";
+			height: 26px;
+			width: 26px;
+			left: 4px;
+			bottom: 4px;
+			background-color: white;
+			-webkit-transition: .4s;
+			transition: .4s;
+		}
+
+		input:checked + .toggleSlider {
+			background-color: rgb(75, 192, 85);
+		}
+
+		input:checked + .toggleSlider:before {
+			-webkit-transform: translateX(26px);
+			-ms-transform: translateX(26px);
+			transform: translateX(26px);
+		}
+
+		/* Rounded sliders */
+		.toggleSlider.round {
+			border-radius: 34px;
+		}
+
+		.toggleSlider.round:before {
+			border-radius: 50%;
+		} 
+
+		/*----------------------------------------------------------------------------------------------
+		---------------------------------------------SLIDERS--------------------------------------------
+		----------------------------------------------------------------------------------------------*/
+		.range-slider_range {
+			-webkit-appearance: none;
+			width: calc(100% - (76px));
+			height: 10px;
+			border-radius: 5px;
+			background: #d7dcdf;
+			outline: none;
+			padding: 0;
+			margin-left: 10;
+		}
+
+		/* custom thumb */
+			.range-slider_range::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			appearance: none;
+			width: 20px;
+			height: 20px;
+			border-radius: 50%;
+			background: #2c3e50;
+			cursor: pointer;
+			-webkit-transition: background .15s ease-in-out;
+			transition: background .15s ease-in-out;
+		}
+
+		.range-slider_range::-webkit-slider-thumb:hover {
+			background: #1abc9c;
+		}
+
+		.range-slider_range:active::-webkit-slider-thumb {
+			background: #1abc9c;
+		}
+
+		.range-slider_range::-moz-range-thumb {
+			width: 20px;
+			height: 20px;
+			border: 0;
+			border-radius: 50%;
+			background: #2c3e50;
+			cursor: pointer;
+			-webkit-transition: background .15s ease-in-out;
+			transition: background .15s ease-in-out;
+		}
+
+		.range-slider_range::-moz-range-thumb:hover {
+			background: #1abc9c;
+		}
+
+		.range-slider_range:active::-moz-range-thumb {
+			background: #1abc9c;
+		}
+
+		/* custom label */
+		.range-slider_value {
+			display: inline-block;
+			position: relative;
+			width: 62px;
+			color: #fff;
+			line-height: 20px;
+			text-align: center;
+			border-radius: 3px;
+			background: #2c3e50;
+			padding: 4px 4px;
+			margin-left: 8px;
+			margin-bottom: 8px;
+		}
+
+		.range-slider_value:after {
+			position: absolute;
+			top: 8px;
+			left: -7px;
+			width: 0;
+			height: 0;
+			border-top: 7px solid transparent;
+			border-right: 7px solid #2c3e50;
+			border-bottom: 7px solid transparent;
+			content: '';
+		}
+
+		/* custom track */
+		::-moz-range-track {
+			background: #d7dcdf;
+			border: 0;
+		}
+
+		/* remove border */
+			input::-moz-focus-inner, input::-moz-focus-outer {
+			border: 0;
+		}
