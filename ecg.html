@@ -136,8 +136,14 @@
 		
 		// ECG pattern
 		let rawECG = [];
+		let rawNoPECG = [];
+		
 		// Full arythmic ECG array
 		let rawRandomECG = [];
+		// No P-Wave instruction dispatch array (bools)
+		let noPPeriods = [];
+
+		let noPFlag;
 
 		let chart;
 
@@ -293,6 +299,20 @@
 		};
 
 		/*----------------------------------------------------------------------------------------------
+		-------------------------------GENERATE RANDOM NO P WAVE ARRAY----------------------------------
+		----------------------------------------------------------------------------------------------*/
+		function generateRandomNoP(){
+			for(let i = 0; i < 5000; i++){
+				if(Math.random() < 0.16){
+					noPPeriods[i] = true;
+				}
+				else{
+					noPPeriods[i] = false;
+				}
+			};
+		};
+
+		/*----------------------------------------------------------------------------------------------
 		-------------------------------------GENERATE ECG FUNCTIONS-------------------------------------
 		----------------------------------------------------------------------------------------------*/
 		function drawRegularECG(){
@@ -309,6 +329,10 @@
 					x: i / pointPerPeriod * period,
 					y:rawECG[(i + activeFrameStartIndex) % pointPerPeriod].y
 				};
+				// Check if P-Wave should be removed
+				if(noPFlag == true && noPPeriods[Math.floor(activeFramePeriodCount) + Math.floor((i + activeFrameStartIndex) / pointPerPeriod)] == true){ // A fusionner avec draw ecg normal
+					data1[i].y = rawNoPECG[(i + activeFrameStartIndex) % pointPerPeriod].y;
+				};
 			};
 
 			// Generate the past frame data
@@ -323,6 +347,10 @@
 					data2[i - (activeFrameEndIndex + blanckECGInterval)] = {
 						x: i / pointPerPeriod * period,
 						y:rawECG[(i + pastFrameStartIndex) % pointPerPeriod].y
+					};
+					// Check if P-Wave should be removed
+					if(noPFlag == true && noPPeriods[Math.floor(pastFramePeriodCount) + Math.floor((i + pastFrameStartIndex) / pointPerPeriod)] == true){
+						data2[i - (activeFrameEndIndex + blanckECGInterval)].y = rawNoPECG[(i + pastFrameStartIndex) % pointPerPeriod].y;
 					};
 				};
 			};
@@ -377,7 +405,7 @@
 			sportButtons[id].classList.add("w3-green");
 			activeSportButtonID = id;
 
-			if(id == 1){
+			if(id == 2){
 				// Hack to hide the ticks
 				chart.options.scales.xAxes[0].ticks = noTicks;
 			}
@@ -413,9 +441,11 @@
 			periodPerFrame = totalTime / period;
 			blanckECGInterval = Math.trunc(pointPerPeriod / period * blanckECGIntervalTime); // 0.5s
 
-			// randomECG special init
+			// randomECG and noP special inits
 			indexCursor = 0;
 			generateRandomPeriods();
+			generateRandomNoP();
+			console.log(noPPeriods);
 
 			// empty the datas
 			data1.length = 0;
@@ -428,7 +458,10 @@
 		window.onload = function() {
 
 			// Generate the raw ECG wave
-			rawECG = ecg(pointPerPeriod);
+			rawECG = ecg(pointPerPeriod, false);
+
+			// Generate the raw ECG wave (without P wave)
+			rawNoPECG = ecg(pointPerPeriod, true);
 
 			// Create the graph and link the datas
 			chart = new Chart(canvasCtx, config);
@@ -504,9 +537,15 @@
 			}
 			time = Date.now() / 1000 - startTime;
 
+			if(activeSportButtonID == 3){
+				noPFlag = true;
+			}
+			else{
+				noPFlag = false;
+			}
 
 			// Draw the ECG
-			if(activeSportButtonID == 3){
+			if(activeSportButtonID == 1){
 				drawArythmicECG();
 			}
 			else{
