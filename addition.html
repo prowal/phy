@@ -132,7 +132,7 @@
 				</div>
 			</div>
 			<!-- Canvas card 2-->
-			<div class="w3-card-4 w3-rest w3-margin w3-white grelaga" >
+			<div class="w3-card-4 w3-rest w3-margin w3-white canvas2" style="display: none">
 				<div class="w3-container w3-margin canvas" style="height: 26vh">
 					<canvas class="canvas2"></canvas>
 				</div>
@@ -480,10 +480,10 @@
 
 		function onFftCheckBoxChange() {
 			if(fftCheckBoxElt.checked) {
-				$("div.grelaga").style.display="block";
+				$("div.canvas2").style.display="block";
 			}
 			else{
-				$("div.grelaga").style.display="none";
+				$("div.canvas2").style.display="none";
 			}
 			draw();
 		}
