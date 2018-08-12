@@ -55,7 +55,7 @@
 
 	<div class="w3-row">
 		<div class="w3-col w3-right" style="width: 280px">
-			<!-- Top-right card -->
+			<!-- First right card -->
 			<div class="w3-card-4 w3-margin">
 				<header class="w3-container w3-blue-grey">
 					<h3>Choix du sportif</h3>
@@ -68,7 +68,7 @@
 					<button class="w3-button w3-block w3-hover-green" id="sportButton5"><i class="fas fa-walking fa-lg"></i> Sprinteur</button>
 				</div>
 			</div>
-			<!-- Middle-right card -->
+			<!-- Second right card -->
 			<div class="w3-card-4 w3-margin">
 				<header class="w3-container w3-blue-grey">
 					<h3>Etat du sportif</h3>
@@ -79,8 +79,12 @@
 					<button class="w3-button w3-block w3-hover-green" id="stateButton3">Après récupération</button>
 				</div>
 			</div>
-			<!-- Bottom-right card -->
-			<div class="w3-card-4 w3-margin">
+			<!-- Fourth right card -->
+			<div class="w3-card-4 w3-margin w3-padding w3-teal" id="scale">
+				<h4 class="w3-margin">Echelle horizontale : 1 gaduation = 0,08 s</h4>
+			</div>
+			<!-- Fourth right card -->
+			<div class="w3-card-4 w3-margin w3-white">
 					<button class="w3-button w3-block w3-hover-red" id="pauseButton"><h3 style="margin:0"><i class="fas fa-pause"></i> Pause</h3></button>
 			</div>
 		</div>
@@ -215,14 +219,6 @@
 		};
 
 		let noTicks = {
-			display: false,
-			autoSkip: false,
-			min: 0,
-			max: totalTime,
-			stepSize: 0.08
-		};
-
-		let noGrid = {
 			display: false,
 			autoSkip: false,
 			min: 0,
@@ -426,6 +422,15 @@
 			}
 			else{
 				chart.options.scales.xAxes[0].gridLines.display = true;
+			}
+
+			// Hide / Show the scale
+			if(id == 2){
+				$("div#scale").style.display="block";
+				chart.options.scales.xAxes[0].ticks = noTicks;
+			}
+			else{
+				$("div#scale").style.display="none";
 			}
 
 			stateButtonClick(activeStateButtonID);
