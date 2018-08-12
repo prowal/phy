@@ -5,7 +5,7 @@
 	<!-- 
 	MIT License
 
-	phy ecg
+	La Belle Physique : Electrocardiogrammes
 
 	Copyright (c) 2018 Gaétan Walter
 
@@ -41,6 +41,8 @@
 	<script src="lib/Chart.min.js"></script>
 
 	<script src="lib/ecg.js"></script>
+
+	<script src="lib/phy.js"></script>
 
 </head>
 <body class="w3-light-grey">
@@ -105,16 +107,24 @@
       </header>
       <div class="w3-container">
 				<div class="w3-container w3-cell"><p><i class="fas fa-info-circle fa-2x"></i></p></div>
-				<div class="w3-container w3-cell"><p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tristique convallis posuere. Sed interdum fringilla dolor in tincidunt. Pellentesque nunc est, mollis sollicitudin velit ac, pulvinar aliquam mauris. Duis et augue laoreet libero accumsan pulvinar. Aenean eu vestibulum lectus. Vestibulum gravida tortor quis elit feugiat, pharetra rutrum enim molestie. Vivamus libero turpis, imperdiet id auctor vel, varius sed purus. Morbi ut accumsan tortor. Etiam maximus mi eget tincidunt vestibulum. Nunc eu enim nec neque vulputate dignissim. </p></div>
+				<div class="w3-container w3-cell"><p>Application permettant de visualiser les électrocardiogrammes de 5 sportifs différents, au repos, après l’effort (1 minute de flexions) et après une minute de récupération.</p>
+					<p>Ces électrocardiogrammes permettent de mesurer l’adaptation à l’effort de ces sportifs.</p>
+					<p>Deux des sportifs ont une maladie cardiaque visible à l’électrocardiogramme.</p>
+				</div>
 			</div>
 			<div class="w3-container">
 				<div class="w3-container w3-cell"><p><i class="fas fa-envelope fa-2x"></i></p></div>
-				<div class="w3-container w3-cell"><p> pro.wal@protonmail.com</p></div>
+				<div class="w3-container w3-cell"><p>pro.wal@protonmail.com</p></div>
 			</div>
-			<div class="w3-container">
-				<div class="w3-container w3-cell"><p><i class="fas fa-copyright fa-2x"></i></p></div>
-				<div class="w3-container w3-cell"><p> MIT Licence</p></div>
-      </div>
+			<div class="w3-light-grey w3-section">
+				<button onclick="accordion('licenceAccordion')" class="w3-button w3-block">
+					<div class="w3-container w3-cell"><p><i class="fas fa-copyright fa-2x"></i></p></div>
+					<div class="w3-container w3-cell"><p>MIT Licence</p></div>
+				</button>
+				<div id="licenceAccordion" class="w3-hide w3-container">
+					<p><script src="lib/licence.js"></script></p>
+				</div>
+			</div>
     </div>
   </div>
 

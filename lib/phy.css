@@ -1,156 +1,182 @@
-﻿		/* Remove borders when highlighted in Chrome*/
-		button:focus {outline:0;}
+﻿/*
+MIT License
 
-		/* Remove the underline on card links*/
-		a.w3-card-4{text-decoration: none;}
-		
-		/*----------------------------------------------------------------------------------------------
-		--------------------------------------------CHECKBOX--------------------------------------------
-		----------------------------------------------------------------------------------------------*/
-		/* The switch - the box around the slider */
-		.switch {
-			position: relative;
-			display: inline-block;
-			vertical-align: middle;
-			width: 60px;
-			height: 34px;
-		}
+La Belle Physique
 
-		/* Hide default HTML checkbox */
-		.switch input {display:none;}
+Copyright (c) 2018 Gaétan Walter
 
-		/* The slider */
-		.toggleSlider {
-			position: absolute;
-			cursor: pointer;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			background-color: #ccc;
-			-webkit-transition: .4s;
-			transition: .4s;
-		}
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-		.toggleSlider:before {
-			position: absolute;
-			content: "";
-			height: 26px;
-			width: 26px;
-			left: 4px;
-			bottom: 4px;
-			background-color: white;
-			-webkit-transition: .4s;
-			transition: .4s;
-		}
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-		input:checked + .toggleSlider {
-			background-color: rgb(75, 192, 85);
-		}
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 
-		input:checked + .toggleSlider:before {
-			-webkit-transform: translateX(26px);
-			-ms-transform: translateX(26px);
-			transform: translateX(26px);
-		}
+/* Remove borders when highlighted in Chrome*/
+button:focus {outline:0;}
 
-		/* Rounded sliders */
-		.toggleSlider.round {
-			border-radius: 34px;
-		}
+/* Remove the underline on card links*/
+a.w3-card-4{text-decoration: none;}
 
-		.toggleSlider.round:before {
-			border-radius: 50%;
-		} 
+/*----------------------------------------------------------------------------------------------
+--------------------------------------------CHECKBOX--------------------------------------------
+----------------------------------------------------------------------------------------------*/
+/* The switch - the box around the slider */
+.switch {
+	position: relative;
+	display: inline-block;
+	vertical-align: middle;
+	width: 60px;
+	height: 34px;
+}
 
-		/*----------------------------------------------------------------------------------------------
-		---------------------------------------------SLIDERS--------------------------------------------
-		----------------------------------------------------------------------------------------------*/
-		.range-slider_range {
-			-webkit-appearance: none;
-			width: calc(100% - (76px));
-			height: 10px;
-			border-radius: 5px;
-			background: #d7dcdf;
-			outline: none;
-			padding: 0;
-			margin-left: 10;
-		}
+/* Hide default HTML checkbox */
+.switch input {display:none;}
 
-		/* custom thumb */
-			.range-slider_range::-webkit-slider-thumb {
-			-webkit-appearance: none;
-			appearance: none;
-			width: 20px;
-			height: 20px;
-			border-radius: 50%;
-			background: #2c3e50;
-			cursor: pointer;
-			-webkit-transition: background .15s ease-in-out;
-			transition: background .15s ease-in-out;
-		}
+/* The slider */
+.toggleSlider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #ccc;
+	-webkit-transition: .4s;
+	transition: .4s;
+}
 
-		.range-slider_range::-webkit-slider-thumb:hover {
-			background: #1abc9c;
-		}
+.toggleSlider:before {
+	position: absolute;
+	content: "";
+	height: 26px;
+	width: 26px;
+	left: 4px;
+	bottom: 4px;
+	background-color: white;
+	-webkit-transition: .4s;
+	transition: .4s;
+}
 
-		.range-slider_range:active::-webkit-slider-thumb {
-			background: #1abc9c;
-		}
+input:checked + .toggleSlider {
+	background-color: rgb(75, 192, 85);
+}
 
-		.range-slider_range::-moz-range-thumb {
-			width: 20px;
-			height: 20px;
-			border: 0;
-			border-radius: 50%;
-			background: #2c3e50;
-			cursor: pointer;
-			-webkit-transition: background .15s ease-in-out;
-			transition: background .15s ease-in-out;
-		}
+input:checked + .toggleSlider:before {
+	-webkit-transform: translateX(26px);
+	-ms-transform: translateX(26px);
+	transform: translateX(26px);
+}
 
-		.range-slider_range::-moz-range-thumb:hover {
-			background: #1abc9c;
-		}
+/* Rounded sliders */
+.toggleSlider.round {
+	border-radius: 34px;
+}
 
-		.range-slider_range:active::-moz-range-thumb {
-			background: #1abc9c;
-		}
+.toggleSlider.round:before {
+	border-radius: 50%;
+} 
 
-		/* custom label */
-		.range-slider_value {
-			display: inline-block;
-			position: relative;
-			width: 62px;
-			color: #fff;
-			line-height: 20px;
-			text-align: center;
-			border-radius: 3px;
-			background: #2c3e50;
-			padding: 4px 4px;
-			margin-left: 8px;
-			margin-bottom: 8px;
-		}
+/*----------------------------------------------------------------------------------------------
+---------------------------------------------SLIDERS--------------------------------------------
+----------------------------------------------------------------------------------------------*/
+.range-slider_range {
+	-webkit-appearance: none;
+	width: calc(100% - (76px));
+	height: 10px;
+	border-radius: 5px;
+	background: #d7dcdf;
+	outline: none;
+	padding: 0;
+	margin-left: 10;
+}
 
-		.range-slider_value:after {
-			position: absolute;
-			top: 8px;
-			left: -7px;
-			width: 0;
-			height: 0;
-			border-top: 7px solid transparent;
-			border-right: 7px solid #2c3e50;
-			border-bottom: 7px solid transparent;
-			content: '';
-		}
+/* custom thumb */
+	.range-slider_range::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: #2c3e50;
+	cursor: pointer;
+	-webkit-transition: background .15s ease-in-out;
+	transition: background .15s ease-in-out;
+}
 
-		/* custom track */
-		::-moz-range-track {
-			background: #d7dcdf;
-			border: 0;
-		}
+.range-slider_range::-webkit-slider-thumb:hover {
+	background: #1abc9c;
+}
 
-		/* remove border */
-			input::-moz-focus-inner, input::-moz-focus-outer {
-			border: 0;
-		}
+.range-slider_range:active::-webkit-slider-thumb {
+	background: #1abc9c;
+}
+
+.range-slider_range::-moz-range-thumb {
+	width: 20px;
+	height: 20px;
+	border: 0;
+	border-radius: 50%;
+	background: #2c3e50;
+	cursor: pointer;
+	-webkit-transition: background .15s ease-in-out;
+	transition: background .15s ease-in-out;
+}
+
+.range-slider_range::-moz-range-thumb:hover {
+	background: #1abc9c;
+}
+
+.range-slider_range:active::-moz-range-thumb {
+	background: #1abc9c;
+}
+
+/* custom label */
+.range-slider_value {
+	display: inline-block;
+	position: relative;
+	width: 62px;
+	color: #fff;
+	line-height: 20px;
+	text-align: center;
+	border-radius: 3px;
+	background: #2c3e50;
+	padding: 4px 4px;
+	margin-left: 8px;
+	margin-bottom: 8px;
+}
+
+.range-slider_value:after {
+	position: absolute;
+	top: 8px;
+	left: -7px;
+	width: 0;
+	height: 0;
+	border-top: 7px solid transparent;
+	border-right: 7px solid #2c3e50;
+	border-bottom: 7px solid transparent;
+	content: '';
+}
+
+/* custom track */
+::-moz-range-track {
+	background: #d7dcdf;
+	border: 0;
+}
+
+/* remove border */
+	input::-moz-focus-inner, input::-moz-focus-outer {
+	border: 0;
+}
