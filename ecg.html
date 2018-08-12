@@ -168,12 +168,11 @@
 		// Set the periods
 		let period;
 		let periods = [];
-		periods[0] = [0.9,0.4,0.7];
-		periods[1] = [0.8,0.4,0.7];
-		periods[2] = [0.8,0.4,0.7];
-		periods[3] = [0.8,0.4,0.7];
-		periods[4] = [0.8,0.4,0.7];
-		periods[5] = [0.8,0.4,0.7];
+		periods[0] = [0.85714,0.5,0.75]; // R = 70 120 80 Ir = 7
+		periods[1] = [0.8,0.5,0.7];
+		periods[2] = [1,0.54545,0.85714]; // R = 60 110 70 Ir = 4
+		periods[3] = [0.8,0.5,0.7];
+		periods[4] = [0.66667,0.428571,0.6]; // R = 90 140 100 Ir = 13
 
 		// Get buttons contexts
 		let sportButtons = [];
@@ -220,7 +219,7 @@
 			autoSkip: false,
 			min: 0,
 			max: totalTime,
-			stepSize: 0.06
+			stepSize: 0.08
 		};
 
 		let config = {
