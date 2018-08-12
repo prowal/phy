@@ -222,6 +222,14 @@
 			stepSize: 0.08
 		};
 
+		let noGrid = {
+			display: false,
+			autoSkip: false,
+			min: 0,
+			max: totalTime,
+			stepSize: 0.08
+		};
+
 		let config = {
 			type: "line",
 			data: {
@@ -404,12 +412,20 @@
 			sportButtons[id].classList.add("w3-green");
 			activeSportButtonID = id;
 
-			if(id == 2){
+			if(id == 2 || id == 4){
 				// Hack to hide the ticks
 				chart.options.scales.xAxes[0].ticks = noTicks;
 			}
 			else{
 				chart.options.scales.xAxes[0].ticks = withTicks;
+			}
+
+			// Hide the vertical gridLines
+			if(id == 4){
+				chart.options.scales.xAxes[0].gridLines.display = false;
+			}
+			else{
+				chart.options.scales.xAxes[0].gridLines.display = true;
 			}
 
 			stateButtonClick(activeStateButtonID);
@@ -444,7 +460,6 @@
 			indexCursor = 0;
 			generateRandomPeriods();
 			generateRandomNoP();
-			console.log(noPPeriods);
 
 			// empty the datas
 			data1.length = 0;
