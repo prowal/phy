@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<!-- 
+	MIT License
+
+	La Belle Physique : RMN
+
+	Copyright (c) 2018 Gaétan Walter
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+	-->
+
+	<title>RMN</title>
+
+	<!--<link rel="icon" href="img/ecg.ico" /> -->
+
+	<link rel="stylesheet" href="lib/w3.css"> 
+
+	<link rel="stylesheet" href="lib/fontawesome/css/all.min.css">
+
+	<link rel="stylesheet" href="lib/phy.css">
+
+	<script src="lib/Chart.min.js"></script>
+
+	<script src="lib/rmn.js"></script>
+
+	<script src="lib/phy.js"></script>
+
+</head>
+<body class="w3-light-grey">
+	<!-- Header bar -->
+	<div class="header w3-blue-grey">
+		<div class="w3-bar w3-card-4 w3-center">
+			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>RMN</b></span>
+			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle fa-lg"></i></b></button>
+			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><b><i class="fas fa-home fa-lg"></i></b></a>
+		</div> 
+	</div>
+
+	<div class="w3-row">
+		<div class="w3-col w3-right" style="width: 280px">
+			<!-- First right card -->
+			<div class="w3-card-4 w3-margin">
+				<header class="w3-container w3-blue-grey">
+					<h3>Choix du sportif</h3>
+				</header>
+				<div class="w3-container" style="padding: 0px">
+					<button class="w3-button w3-block w3-hover-green" id="sportButton1"><i class="fas fa-basketball-ball fa-lg"></i> Basketeur</button>
+					<button class="w3-button w3-block w3-hover-green" id="sportButton2"><i class="fas fa-futbol fa-lg"></i> Footballer</button>
+					<button class="w3-button w3-block w3-hover-green" id="sportButton3"><i class="fas fa-bicycle fa-lg"></i> Cycliste</button>
+					<button class="w3-button w3-block w3-hover-green" id="sportButton4"><i class="fas fa-swimmer fa-lg"></i> Nageur</button>
+					<button class="w3-button w3-block w3-hover-green" id="sportButton5"><i class="fas fa-walking fa-lg"></i> Sprinteur</button>
+				</div>
+			</div>
+			<!-- Second right card -->
+			<div class="w3-card-4 w3-margin">
+				<header class="w3-container w3-blue-grey">
+					<h3>Etat du sportif</h3>
+				</header>
+				<div class="w3-container" style="padding: 0px">
+					<button class="w3-button w3-block w3-hover-green" id="stateButton1">Au repos</button>
+					<button class="w3-button w3-block w3-hover-green" id="stateButton2">Après l'effort</button>
+					<button class="w3-button w3-block w3-hover-green" id="stateButton3">Après récupération</button>
+				</div>
+			</div>
+			<!-- Fourth right card -->
+			<div class="w3-card-4 w3-margin w3-padding w3-teal" id="scale">
+				<h4 class="w3-margin">Echelle horizontale : 1 gaduation = 0,08 s</h4>
+			</div>
+			<!-- Fourth right card -->
+			<div class="w3-card-4 w3-margin w3-white">
+					<button class="w3-button w3-block w3-hover-red" id="pauseButton"><h3 style="margin:0"><i class="fas fa-pause"></i> Pause</h3></button>
+			</div>
+		</div>
+		<!-- Canvas card -->
+		<div class="w3-card-4 w3-rest w3-margin w3-white">
+			<div class="w3-container w3-margin" style="height: 80vh">
+				<canvas class="canvas"></canvas>
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal card -->
+	<div id="modal" class="w3-modal">
+    <div class="w3-modal-content w3-animate-top w3-card-4">
+      <header class="w3-container w3-teal"> 
+        <span onclick="document.getElementById('modal').style.display='none'" class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
+        <h2>À propos</h2>
+      </header>
+      <div class="w3-container">
+				<div class="w3-container w3-cell"><p><i class="fas fa-info-circle fa-2x"></i></p></div>
+				<div class="w3-container w3-cell"><p>Application permettant de visualiser les électrocardiogrammes de 5 sportifs différents, au repos, après l’effort (1 minute de flexions) et après une minute de récupération.</p>
+					<p>Ces électrocardiogrammes permettent de mesurer l’adaptation à l’effort de ces sportifs.</p>
+					<p>Deux des sportifs ont une maladie cardiaque visible à l’électrocardiogramme.</p>
+				</div>
+			</div>
+			<div class="w3-container">
+				<div class="w3-container w3-cell"><p><i class="fas fa-envelope fa-2x"></i></p></div>
+				<div class="w3-container w3-cell"><p>pro.wal@protonmail.com</p></div>
+			</div>
+			<div class="w3-light-grey w3-section">
+				<button onclick="accordion('licenceAccordion')" class="w3-button w3-block">
+					<div class="w3-container w3-cell"><p><i class="fas fa-copyright fa-2x"></i></p></div>
+					<div class="w3-container w3-cell"><p>MIT Licence</p></div>
+				</button>
+				<div id="licenceAccordion" class="w3-hide w3-container">
+					<p><script src="lib/licence.js"></script></p>
+				</div>
+			</div>
+    </div>
+  </div>
+
+	<script>
+		const $ = document.querySelector.bind(document);
+
+		// Define the colors used in the app CHANGE TO USE W3.CSS COLORSSSSSSSSSSSSSSSSSSSS
+		chartColors = {
+			// Copy from w3-blue
+			blue: "rgb(33, 150, 243)",
+			bluegrey: "rgb(96, 125, 139)"
+		};
+
+		// Declare vars
+		const totalPPM = 14;
+
+		let data = [];
+		let peaks = [];
+
+		let chart;
+
+		// Get canvas context
+		const canvasCtx = $("canvas.canvas").getContext("2d");
+
+
+		// Get buttons contexts
+
+		const infoButton = $("#infoButton");
+		infoButton.addEventListener("click", onInfoButtonClick);
+
+		/*----------------------------------------------------------------------------------------------
+		-----------------------------------------GRAPH SETTINGS-----------------------------------------
+		----------------------------------------------------------------------------------------------*/
+
+		let config = {
+			type: "line",
+			data: {
+				datasets: [{
+					label: "Spectre RMN",
+					borderColor: chartColors.blue,
+					// Hides the points...
+					radius: 0,
+					fill: false
+				}]
+			},
+			options: {
+				lineTension: 0,
+				responsive: true,
+				animation: false,
+				maintainAspectRatio: false,
+				legend: {
+						display: false
+					},
+				title: {
+					display: false,
+				},
+				scales: {
+					xAxes: [{
+						display: true,
+						type: "linear",
+						position: "bottom",
+						scaleLabel: {
+							display: true,
+							labelString: "Déplacement chimique (ppm)"
+						},
+						ticks: {
+							min: 0,
+							max: totalPPM,
+							//autoSkip: true,
+							//maxTicksLimit: 10,
+							stepSize: 1
+						}
+					}],
+					yAxes: [{
+						display: true,
+						scaleLabel: {
+							display: false,
+							padding: 0,
+						},
+						ticks: {
+							suggestedMin: -1,
+							suggestedMax: 6,
+						}
+					}]
+				}
+			}
+		};
+
+
+		/*----------------------------------------------------------------------------------------------
+		---------------------------------------------EVENTS---------------------------------------------
+		----------------------------------------------------------------------------------------------*/
+		window.onload = function() {
+			peaks = [
+				{ppm: 1, mul: 2},
+				{ppm: 5, mul: 1},
+				{ppm: 7, mul: 3},
+				{ppm: 11, mul: 4},
+			]
+
+			// Generate the RMN spectrum
+			data = nmr(totalPPM, peaks);
+
+			// Create the graph and link the datas
+			chart = new Chart(canvasCtx, config);
+			chart.data.datasets[0].data = data;
+
+			// Initial graph draw
+			draw();
+		};
+
+		function onInfoButtonClick() {
+			$("#modal").style.display="block";
+		}
+
+		/*----------------------------------------------------------------------------------------------
+		------------------------------------------DRAW FUNCTION-----------------------------------------
+		----------------------------------------------------------------------------------------------*/
+		function draw() {
+			// Make sure we get called 60 times a second
+			requestAnimationFrame(draw);
+
+			chart.update();
+		}
+	</script>
+</body>
+</html> 
