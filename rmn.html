@@ -56,7 +56,7 @@
 	</div>
 
 	<div class="w3-row">
-		<div class="w3-col w3-right" style="width: 280px">
+		<div class="w3-col w3-right" style="width: 350px">
 			<!-- First right card -->
 			<div class="w3-card-4 w3-margin">
 				<header class="w3-container w3-blue-grey">
@@ -206,6 +206,7 @@
 							padding: 0,
 						},
 						ticks: {
+							display: false,
 							suggestedMin: -1,
 							suggestedMax: 6,
 						}
@@ -221,9 +222,10 @@
 		window.onload = function() {
 			peaks = [
 				{ppm: 1, mul: 2},
-				{ppm: 5, mul: 1},
-				{ppm: 7, mul: 3},
-				{ppm: 11, mul: 4},
+				{ppm: 5, mul: 3},
+				{ppm: 7, mul: 4},
+				{ppm: 11, mul: 2},
+				{ppm: 12, mul: 1}
 			]
 
 			// Generate the RMN spectrum
@@ -244,12 +246,12 @@
 		/*----------------------------------------------------------------------------------------------
 		------------------------------------------DRAW FUNCTION-----------------------------------------
 		----------------------------------------------------------------------------------------------*/
-		function draw() {
+		/*function draw() {
 			// Make sure we get called 60 times a second
 			requestAnimationFrame(draw);
 
 			chart.update();
-		}
+		}*/
 	</script>
 </body>
 </html> 
