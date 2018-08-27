@@ -30,6 +30,13 @@ button:focus {outline:0;}
 /* Remove the underline on card links*/
 a.w3-card-4{text-decoration: none;}
 
+/* Remove the arrows in number inputs*/
+.no-spin::-webkit-inner-spin-button, .no-spin::-webkit-outer-spin-button {
+	-webkit-appearance: none !important;
+	margin: 0 !important;
+	-moz-appearance:textfield !important;
+}
+
 /*----------------------------------------------------------------------------------------------
 --------------------------------------------CHECKBOX--------------------------------------------
 ----------------------------------------------------------------------------------------------*/

@@ -28,7 +28,7 @@
 	SOFTWARE.
 	-->
 
-	<title>RMN</title>
+	<title>Générateur RMN</title>
 
 	<!--<link rel="icon" href="img/ecg.ico" /> -->
 
@@ -44,36 +44,51 @@
 
 	<script src="lib/phy.js"></script>
 
+	<style>
+		/* Give inputs width*/
+		input.no-spin[type=number]{
+			width: 52px;
+		} 
+	</style>
+
 </head>
 <body class="w3-light-grey">
 	<!-- Header bar -->
 	<div class="header w3-blue-grey">
 		<div class="w3-bar w3-card-4 w3-center">
-			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>RMN</b></span>
+			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>Générateur simpliste de spectre RMN</b></span>
 			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle fa-lg"></i></b></button>
 			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><b><i class="fas fa-home fa-lg"></i></b></a>
 		</div> 
 	</div>
 
 	<div class="w3-row">
-		<div class="w3-col w3-right" style="width: 350px">
+		<div class="w3-col w3-right" style="width: 320px">
 			<!-- First right card -->
 			<div class="w3-card-4 w3-margin">
 				<header class="w3-container w3-blue-grey">
-					<h3>Choix du sportif</h3>
+					<h3>Ajouter des pics</h3>
 				</header>
-				<div class="w3-container" style="padding: 0px">
-					<button class="w3-button w3-block w3-hover-green" id="sportButton1"><i class="fas fa-basketball-ball fa-lg"></i> Basketeur</button>
-					<button class="w3-button w3-block w3-hover-green" id="sportButton2"><i class="fas fa-futbol fa-lg"></i> Footballer</button>
-					<button class="w3-button w3-block w3-hover-green" id="sportButton3"><i class="fas fa-bicycle fa-lg"></i> Cycliste</button>
-					<button class="w3-button w3-block w3-hover-green" id="sportButton4"><i class="fas fa-swimmer fa-lg"></i> Nageur</button>
-					<button class="w3-button w3-block w3-hover-green" id="sportButton5"><i class="fas fa-walking fa-lg"></i> Sprinteur</button>
+				<div class="w3-container w3-white" style="padding: 0px">
+					<div class="w3-bar" id="peak1">
+						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput1" min="1" max="5"> mul : <input type="number" id="mulInput1" min="1" max="5" value="1"></span>
+						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton1"><b><i class="fas fas fa-minus-circle"></i></b></button>
+					</div> 
+					<div class="w3-bar" id="peak2">
+						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput2" min="1" max="5"> mul : <input type="number" id="mulInput2" min="1" max="5" value="1"></span>
+						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton2"><b><i class="fas fas fa-minus-circle"></i></b></button>
+					</div> 
+					<div class="w3-bar" id="peak3">
+						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput3" min="1" max="5"> mul : <input type="number" id="mulInput3" min="1" max="5" value="1"></span>
+						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton3"><b><i class="fas fas fa-minus-circle"></i></b></button>
+					</div> 
+					<button class="w3-button w3-block w3-hover-green" id="addPeakButton"><i class="fas fa-plus-circle fa-lg"></i></button>
 				</div>
 			</div>
 			<!-- Second right card -->
 			<div class="w3-card-4 w3-margin">
 				<header class="w3-container w3-blue-grey">
-					<h3>Etat du sportif</h3>
+					<h3>Paramètres</h3>
 				</header>
 				<div class="w3-container" style="padding: 0px">
 					<button class="w3-button w3-block w3-hover-green" id="stateButton1">Au repos</button>
@@ -151,14 +166,22 @@
 
 
 		// Get buttons contexts
-
 		const infoButton = $("#infoButton");
 		infoButton.addEventListener("click", onInfoButtonClick);
+
+		const removePeakButton1 = $("#removePeakButton1");
+		removePeakButton1.addEventListener("click", onRemovePeakButton1);
+		const removePeakButton2 = $("#removePeakButton2");
+		removePeakButton2.addEventListener("click", onRemovePeakButton2);
+		const removePeakButton3 = $("#removePeakButton3");
+		removePeakButton3.addEventListener("click", onRemovePeakButton3);
+
+		const addPeakButton = $("#addPeakButton");
+		addPeakButton.addEventListener("click", onAddPeakButton);
 
 		/*----------------------------------------------------------------------------------------------
 		-----------------------------------------GRAPH SETTINGS-----------------------------------------
 		----------------------------------------------------------------------------------------------*/
-
 		let config = {
 			type: "line",
 			data: {
@@ -215,7 +238,6 @@
 			}
 		};
 
-
 		/*----------------------------------------------------------------------------------------------
 		---------------------------------------------EVENTS---------------------------------------------
 		----------------------------------------------------------------------------------------------*/
@@ -236,11 +258,39 @@
 			chart.data.datasets[0].data = data;
 
 			// Initial graph draw
-			draw();
+			chart.update();
 		};
 
 		function onInfoButtonClick() {
-			$("#modal").style.display="block";
+			$("#modal").style.display = "block";
+		}
+
+		function onAddPeakButton() {
+			let done = false;
+			for(let i = 1; i < 4; i++){
+				if($("#peak"+i).style.display == "none" && done == false){
+					// Display the peak container
+					$("#peak"+i).style.display = "block";
+
+					// Reset inputs
+					$("#ppmInput"+i).value = "0";
+					$("#mulInput"+i).value = "1";
+
+					done = true;
+				}
+			}
+		}
+
+		function onRemovePeakButton1() {
+
+		}
+
+		function onRemovePeakButton2() {
+
+		}
+
+		function onRemovePeakButton3() {
+
 		}
 
 		/*----------------------------------------------------------------------------------------------
