@@ -179,7 +179,8 @@ const maxPeakCount = 9;
 
 let pointPerPPM = 200;
 
-let data = [];
+let data1 = [];
+let data2 = [];
 let peaks = [];
 
 let chart;
@@ -271,7 +272,13 @@ let config = {
 			// Hides the points...
 			radius: 0,
 			fill: false
-		}]
+		},{
+			label: "Courbe d'integration",
+			borderColor: chartColors.deepOrange,
+			radius: 0,
+			fill: false
+		}
+		]
 	},
 	options: {
 		lineTension: 0,
@@ -323,10 +330,12 @@ let config = {
 ----------------------------------------------------------------------------------------------*/
 function draw() {
 	// Generate the RMN spectrum
-	data = nmr(totalPPM, pointPerPPM,peaks);
+	data1 = nmr(totalPPM, pointPerPPM,peaks);
+	data2 = generateSigmoid(14, 100, 3, 3)
 
 	//Update the graph
-	chart.data.datasets[0].data = data;
+	chart.data.datasets[0].data = data1;
+	chart.data.datasets[1].data = data2;
 	chart.update();
 }
 
@@ -368,11 +377,12 @@ function populatePeakControls(){
 window.onload = function() {
 
 	// Generate the RMN spectrum
-	data = nmr(totalPPM, pointPerPPM, peaks); // TODO just draw?
+	data1 = nmr(totalPPM, pointPerPPM, peaks); // TODO just draw?
 
 	// Create the graph and link the datas
 	chart = new Chart(canvasCtx, config);
-	chart.data.datasets[0].data = data;
+	chart.data.datasets[0].data = data1;
+	chart.data.datasets[1].data = data2;
 
 	// Initial graph draw
 	chart.update();
