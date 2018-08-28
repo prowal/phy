@@ -56,7 +56,7 @@
 	<!-- Header bar -->
 	<div class="header w3-blue-grey">
 		<div class="w3-bar w3-card-4 w3-center">
-			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>Générateur simpliste de spectre RMN</b></span>
+			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>Générateur simpliste de spectres RMN</b></span>
 			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle fa-lg"></i></b></button>
 			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><b><i class="fas fa-home fa-lg"></i></b></a>
 		</div> 
@@ -71,16 +71,40 @@
 				</header>
 				<div class="w3-container w3-white" style="padding: 0px">
 					<div class="w3-bar" id="peak1" style="display : none">
-						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput1" min="1" max="5"> mul : <input type="number" id="mulInput1" min="1" max="5" value="1"></span>
+						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput1"> mul : <input type="number" id="mulInput1" min="1" max="4" value="1"></span>
 						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton1"><b><i class="fas fas fa-minus-circle"></i></b></button>
 					</div> 
 					<div class="w3-bar" id="peak2" style="display : none">
-						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput2" min="1" max="5"> mul : <input type="number" id="mulInput2" min="1" max="5" value="1"></span>
+						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput2"> mul : <input type="number" id="mulInput2" min="1" max="4" value="1"></span>
 						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton2"><b><i class="fas fas fa-minus-circle"></i></b></button>
 					</div> 
 					<div class="w3-bar" id="peak3" style="display : none">
-						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput3" min="1" max="5"> mul : <input type="number" id="mulInput3" min="1" max="5" value="1"></span>
+						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput3"> mul : <input type="number" id="mulInput3" min="1" max="4" value="1"></span>
 						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton3"><b><i class="fas fas fa-minus-circle"></i></b></button>
+					</div>
+					<div class="w3-bar" id="peak4" style="display : none">
+						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput4"> mul : <input type="number" id="mulInput4" min="1" max="4" value="1"></span>
+						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton4"><b><i class="fas fas fa-minus-circle"></i></b></button>
+					</div> 
+					<div class="w3-bar" id="peak5" style="display : none">
+						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput5"> mul : <input type="number" id="mulInput5" min="1" max="4" value="1"></span>
+						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton5"><b><i class="fas fas fa-minus-circle"></i></b></button>
+					</div> 
+					<div class="w3-bar" id="peak6" style="display : none">
+						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput6"> mul : <input type="number" id="mulInput6" min="1" max="4" value="1"></span>
+						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton6"><b><i class="fas fas fa-minus-circle"></i></b></button>
+					</div>
+					<div class="w3-bar" id="peak7" style="display : none">
+						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput7"> mul : <input type="number" id="mulInput7" min="1" max="4" value="1"></span>
+						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton7"><b><i class="fas fas fa-minus-circle"></i></b></button>
+					</div> 
+					<div class="w3-bar" id="peak8" style="display : none">
+						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput8"> mul : <input type="number" id="mulInput8" min="1" max="4" value="1"></span>
+						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton8"><b><i class="fas fas fa-minus-circle"></i></b></button>
+					</div> 
+					<div class="w3-bar" id="peak9" style="display : none">
+						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput9"> mul : <input type="number" id="mulInput9" min="1" max="4" value="1"></span>
+						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton9"><b><i class="fas fas fa-minus-circle"></i></b></button>
 					</div> 
 					<button class="w3-button w3-block w3-hover-green" id="addPeakButton"><i class="fas fa-plus-circle fa-lg"></i></button>
 				</div>
@@ -95,14 +119,6 @@
 					<button class="w3-button w3-block w3-hover-green" id="stateButton2">Après l'effort</button>
 					<button class="w3-button w3-block w3-hover-green" id="stateButton3">Après récupération</button>
 				</div>
-			</div>
-			<!-- Fourth right card -->
-			<div class="w3-card-4 w3-margin w3-padding w3-teal" id="scale">
-				<h4 class="w3-margin">Echelle horizontale : 1 gaduation = 0,08 s</h4>
-			</div>
-			<!-- Fourth right card -->
-			<div class="w3-card-4 w3-margin w3-white">
-					<button class="w3-button w3-block w3-hover-red" id="pauseButton"><h3 style="margin:0"><i class="fas fa-pause"></i> Pause</h3></button>
 			</div>
 		</div>
 		<!-- Canvas card -->
@@ -143,177 +159,256 @@
     </div>
   </div>
 
-	<script>
-		const $ = document.querySelector.bind(document);
+<script>
+const $ = document.querySelector.bind(document);
 
-		// Define the colors used in the app CHANGE TO USE W3.CSS COLORSSSSSSSSSSSSSSSSSSSS
-		chartColors = {
-			// Copy from w3-blue
-			blue: "rgb(33, 150, 243)",
-			bluegrey: "rgb(96, 125, 139)"
-		};
+// Define the colors used in the app CHANGE TO USE W3.CSS COLORSSSSSSSSSSSSSSSSSSSS
+chartColors = {
+	// Copy from w3-blue
+	blue: "rgb(33, 150, 243)",
+	bluegrey: "rgb(96, 125, 139)"
+};
 
-		// Declare vars
-		const totalPPM = 14;
+// Declare vars
+const totalPPM = 14;
+const maxMultiplicity = 4;
 
-		let data = [];
-		let peaks = [];
+const maxPeakCount = 9;
 
-		let chart;
+let data = [];
+let peaks = [];
 
-		// Get canvas context
-		const canvasCtx = $("canvas.canvas").getContext("2d");
+let chart;
+
+// Get canvas context
+const canvasCtx = $("canvas.canvas").getContext("2d");
 
 
-		// Get buttons contexts
-		const infoButton = $("#infoButton");
-		infoButton.addEventListener("click", onInfoButtonClick);
+// Get buttons contexts
+const infoButton = $("#infoButton");
+infoButton.addEventListener("click", onInfoButtonClick);
 
-		const removePeakButton1 = $("#removePeakButton1");
-		removePeakButton1.addEventListener("click", onRemovePeakButton1);
-		const removePeakButton2 = $("#removePeakButton2");
-		removePeakButton2.addEventListener("click", onRemovePeakButton2);
-		const removePeakButton3 = $("#removePeakButton3");
-		removePeakButton3.addEventListener("click", onRemovePeakButton3);
+const ppmInput1 = $("#ppmInput1");
+ppmInput1.addEventListener("input", function(){onPpmInput(1, ppmInput1.value);});
+const ppmInput2 = $("#ppmInput2");
+ppmInput2.addEventListener("input", function(){onPpmInput(2, ppmInput2.value);});
+const ppmInput3 = $("#ppmInput3");
+ppmInput3.addEventListener("input", function(){onPpmInput(3, ppmInput3.value);});
+const ppmInput4 = $("#ppmInput4");
+ppmInput4.addEventListener("input", function(){onPpmInput(4, ppmInput4.value);});
+const ppmInput5 = $("#ppmInput5");
+ppmInput5.addEventListener("input", function(){onPpmInput(5, ppmInput5.value);});
+const ppmInput6 = $("#ppmInput6");
+ppmInput6.addEventListener("input", function(){onPpmInput(6, ppmInput6.value);});
+const ppmInput7 = $("#ppmInput7");
+ppmInput7.addEventListener("input", function(){onPpmInput(7, ppmInput7.value);});
+const ppmInput8 = $("#ppmInput8");
+ppmInput8.addEventListener("input", function(){onPpmInput(8, ppmInput8.value);});
+const ppmInput9 = $("#ppmInput9");
+ppmInput9.addEventListener("input", function(){onPpmInput(9, ppmInput9.value);});
 
-		const addPeakButton = $("#addPeakButton");
-		addPeakButton.addEventListener("click", onAddPeakButton);
+const mulInput1 = $("#mulInput1");
+mulInput1.addEventListener("input", function(){onMulInput(1, mulInput1.value);});
+const mulInput2 = $("#mulInput2");
+mulInput2.addEventListener("input", function(){onMulInput(2, mulInput2.value);});
+const mulInput3 = $("#mulInput3");
+mulInput3.addEventListener("input", function(){onMulInput(3, mulInput3.value);});
+const mulInput4 = $("#mulInput4");
+mulInput4.addEventListener("input", function(){onMulInput(4, mulInput4.value);});
+const mulInput5 = $("#mulInput5");
+mulInput5.addEventListener("input", function(){onMulInput(5, mulInput5.value);});
+const mulInput6 = $("#mulInput6");
+mulInput6.addEventListener("input", function(){onMulInput(6, mulInput6.value);});
+const mulInput7 = $("#mulInput7");
+mulInput7.addEventListener("input", function(){onMulInput(7, mulInput7.value);});
+const mulInput8 = $("#mulInput8");
+mulInput8.addEventListener("input", function(){onMulInput(8, mulInput8.value);});
+const mulInput9 = $("#mulInput9");
+mulInput9.addEventListener("input", function(){onMulInput(9, mulInput9.value);});
 
-		/*----------------------------------------------------------------------------------------------
-		-----------------------------------------GRAPH SETTINGS-----------------------------------------
-		----------------------------------------------------------------------------------------------*/
-		let config = {
-			type: "line",
-			data: {
-				datasets: [{
-					label: "Spectre RMN",
-					borderColor: chartColors.blue,
-					// Hides the points...
-					radius: 0,
-					fill: false
-				}]
+
+const removePeakButton1 = $("#removePeakButton1");
+removePeakButton1.addEventListener("click", function(){onRemovePeakButton(1);});
+const removePeakButton2 = $("#removePeakButton2");
+removePeakButton2.addEventListener("click", function(){onRemovePeakButton(2);});
+const removePeakButton3 = $("#removePeakButton3");
+removePeakButton3.addEventListener("click", function(){onRemovePeakButton(3);});
+const removePeakButton4 = $("#removePeakButton4");
+removePeakButton4.addEventListener("click", function(){onRemovePeakButton(4);});
+const removePeakButton5 = $("#removePeakButton5");
+removePeakButton5.addEventListener("click", function(){onRemovePeakButton(5);});
+const removePeakButton6 = $("#removePeakButton6");
+removePeakButton6.addEventListener("click", function(){onRemovePeakButton(6);});
+const removePeakButton7 = $("#removePeakButton7");
+removePeakButton7.addEventListener("click", function(){onRemovePeakButton(7);});
+const removePeakButton8 = $("#removePeakButton8");
+removePeakButton8.addEventListener("click", function(){onRemovePeakButton(8);});
+const removePeakButton9 = $("#removePeakButton9");
+removePeakButton9.addEventListener("click", function(){onRemovePeakButton(9);});
+
+const addPeakButton = $("#addPeakButton");
+addPeakButton.addEventListener("click", onAddPeakButton);
+
+/*----------------------------------------------------------------------------------------------
+-----------------------------------------GRAPH SETTINGS-----------------------------------------
+----------------------------------------------------------------------------------------------*/
+let config = {
+	type: "line",
+	data: {
+		datasets: [{
+			label: "Spectre RMN",
+			borderColor: chartColors.blue,
+			// Hides the points...
+			radius: 0,
+			fill: false
+		}]
+	},
+	options: {
+		lineTension: 0,
+		responsive: true,
+		animation: false,
+		maintainAspectRatio: false,
+		legend: {
+				display: false
 			},
-			options: {
-				lineTension: 0,
-				responsive: true,
-				animation: false,
-				maintainAspectRatio: false,
-				legend: {
-						display: false
-					},
-				title: {
-					display: false,
+		title: {
+			display: false,
+		},
+		scales: {
+			xAxes: [{
+				display: true,
+				type: "linear",
+				position: "bottom",
+				scaleLabel: {
+					display: true,
+					labelString: "Déplacement chimique (ppm)"
 				},
-				scales: {
-					xAxes: [{
-						display: true,
-						type: "linear",
-						position: "bottom",
-						scaleLabel: {
-							display: true,
-							labelString: "Déplacement chimique (ppm)"
-						},
-						ticks: {
-							min: 0,
-							max: totalPPM,
-							reverse: true,
-							//autoSkip: true,
-							//maxTicksLimit: 10,
-							stepSize: 1
-						}
-					}],
-					yAxes: [{
-						display: true,
-						scaleLabel: {
-							display: false,
-							padding: 0,
-						},
-						ticks: {
-							display: false,
-							suggestedMin: -1,
-							suggestedMax: 6,
-						}
-					}]
+				ticks: {
+					min: 0,
+					max: totalPPM,
+					reverse: true,
+					//autoSkip: true,
+					//maxTicksLimit: 10,
+					stepSize: 1
 				}
-			}
-		};
-
-		/*----------------------------------------------------------------------------------------------
-		------------------------------------------REMOVE PEAK-------------------------------------------
-		----------------------------------------------------------------------------------------------*/
-		function removePeak(_peak) {
-			peaks.splice(_peak - 1,1);
-			$("#peak"+_peak).style.display = "none";
-			for(let i = 1; i < peaks.length + 1; i++){
-				$("#ppmInput"+i).value = peaks[i-1].ppm;
-				$("#mulInput"+i).value = peaks[i-1].mul;
-			}
-		}
-
-		/*----------------------------------------------------------------------------------------------
-		---------------------------------------------EVENTS---------------------------------------------
-		----------------------------------------------------------------------------------------------*/
-		window.onload = function() {
-			peaks = [
-
-			];
-
-			// Generate the RMN spectrum
-			data = nmr(totalPPM, peaks);
-
-			// Create the graph and link the datas
-			chart = new Chart(canvasCtx, config);
-			chart.data.datasets[0].data = data;
-
-			// Initial graph draw
-			chart.update();
-		};
-
-		function onInfoButtonClick() {
-			$("#modal").style.display = "block";
-		}
-
-		function onAddPeakButton() {
-			/*let done = false;
-			for(let i = 1; i < 4; i++){
-				if($("#peak"+i).style.display == "none" && done == false){
-					// Display the peak container
-					$("#peak"+i).style.display = "block";
-
-					// Reset inputs
-					$("#ppmInput"+i).value = "0";
-					$("#mulInput"+i).value = "1";
-
-					done = true;
+			}],
+			yAxes: [{
+				display: true,
+				scaleLabel: {
+					display: false,
+					padding: 0,
+				},
+				ticks: {
+					display: false,
+					suggestedMin: -1,
+					suggestedMax: 6,
 				}
-			}*/
-			peaks.push({ppm: 0, mul: 1});
-			$("#ppmInput"+peaks.length).value = peaks[peaks.length - 1].ppm;
-			$("#mulInput"+peaks.length).value = peaks[peaks.length - 1].mul;
-			$("#peak"+peaks.length).style.display = "block";
+			}]
 		}
+	}
+};
 
-		function onRemovePeakButton1() {
-			removePeak(1);
-		}
+/*----------------------------------------------------------------------------------------------
+------------------------------------------DRAW FUNCTION-----------------------------------------
+----------------------------------------------------------------------------------------------*/
+function draw() {
+	// Generate the RMN spectrum
+	data = nmr(totalPPM, peaks);
+	chart.data.datasets[0].data = data;
+	chart.update();
+}
 
-		function onRemovePeakButton2() {
-			removePeak(2);
-		}
+/*----------------------------------------------------------------------------------------------
+------------------------------------POPULATE PEAK CONTROLS--------------------------------------
+----------------------------------------------------------------------------------------------*/
+function populatePeakControls(){
+	// Hide all controls
+	for(let i = 1; i < maxPeakCount + 1; i++){
+		$("#peak"+i).style.display = "none";
+	};
+	// Show and set active controls
+	for(let i = 1; i < peaks.length + 1; i++){
+		$("#peak"+i).style.display = "block";
+		$("#ppmInput"+i).value = peaks[i-1].ppm;
+		$("#mulInput"+i).value = peaks[i-1].mul;
+	};
 
-		function onRemovePeakButton3() {
-			removePeak(3);
-		}
+	// Show or hide + button
+	if(peaks.length == maxPeakCount){
+		addPeakButton.style.display = "none";
+	}
+	else{
+		addPeakButton.style.display = "block";
+	};
 
-		/*----------------------------------------------------------------------------------------------
-		------------------------------------------DRAW FUNCTION-----------------------------------------
-		----------------------------------------------------------------------------------------------*/
-		/*function draw() {
-			// Make sure we get called 60 times a second
-			requestAnimationFrame(draw);
+	// Show or hide + button
+	if(peaks.length == 1){
+		removePeakButton1.style.display = "none";
+	}
+	else{
+		removePeakButton1.style.display = "block";
+	};
+}
 
-			chart.update();
-		}*/
-	</script>
+/*----------------------------------------------------------------------------------------------
+---------------------------------------------EVENTS---------------------------------------------
+----------------------------------------------------------------------------------------------*/
+window.onload = function() {
+
+	// Generate the RMN spectrum
+	data = nmr(totalPPM, peaks);
+
+	// Create the graph and link the datas
+	chart = new Chart(canvasCtx, config);
+	chart.data.datasets[0].data = data;
+
+	// Initial graph draw
+	chart.update();
+};
+
+function onInfoButtonClick() {
+	$("#modal").style.display = "block";
+};
+
+function onPpmInput(_peak, _value) {
+	// Max ppm input value
+	if(_value > totalPPM){
+		_value = totalPPM;
+	}
+	// Min ppm input value
+	if(_value < 0){
+		_value = 0;
+	}
+	$("#ppmInput"+_peak).value = _value;
+	peaks[_peak - 1].ppm = _value;
+	draw();
+};
+
+function onMulInput(_peak, _value) {
+	if(_value % 1 != 0){
+		_value = Math.round(_value);
+		$("#mulInput"+_peak).value = _value;
+	}
+	// Max ppm input value
+	if(_value > maxMultiplicity){
+		_value = maxMultiplicity;
+		$("#mulInput"+_peak).value = _value;
+	}
+	peaks[_peak - 1].mul = _value;
+	draw();
+};
+
+function onRemovePeakButton(_peak) {
+	peaks.splice(_peak - 1,1);
+	populatePeakControls();
+	draw();
+};
+
+function onAddPeakButton() {
+	peaks.push({ppm: 0, mul: 1});
+	populatePeakControls();
+	draw();
+};
+</script>
 </body>
 </html> 
