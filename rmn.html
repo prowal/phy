@@ -2,6 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!-- 
 	MIT License
 
@@ -65,49 +66,73 @@
 	<div class="w3-row">
 		<div class="w3-col w3-right" style="width: 320px">
 			<!-- First right card -->
-			<div class="w3-card-4 w3-margin">
+			<div class="w3-card-4 w3-margin w3-white">
 				<header class="w3-container w3-blue-grey">
 					<h3>Ajouter des pics</h3>
 				</header>
-				<div class="w3-container w3-white" style="padding: 0px">
-					<div class="w3-bar" id="peak1" style="display : none">
-						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput1">&nbsp mul : <input type="number" id="mulInput1" min="1" max="4" value="1"></span>
-						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton1"><b><i class="fas fas fa-minus-circle"></i></b></button>
-					</div> 
-					<div class="w3-bar" id="peak2" style="display : none">
-						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput2">&nbsp mul : <input type="number" id="mulInput2" min="1" max="4" value="1"></span>
-						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton2"><b><i class="fas fas fa-minus-circle"></i></b></button>
-					</div> 
-					<div class="w3-bar" id="peak3" style="display : none">
-						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput3">&nbsp mul : <input type="number" id="mulInput3" min="1" max="4" value="1"></span>
-						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton3"><b><i class="fas fas fa-minus-circle"></i></b></button>
-					</div>
-					<div class="w3-bar" id="peak4" style="display : none">
-						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput4">&nbsp mul : <input type="number" id="mulInput4" min="1" max="4" value="1"></span>
-						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton4"><b><i class="fas fas fa-minus-circle"></i></b></button>
-					</div> 
-					<div class="w3-bar" id="peak5" style="display : none">
-						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput5">&nbsp mul : <input type="number" id="mulInput5" min="1" max="4" value="1"></span>
-						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton5"><b><i class="fas fas fa-minus-circle"></i></b></button>
-					</div> 
-					<div class="w3-bar" id="peak6" style="display : none">
-						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput6">&nbsp mul : <input type="number" id="mulInput6" min="1" max="4" value="1"></span>
-						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton6"><b><i class="fas fas fa-minus-circle"></i></b></button>
-					</div>
-					<div class="w3-bar" id="peak7" style="display : none">
-						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput7">&nbsp mul : <input type="number" id="mulInput7" min="1" max="4" value="1"></span>
-						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton7"><b><i class="fas fas fa-minus-circle"></i></b></button>
-					</div> 
-					<div class="w3-bar" id="peak8" style="display : none">
-						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput8">&nbsp mul : <input type="number" id="mulInput8" min="1" max="4" value="1"></span>
-						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton8"><b><i class="fas fas fa-minus-circle"></i></b></button>
-					</div> 
-					<div class="w3-bar" id="peak9" style="display : none">
-						<span class="w3-bar-item">PPM : <input type="number" class="no-spin" id="ppmInput9">&nbsp mul : <input type="number" id="mulInput9" min="1" max="4" value="1"></span>
-						<button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton9"><b><i class="fas fas fa-minus-circle"></i></b></button>
-					</div> 
-					<button class="w3-button w3-block w3-hover-green" id="addPeakButton"><i class="fas fa-plus-circle fa-lg"></i></button>
-				</div>
+				<table class="w3-table w3-bordered w3-centered">
+					<tr>
+						<th>PPM</th>
+						<th>Mul</th>
+						<th>Nb H</th>
+						<th> </th>
+					</tr>
+					<tr id="peak1" style="display : none">
+						<td><input type="number" class="no-spin" id="ppmInput1"></td>
+						<td><input type="number" id="mulInput1" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput1" min="1" max="4" value="1"></td>
+						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton1"><i class="fas fas fa-minus-circle"></i></button></td>
+					</tr>
+					<tr id="peak2" style="display : none">
+						<td><input type="number" class="no-spin" id="ppmInput2"></td>
+						<td><input type="number" id="mulInput2" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput2" min="1" max="4" value="1"></td>
+						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton2"><i class="fas fas fa-minus-circle"></i></button></td>
+					</tr>
+					<tr id="peak3" style="display : none">
+						<td><input type="number" class="no-spin" id="ppmInput3"></td>
+						<td><input type="number" id="mulInput3" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput3" min="1" max="4" value="1"></td>
+						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton3"><i class="fas fas fa-minus-circle"></i></button></td>
+					</tr>
+					<tr id="peak4" style="display : none">
+						<td><input type="number" class="no-spin" id="ppmInput4"></td>
+						<td><input type="number" id="mulInput4" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput4" min="1" max="4" value="1"></td>
+						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton4"><i class="fas fas fa-minus-circle"></i></button></td>
+					</tr>
+					<tr id="peak5" style="display : none">
+						<td><input type="number" class="no-spin" id="ppmInput5"></td>
+						<td><input type="number" id="mulInput5" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput5" min="1" max="4" value="1"></td>
+						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton5"><i class="fas fas fa-minus-circle"></i></button></td>
+					</tr>
+					<tr id="peak6" style="display : none">
+						<td><input type="number" class="no-spin" id="ppmInput6"></td>
+						<td><input type="number" id="mulInput6" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput6" min="1" max="4" value="1"></td>
+						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton6"><i class="fas fas fa-minus-circle"></i></button></td>
+					</tr>
+					<tr id="peak7" style="display : none">
+						<td><input type="number" class="no-spin" id="ppmInput7"></td>
+						<td><input type="number" id="mulInput7" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput7" min="1" max="4" value="1"></td>
+						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton7"><i class="fas fas fa-minus-circle"></i></button></td>
+					</tr>
+					<tr id="peak8" style="display : none">
+						<td><input type="number" class="no-spin" id="ppmInput8"></td>
+						<td><input type="number" id="mulInput8" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput8" min="1" max="4" value="1"></td>
+						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton8"><i class="fas fas fa-minus-circle"></i></button></td>
+					</tr>
+					<tr id="peak9" style="display : none">
+						<td><input type="number" class="no-spin" id="ppmInput9"></td>
+						<td><input type="number" id="mulInput9" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput9" min="1" max="4" value="1"></td>
+						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton9"><i class="fas fas fa-minus-circle"></i></button></td>
+					</tr>
+				</table>
+				<button class="w3-button w3-block w3-hover-green" id="addPeakButton"><i class="fas fa-plus-circle fa-lg"></i></button>
 			</div>
 			<!-- Second right card -->
 			<div class="w3-card-4 w3-margin">
@@ -188,72 +213,60 @@ let chart;
 // Get canvas context
 const canvasCtx = $("canvas.canvas").getContext("2d");
 
-
 // Get buttons contexts
 const infoButton = $("#infoButton");
 infoButton.addEventListener("click", onInfoButtonClick);
 
-const ppmInput1 = $("#ppmInput1");
-ppmInput1.addEventListener("input", function(){onPpmInput(1, ppmInput1.value);});
-const ppmInput2 = $("#ppmInput2");
-ppmInput2.addEventListener("input", function(){onPpmInput(2, ppmInput2.value);});
-const ppmInput3 = $("#ppmInput3");
-ppmInput3.addEventListener("input", function(){onPpmInput(3, ppmInput3.value);});
-const ppmInput4 = $("#ppmInput4");
-ppmInput4.addEventListener("input", function(){onPpmInput(4, ppmInput4.value);});
-const ppmInput5 = $("#ppmInput5");
-ppmInput5.addEventListener("input", function(){onPpmInput(5, ppmInput5.value);});
-const ppmInput6 = $("#ppmInput6");
-ppmInput6.addEventListener("input", function(){onPpmInput(6, ppmInput6.value);});
-const ppmInput7 = $("#ppmInput7");
-ppmInput7.addEventListener("input", function(){onPpmInput(7, ppmInput7.value);});
-const ppmInput8 = $("#ppmInput8");
-ppmInput8.addEventListener("input", function(){onPpmInput(8, ppmInput8.value);});
-const ppmInput9 = $("#ppmInput9");
-ppmInput9.addEventListener("input", function(){onPpmInput(9, ppmInput9.value);});
+const removePeakButton = []
+removePeakButton[0] = $("#removePeakButton1");
+removePeakButton[1] = $("#removePeakButton2");
+removePeakButton[2] = $("#removePeakButton3");
+removePeakButton[3] = $("#removePeakButton4");
+removePeakButton[4] = $("#removePeakButton5");
+removePeakButton[5] = $("#removePeakButton6");
+removePeakButton[6] = $("#removePeakButton7");
+removePeakButton[7] = $("#removePeakButton8");
+removePeakButton[8] = $("#removePeakButton9");
 
-const mulInput1 = $("#mulInput1");
-mulInput1.addEventListener("input", function(){onMulInput(1, mulInput1.value);});
-const mulInput2 = $("#mulInput2");
-mulInput2.addEventListener("input", function(){onMulInput(2, mulInput2.value);});
-const mulInput3 = $("#mulInput3");
-mulInput3.addEventListener("input", function(){onMulInput(3, mulInput3.value);});
-const mulInput4 = $("#mulInput4");
-mulInput4.addEventListener("input", function(){onMulInput(4, mulInput4.value);});
-const mulInput5 = $("#mulInput5");
-mulInput5.addEventListener("input", function(){onMulInput(5, mulInput5.value);});
-const mulInput6 = $("#mulInput6");
-mulInput6.addEventListener("input", function(){onMulInput(6, mulInput6.value);});
-const mulInput7 = $("#mulInput7");
-mulInput7.addEventListener("input", function(){onMulInput(7, mulInput7.value);});
-const mulInput8 = $("#mulInput8");
-mulInput8.addEventListener("input", function(){onMulInput(8, mulInput8.value);});
-const mulInput9 = $("#mulInput9");
-mulInput9.addEventListener("input", function(){onMulInput(9, mulInput9.value);});
-
-
-const removePeakButton1 = $("#removePeakButton1");
-removePeakButton1.addEventListener("click", function(){onRemovePeakButton(1);});
-const removePeakButton2 = $("#removePeakButton2");
-removePeakButton2.addEventListener("click", function(){onRemovePeakButton(2);});
-const removePeakButton3 = $("#removePeakButton3");
-removePeakButton3.addEventListener("click", function(){onRemovePeakButton(3);});
-const removePeakButton4 = $("#removePeakButton4");
-removePeakButton4.addEventListener("click", function(){onRemovePeakButton(4);});
-const removePeakButton5 = $("#removePeakButton5");
-removePeakButton5.addEventListener("click", function(){onRemovePeakButton(5);});
-const removePeakButton6 = $("#removePeakButton6");
-removePeakButton6.addEventListener("click", function(){onRemovePeakButton(6);});
-const removePeakButton7 = $("#removePeakButton7");
-removePeakButton7.addEventListener("click", function(){onRemovePeakButton(7);});
-const removePeakButton8 = $("#removePeakButton8");
-removePeakButton8.addEventListener("click", function(){onRemovePeakButton(8);});
-const removePeakButton9 = $("#removePeakButton9");
-removePeakButton9.addEventListener("click", function(){onRemovePeakButton(9);});
+for(let i = 0; i < 9; i++){
+	removePeakButton[i].addEventListener("click", function(){onRemovePeakButton(i);});
+}
 
 const addPeakButton = $("#addPeakButton");
 addPeakButton.addEventListener("click", onAddPeakButton);
 
+// Get inputs contexts
+const ppmInput = []
+ppmInput[0] = $("#ppmInput1");
+ppmInput[1] = $("#ppmInput2");
+ppmInput[2] = $("#ppmInput3");
+ppmInput[3] = $("#ppmInput4");
+ppmInput[4] = $("#ppmInput5");
+ppmInput[5] = $("#ppmInput6");
+ppmInput[6] = $("#ppmInput7");
+ppmInput[7] = $("#ppmInput8");
+ppmInput[8] = $("#ppmInput9");
+
+for(let i = 0; i < 9; i++){
+	ppmInput[i].addEventListener("input", function(){onPpmInput(i);});
+}
+
+const mulInput = []
+mulInput[0] = $("#mulInput1");
+mulInput[1] = $("#mulInput2");
+mulInput[2] = $("#mulInput3");
+mulInput[3] = $("#mulInput4");
+mulInput[4] = $("#mulInput5");
+mulInput[5] = $("#mulInput6");
+mulInput[6] = $("#mulInput7");
+mulInput[7] = $("#mulInput8");
+mulInput[8] = $("#mulInput9");
+
+for(let i = 0; i < 9; i++){
+	mulInput[i].addEventListener("input", function(){onMulInput(i);});
+}
+
+// Get checkbox contexts
 const widePeaksCheckbox = $("#widePeaksCheckbox");
 widePeaksCheckbox.addEventListener("click", onWidePeaksCheckbox);
 
@@ -344,12 +357,12 @@ function draw() {
 ----------------------------------------------------------------------------------------------*/
 function populatePeakControls(){
 	// Hide all controls
-	for(let i = 1; i < maxPeakCount + 1; i++){
+	for(let i = 1; i < maxPeakCount + 1; i++){ // TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
 		$("#peak"+i).style.display = "none";
 	};
 	// Show and set active controls
 	for(let i = 1; i < peaks.length + 1; i++){
-		$("#peak"+i).style.display = "block";
+		$("#peak"+i).style.display = "table-row";
 		$("#ppmInput"+i).value = peaks[i-1].ppm;
 		$("#mulInput"+i).value = peaks[i-1].mul;
 	};
@@ -359,7 +372,7 @@ function populatePeakControls(){
 		addPeakButton.style.display = "none";
 	}
 	else{
-		addPeakButton.style.display = "block";
+		addPeakButton.style.display = "table-row";
 	};
 
 	// Show or hide + button
@@ -367,7 +380,7 @@ function populatePeakControls(){
 		removePeakButton1.style.display = "none";
 	}
 	else{
-		removePeakButton1.style.display = "block";
+		removePeakButton1.style.display = "table-row";
 	};
 }
 
@@ -392,36 +405,33 @@ function onInfoButtonClick() {
 	$("#modal").style.display = "block";
 };
 
-function onPpmInput(_peak, _value) {
+function onPpmInput(_peak) {
 	// Max ppm input value
-	if(_value > totalPPM){
-		_value = totalPPM;
+	if(ppmInput[_peak].value > totalPPM){
+		ppmInput[_peak].value = totalPPM;
 	}
 	// Min ppm input value
-	if(_value < 0){
-		_value = 0;
+	if(ppmInput[_peak].value < 0){
+		ppmInput[_peak].value = 0;
 	}
-	$("#ppmInput"+_peak).value = _value;
-	peaks[_peak - 1].ppm = _value;
+	peaks[_peak].ppm = ppmInput[_peak].value;
 	draw();
 };
 
-function onMulInput(_peak, _value) {
-	if(_value % 1 != 0){
-		_value = Math.round(_value);
-		$("#mulInput"+_peak).value = _value;
+function onMulInput(_peak) {
+	if(mulInput[_peak].value % 1 != 0){
+		mulInput[_peak].value = Math.round(mulInput[_peak].value);
 	}
 	// Max ppm input value
-	if(_value > maxMultiplicity){
-		_value = maxMultiplicity;
-		$("#mulInput"+_peak).value = _value;
+	if(mulInput[_peak].value > maxMultiplicity){
+		mulInput[_peak].value = maxMultiplicity;
 	}
-	peaks[_peak - 1].mul = _value;
+	peaks[_peak].mul = mulInput[_peak].value;
 	draw();
 };
 
 function onRemovePeakButton(_peak) {
-	peaks.splice(_peak - 1,1);
+	peaks.splice(_peak,1);
 	populatePeakControls();
 	draw();
 };
