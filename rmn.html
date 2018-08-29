@@ -80,55 +80,55 @@
 					<tr id="peak1" style="display : none">
 						<td><input type="number" class="no-spin" id="ppmInput1"></td>
 						<td><input type="number" id="mulInput1" min="1" max="4" value="1"></td>
-						<td><input type="number" id="nbHInput1" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput1" min="1" max="20" value="1"></td>
 						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton1"><i class="fas fas fa-minus-circle"></i></button></td>
 					</tr>
 					<tr id="peak2" style="display : none">
 						<td><input type="number" class="no-spin" id="ppmInput2"></td>
 						<td><input type="number" id="mulInput2" min="1" max="4" value="1"></td>
-						<td><input type="number" id="nbHInput2" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput2" min="1" max="20" value="1"></td>
 						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton2"><i class="fas fas fa-minus-circle"></i></button></td>
 					</tr>
 					<tr id="peak3" style="display : none">
 						<td><input type="number" class="no-spin" id="ppmInput3"></td>
 						<td><input type="number" id="mulInput3" min="1" max="4" value="1"></td>
-						<td><input type="number" id="nbHInput3" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput3" min="1" max="20" value="1"></td>
 						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton3"><i class="fas fas fa-minus-circle"></i></button></td>
 					</tr>
 					<tr id="peak4" style="display : none">
 						<td><input type="number" class="no-spin" id="ppmInput4"></td>
 						<td><input type="number" id="mulInput4" min="1" max="4" value="1"></td>
-						<td><input type="number" id="nbHInput4" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput4" min="1" max="20" value="1"></td>
 						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton4"><i class="fas fas fa-minus-circle"></i></button></td>
 					</tr>
 					<tr id="peak5" style="display : none">
 						<td><input type="number" class="no-spin" id="ppmInput5"></td>
 						<td><input type="number" id="mulInput5" min="1" max="4" value="1"></td>
-						<td><input type="number" id="nbHInput5" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput5" min="1" max="20" value="1"></td>
 						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton5"><i class="fas fas fa-minus-circle"></i></button></td>
 					</tr>
 					<tr id="peak6" style="display : none">
 						<td><input type="number" class="no-spin" id="ppmInput6"></td>
 						<td><input type="number" id="mulInput6" min="1" max="4" value="1"></td>
-						<td><input type="number" id="nbHInput6" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput6" min="1" max="20" value="1"></td>
 						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton6"><i class="fas fas fa-minus-circle"></i></button></td>
 					</tr>
 					<tr id="peak7" style="display : none">
 						<td><input type="number" class="no-spin" id="ppmInput7"></td>
 						<td><input type="number" id="mulInput7" min="1" max="4" value="1"></td>
-						<td><input type="number" id="nbHInput7" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput7" min="1" max="20" value="1"></td>
 						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton7"><i class="fas fas fa-minus-circle"></i></button></td>
 					</tr>
 					<tr id="peak8" style="display : none">
 						<td><input type="number" class="no-spin" id="ppmInput8"></td>
 						<td><input type="number" id="mulInput8" min="1" max="4" value="1"></td>
-						<td><input type="number" id="nbHInput8" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput8" min="1" max="20" value="1"></td>
 						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton8"><i class="fas fas fa-minus-circle"></i></button></td>
 					</tr>
 					<tr id="peak9" style="display : none">
 						<td><input type="number" class="no-spin" id="ppmInput9"></td>
 						<td><input type="number" id="mulInput9" min="1" max="4" value="1"></td>
-						<td><input type="number" id="nbHInput9" min="1" max="4" value="1"></td>
+						<td><input type="number" id="nbHInput9" min="1" max="20" value="1"></td>
 						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton9"><i class="fas fas fa-minus-circle"></i></button></td>
 					</tr>
 				</table>
@@ -141,6 +141,13 @@
 				</header>
 				<div class="w3-container w3-white">
 					<div class="w3-bar w3-padding">
+						<span class="w3-bar-item">Intégration : </span>
+						<label class="switch w3-right">
+							<input type="checkbox" id="integrationCheckbox">
+							<span class="toggleSlider round"></span>
+						</label>
+					</div> 
+					<div class="w3-bar w3-padding">
 						<span class="w3-bar-item">Pics larges : </span>
 						<label class="switch w3-right">
 							<input type="checkbox" id="widePeaksCheckbox">
@@ -148,7 +155,7 @@
 						</label>
 					</div> 
 					<div class="w3-bar w3-padding">
-						<span class="w3-bar-item">Monochrome : </span>
+						<span class="w3-bar-item ">Monochrome : </span>
 						<label class="switch w3-right">
 							<input type="checkbox" id="bwCheckbox">
 							<span class="toggleSlider round"></span>
@@ -199,6 +206,7 @@ const $ = document.querySelector.bind(document);
 // Declare vars
 const totalPPM = 14;
 const maxMultiplicity = 4;
+const maxNbH = 20;
 
 const maxPeakCount = 9;
 
@@ -266,7 +274,25 @@ for(let i = 0; i < 9; i++){
 	mulInput[i].addEventListener("input", function(){onMulInput(i);});
 }
 
+const nbHInput = []
+nbHInput[0] = $("#nbHInput1");
+nbHInput[1] = $("#nbHInput2");
+nbHInput[2] = $("#nbHInput3");
+nbHInput[3] = $("#nbHInput4");
+nbHInput[4] = $("#nbHInput5");
+nbHInput[5] = $("#nbHInput6");
+nbHInput[6] = $("#nbHInput7");
+nbHInput[7] = $("#nbHInput8");
+nbHInput[8] = $("#nbHInput9");
+
+for(let i = 0; i < 9; i++){
+	nbHInput[i].addEventListener("input", function(){onnbHInput(i);});
+}
+
 // Get checkbox contexts
+const integrationCheckbox = $("#integrationCheckbox");
+integrationCheckbox.addEventListener("click", onIntegrationCheckbox);
+
 const widePeaksCheckbox = $("#widePeaksCheckbox");
 widePeaksCheckbox.addEventListener("click", onWidePeaksCheckbox);
 
@@ -280,15 +306,19 @@ let config = {
 	type: "line",
 	data: {
 		datasets: [{
-			label: "Spectre RMN",
-			borderColor: chartColors.blue,
-			// Hides the points...
-			radius: 0,
-			fill: false
-		},{
 			label: "Courbe d'integration",
 			borderColor: chartColors.deepOrange,
+			// Hides the points...
 			radius: 0,
+			hitRadius: 0,
+			borderWidth: 2,
+			fill: false,
+			hidden: true
+		},{
+			label: "Spectre RMN",
+			borderColor: chartColors.blue,
+			radius: 0,
+			hitRadius: 0,
 			fill: false
 		}
 		]
@@ -302,8 +332,11 @@ let config = {
 				display: false
 			},
 		title: {
-			display: false,
+			display: false
 		},
+		/*tooltips: {
+      enabled: false
+    },*/
 		scales: {
 			xAxes: [{
 				display: true,
@@ -343,12 +376,13 @@ let config = {
 ----------------------------------------------------------------------------------------------*/
 function draw() {
 	// Generate the RMN spectrum
-	data1 = nmr(totalPPM, pointPerPPM,peaks);
-	data2 = generateSigmoid(14, 100, 3, 3)
+	data1 = nmr(totalPPM, pointPerPPM, peaks);
+	//data2 = generateSigmoid(14, 100, 3, 3)
+	data2 = nmrIntegration(totalPPM, pointPerPPM, peaks)
 
 	//Update the graph
-	chart.data.datasets[0].data = data1;
-	chart.data.datasets[1].data = data2;
+	chart.data.datasets[0].data = data2; // TODO usefull?
+	chart.data.datasets[1].data = data1;
 	chart.update();
 }
 
@@ -363,8 +397,9 @@ function populatePeakControls(){
 	// Show and set active controls
 	for(let i = 1; i < peaks.length + 1; i++){
 		$("#peak"+i).style.display = "table-row";
-		$("#ppmInput"+i).value = peaks[i-1].ppm;
-		$("#mulInput"+i).value = peaks[i-1].mul;
+		ppmInput[i-1].value = peaks[i-1].ppm;
+		mulInput[i-1].value = peaks[i-1].mul;
+		nbHInput[i-1].value = peaks[i-1].nbH;
 	};
 
 	// Show or hide + button
@@ -372,16 +407,18 @@ function populatePeakControls(){
 		addPeakButton.style.display = "none";
 	}
 	else{
-		addPeakButton.style.display = "table-row";
+		addPeakButton.style.display = "block";
 	};
 
-	// Show or hide + button
+	// Show or hide - buttons
 	if(peaks.length == 1){
 		removePeakButton1.style.display = "none";
 	}
 	else{
 		removePeakButton1.style.display = "table-row";
 	};
+
+	console.log(peaks);
 }
 
 /*----------------------------------------------------------------------------------------------
@@ -394,8 +431,8 @@ window.onload = function() {
 
 	// Create the graph and link the datas
 	chart = new Chart(canvasCtx, config);
-	chart.data.datasets[0].data = data1;
-	chart.data.datasets[1].data = data2;
+	chart.data.datasets[0].data = data2;
+	chart.data.datasets[1].data = data1;
 
 	// Initial graph draw
 	chart.update();
@@ -414,11 +451,12 @@ function onPpmInput(_peak) {
 	if(ppmInput[_peak].value < 0){
 		ppmInput[_peak].value = 0;
 	}
-	peaks[_peak].ppm = ppmInput[_peak].value;
+	peaks[_peak].ppm = parseFloat(ppmInput[_peak].value);
 	draw();
 };
 
 function onMulInput(_peak) {
+	// Int only
 	if(mulInput[_peak].value % 1 != 0){
 		mulInput[_peak].value = Math.round(mulInput[_peak].value);
 	}
@@ -426,7 +464,19 @@ function onMulInput(_peak) {
 	if(mulInput[_peak].value > maxMultiplicity){
 		mulInput[_peak].value = maxMultiplicity;
 	}
-	peaks[_peak].mul = mulInput[_peak].value;
+	peaks[_peak].mul = parseInt(mulInput[_peak].value);
+	draw();
+};
+
+function onnbHInput(_peak) {
+	if(nbHInput[_peak].value % 1 != 0){
+		nbHInput[_peak].value = Math.round(nbHInput[_peak].value);
+	}
+	// Max ppm input value
+	if(nbHInput[_peak].value > maxNbH){
+		nbHInput[_peak].value = maxNbH;
+	}
+	peaks[_peak].nbH = parseInt(nbHInput[_peak].value);
 	draw();
 };
 
@@ -437,8 +487,18 @@ function onRemovePeakButton(_peak) {
 };
 
 function onAddPeakButton() {
-	peaks.push({ppm: 0, mul: 1});
+	peaks.push({ppm: 0, mul: 1, nbH: 1});
 	populatePeakControls();
+	draw();
+};
+
+function onIntegrationCheckbox() {
+	if(integrationCheckbox.checked) {
+		chart.data.datasets[0].hidden = false;
+	}
+	else{
+		chart.data.datasets[0].hidden = true;
+	}
 	draw();
 };
 
@@ -455,13 +515,14 @@ function onWidePeaksCheckbox() {
 function onBwCheckbox() {
 	if(bwCheckbox.checked) {
 		chart.data.datasets[0].borderColor = chartColors.black;
+		chart.data.datasets[1].borderColor = chartColors.black;
 	}
 	else{
-		chart.data.datasets[0].borderColor = chartColors.blue;
+		chart.data.datasets[0].borderColor = chartColors.deepOrange;
+		chart.data.datasets[1].borderColor = chartColors.blue;
 	}
 	draw();
 };
-
 
 </script>
 </body>
