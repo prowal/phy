@@ -101,7 +101,7 @@ input:checked + .toggleSlider:before {
 ----------------------------------------------------------------------------------------------*/
 .range-slider_range {
 	-webkit-appearance: none;
-	width: calc(100% - (76px));
+	width: calc(100% - (78px));
 	height: 10px;
 	border-radius: 5px;
 	background: #d7dcdf;
@@ -154,7 +154,7 @@ input:checked + .toggleSlider:before {
 .range-slider_value {
 	display: inline-block;
 	position: relative;
-	width: 62px;
+	width: 64px;
 	color: #fff;
 	line-height: 20px;
 	text-align: center;
