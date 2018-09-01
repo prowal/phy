@@ -34,7 +34,6 @@ a.w3-card-4{text-decoration: none;}
 .no-spin::-webkit-inner-spin-button, .no-spin::-webkit-outer-spin-button {
 	-webkit-appearance: none !important;
 	margin: 0 !important;
-	-moz-appearance:textfield !important;
 }
 .no-spin{
 	-moz-appearance:textfield !important;
