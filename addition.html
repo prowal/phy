@@ -162,354 +162,354 @@
 			</div>
 		</div>
 
-	<script>
-		const $ = document.querySelector.bind(document);
+<script>
+const $ = document.querySelector.bind(document);
 
-		// Declare vars
-		let wave1= {a: 0, f: 0};
-		let wave2 = {a: 0, f: 0};
+// Declare vars
+let wave1= {a: 0, f: 0};
+let wave2 = {a: 0, f: 0};
 
-		let samplingFrequency = 4096;
-		let numSample = 8192;
+let samplingFrequency = 4096;
+let numSample = 8192;
 
-		let chart1;
-		let chart2;
+let chart1;
+let chart2;
 
-		let data1;
-		let data2;
-		let dataSum = [];
+let data1;
+let data2;
+let dataSum = [];
 
-		// Create the fft object
-		var fft = new FFTNayuki(numSample * 2);
+// Create the fft object
+var fft = new FFTNayuki(numSample * 2);
 
-		// Get canvas contexts and hide the FFT's canvas
-		const canvasCtx1 = $("canvas.canvas1").getContext("2d");
-		const canvasCtx2 = $("canvas.canvas2").getContext("2d");
+// Get canvas contexts and hide the FFT's canvas
+const canvasCtx1 = $("canvas.canvas1").getContext("2d");
+const canvasCtx2 = $("canvas.canvas2").getContext("2d");
 
-		// Get DOM Elements
-		const amplitudeSliderElt1 = $("#amplitudeSlider1");
-		amplitudeSliderElt1.addEventListener("input", onAmplitudeSliderChange1);
+// Get DOM Elements
+const amplitudeSliderElt1 = $("#amplitudeSlider1");
+amplitudeSliderElt1.addEventListener("input", onAmplitudeSliderChange1);
 
-		const frequencySliderElt1 = $("#frequencySlider1");
-		frequencySliderElt1.addEventListener("input", onfrequencySliderChange1);
+const frequencySliderElt1 = $("#frequencySlider1");
+frequencySliderElt1.addEventListener("input", onfrequencySliderChange1);
 
-		const amplitudeSliderElt2 = $("#amplitudeSlider2");
-		amplitudeSliderElt2.addEventListener("input", onAmplitudeSliderChange2);
+const amplitudeSliderElt2 = $("#amplitudeSlider2");
+amplitudeSliderElt2.addEventListener("input", onAmplitudeSliderChange2);
 
-		const frequencySliderElt2 = $("#frequencySlider2");
-		frequencySliderElt2.addEventListener("input", onfrequencySliderChange2);
+const frequencySliderElt2 = $("#frequencySlider2");
+frequencySliderElt2.addEventListener("input", onfrequencySliderChange2);
 
-		const checkBoxElt1 = $("#checkBox1");
-		checkBoxElt1.addEventListener("click", onCheckBoxChange1);
-		checkBoxElt1.checked = true;
+const checkBoxElt1 = $("#checkBox1");
+checkBoxElt1.addEventListener("click", onCheckBoxChange1);
+checkBoxElt1.checked = true;
 
-		const checkBoxElt2 = $("#checkBox2");
-		checkBoxElt2.addEventListener("click", onCheckBoxChange2);
-		checkBoxElt2.checked = true;
+const checkBoxElt2 = $("#checkBox2");
+checkBoxElt2.addEventListener("click", onCheckBoxChange2);
+checkBoxElt2.checked = true;
 
-		const sumCheckBoxElt = $("#sumCheckBox");
-		sumCheckBoxElt.addEventListener("click", onSumCheckBoxChange);
+const sumCheckBoxElt = $("#sumCheckBox");
+sumCheckBoxElt.addEventListener("click", onSumCheckBoxChange);
 
-		const fftCheckBoxElt = $("#fftCheckBox");
-		fftCheckBoxElt.addEventListener("click", onFftCheckBoxChange);
+const fftCheckBoxElt = $("#fftCheckBox");
+fftCheckBoxElt.addEventListener("click", onFftCheckBoxChange);
 
-		const infoButton = $("#infoButton");
-		infoButton.addEventListener("click", onInfoButtonClick);
+const infoButton = $("#infoButton");
+infoButton.addEventListener("click", onInfoButtonClick);
 
-		/*----------------------------------------------------------------------------------------------
-		-------------------------------------GENERATE WAVE FUNCTION-------------------------------------
-		----------------------------------------------------------------------------------------------*/
-		function generateWave(_frequency, _amplitude){
-			var wave = [];
-			for (let i = 0; i < numSample; i++){
-				wave[i] = {x: i / samplingFrequency, y:_amplitude * Math.sin(2*Math.PI * (i / samplingFrequency) * _frequency)};
-			}
-			return wave;
+/*----------------------------------------------------------------------------------------------
+-------------------------------------GENERATE WAVE FUNCTION-------------------------------------
+----------------------------------------------------------------------------------------------*/
+function generateWave(_frequency, _amplitude){
+	var wave = [];
+	for (let i = 0; i < numSample; i++){
+		wave[i] = {x: i / samplingFrequency, y:_amplitude * Math.sin(2*Math.PI * (i / samplingFrequency) * _frequency)};
+	}
+	return wave;
+}
+
+/*----------------------------------------------------------------------------------------------
+-------------------------------------------FFT FUNCTION-----------------------------------------
+----------------------------------------------------------------------------------------------*/
+function computeFFT(_wave){
+	let FFTreal = [];
+	let FFTimag = [];
+	let spectrum = [];
+
+	// Compute the sum and build the FFT's arrays
+	for(let i = 0; i < numSample; i++){
+		FFTreal[i] = _wave[i].y;
+		FFTimag[i] = 0;
+	}
+
+	// FFT Zero-padding
+	for(let i = numSample; i < numSample * 2; i++){
+		FFTreal[i] = 0;
+		FFTimag[i] = 0;
+	}
+
+	// Plot the FFT (only the first half is useful)
+	fft.forward(FFTreal, FFTimag);
+	//transform(FFTreal, FFTimag);
+
+	// Determine how many Hz represented by each sample
+	let hzPerSample = samplingFrequency / numSample;
+
+	// Get the magnitude of each FFT sample (/19.5 is enough to reach 210 Hz)
+	for(let i = 0; i < numSample / 19.5; i++){
+		// The zero-padding implies only one out of two sample is useful... I guess (3.1?!?)
+		spectrum[i] = {x: i * hzPerSample, y: Math.abs(3.1 * FFTreal[i*2+1]) / numSample};
+	}
+	return spectrum;
+}
+
+/*----------------------------------------------------------------------------------------------
+-----------------------------------------GRAPH SETTINGS-----------------------------------------
+----------------------------------------------------------------------------------------------*/
+let config1 = {
+	type: "line",
+	data: {
+		datasets: [{
+			label: "Onde 1",
+			//data: data1,
+			borderColor: chartColors.blue,
+			// Hides the points...
+			radius: 0,
+			fill: false
+		},
+		{
+			label: "Onde 2",
+			//data: data2,
+			borderColor: chartColors.deepOrange,
+			// Hides the points...
+			radius: 0,
+			fill: false,
+		},
+		{
+			label: "Somme des ondes",
+			//data: data2,
+			borderColor: chartColors.pink,
+			// Hides the points...
+			radius: 0,
+			fill: false,
+			hidden: true
 		}
-
-		/*----------------------------------------------------------------------------------------------
-		-------------------------------------------FFT FUNCTION-----------------------------------------
-		----------------------------------------------------------------------------------------------*/
-		function computeFFT(_wave){
-			let FFTreal = [];
-			let FFTimag = [];
-			let spectrum = [];
-
-			// Compute the sum and build the FFT's arrays
-			for(let i = 0; i < numSample; i++){
-				FFTreal[i] = _wave[i].y;
-				FFTimag[i] = 0;
-			}
-
-			// FFT Zero-padding
-			for(let i = numSample; i < numSample * 2; i++){
-				FFTreal[i] = 0;
-				FFTimag[i] = 0;
-			}
-
-			// Plot the FFT (only the first half is useful)
-			fft.forward(FFTreal, FFTimag);
-			//transform(FFTreal, FFTimag);
-
-			// Determine how many Hz represented by each sample
-			let hzPerSample = samplingFrequency / numSample;
-
-			// Get the magnitude of each FFT sample (/19.5 is enough to reach 210 Hz)
-			for(let i = 0; i < numSample / 19.5; i++){
-				// The zero-padding implies only one out of two sample is useful... I guess (3.1?!?)
-				spectrum[i] = {x: i * hzPerSample, y: Math.abs(3.1 * FFTreal[i*2+1]) / numSample};
-			}
-			return spectrum;
-		}
-
-		/*----------------------------------------------------------------------------------------------
-		-----------------------------------------GRAPH SETTINGS-----------------------------------------
-		----------------------------------------------------------------------------------------------*/
-		let config1 = {
-			type: "line",
-			data: {
-				datasets: [{
-					label: "Onde 1",
-					//data: data1,
-					borderColor: chartColors.blue,
-					// Hides the points...
-					radius: 0,
-					fill: false
-				},
-				{
-					label: "Onde 2",
-					//data: data2,
-					borderColor: chartColors.deepOrange,
-					// Hides the points...
-					radius: 0,
-					fill: false,
-				},
-				{
-					label: "Somme des ondes",
-					//data: data2,
-					borderColor: chartColors.pink,
-					// Hides the points...
-					radius: 0,
-					fill: false,
-					hidden: true
-				}
-				]
+		]
+	},
+	options: {
+		lineTension: 0,
+		responsive: true,
+		animation: false,
+		maintainAspectRatio: false,
+		legend: {
+				display: false
 			},
-			options: {
-				lineTension: 0,
-				responsive: true,
-				animation: false,
-				maintainAspectRatio: false,
-				legend: {
-						display: false
-					},
-				title: {
-					display: false,
+		title: {
+			display: false,
+		},
+		scales: {
+			xAxes: [{
+				display: true,
+				type: "linear",
+				position: "bottom",
+				scaleLabel: {
+					display: true,
+					labelString: "Temps (s)"
 				},
-				scales: {
-					xAxes: [{
-						display: true,
-						type: "linear",
-						position: "bottom",
-						scaleLabel: {
-							display: true,
-							labelString: "Temps (s)"
-						},
-						ticks: {
-							min: 0,
-							max: 0.1,
-							//autoSkip: true,
-							//maxTicksLimit: 10,
-							stepSize: .01
-						}
-					}],
-					yAxes: [{
-						display: true,
-						scaleLabel: {
-							display: true,
-							labelString: "Amplitude"
-						},
-						ticks: {
-							suggestedMin: -50,
-							suggestedMax: 50,
-						}
-					}]
+				ticks: {
+					min: 0,
+					max: 0.1,
+					//autoSkip: true,
+					//maxTicksLimit: 10,
+					stepSize: .01
 				}
-			}
-		};
+			}],
+			yAxes: [{
+				display: true,
+				scaleLabel: {
+					display: true,
+					labelString: "Amplitude"
+				},
+				ticks: {
+					suggestedMin: -50,
+					suggestedMax: 50,
+				}
+			}]
+		}
+	}
+};
 
-		let config2 = {
-			type: "line",
-			data: {
-				datasets: [{
-					label: "Somme des ondes",
-					//data: data1,
-					borderColor: chartColors.pink,
-					// Hides the points...
-					radius: 0,
-					fill: false
-				}]
+let config2 = {
+	type: "line",
+	data: {
+		datasets: [{
+			label: "Somme des ondes",
+			//data: data1,
+			borderColor: chartColors.pink,
+			// Hides the points...
+			radius: 0,
+			fill: false
+		}]
+	},
+	options: {
+		lineTension: 0,
+		responsive: true,
+		animation: false,
+		maintainAspectRatio: false,
+		legend: {
+				display: false
 			},
-			options: {
-				lineTension: 0,
-				responsive: true,
-				animation: false,
-				maintainAspectRatio: false,
-				legend: {
-						display: false
-					},
-				title: {
-					display: false,
+		title: {
+			display: false,
+		},
+		scales: {
+			xAxes: [{
+				display: true,
+				type: "linear",
+				position: "bottom",
+				scaleLabel: {
+					display: true,
+					labelString: "Fréquence (Hz)"
 				},
-				scales: {
-					xAxes: [{
-						display: true,
-						type: "linear",
-						position: "bottom",
-						scaleLabel: {
-							display: true,
-							labelString: "Fréquence (Hz)"
-						},
-						ticks: {
-							min: 0,
-							max: 210,
-							//autoSkip: true,
-							//maxTicksLimit: 10,
-							stepSize: 10
-						}
-					}],
-					yAxes: [{
-						display: true,
-						scaleLabel: {
-							display: true,
-							labelString: "Amplitude"
-						},
-						ticks: {
-							suggestedMin: 0,
-							suggestedMax: 40,
-						}
-					}]
+				ticks: {
+					min: 0,
+					max: 210,
+					//autoSkip: true,
+					//maxTicksLimit: 10,
+					stepSize: 10
 				}
-			}
-		};
-
-		/*----------------------------------------------------------------------------------------------
-		---------------------------------------------EVENTS---------------------------------------------
-		----------------------------------------------------------------------------------------------*/
-		window.onload = function() {
-			// Get the sliders' value
-			wave1.a = amplitudeSliderElt1.value;
-			wave1.f = frequencySliderElt1.value;
-			wave2.a = amplitudeSliderElt2.value;
-			wave2.f = frequencySliderElt2.value;
-
-			data1 = generateWave(wave1.f,wave1.a);
-			data2 = generateWave(wave2.f,wave2.a);	
-
-			// Create the charts
-			chart1 = new Chart(canvasCtx1, config1);
-			chart2 = new Chart(canvasCtx2, config2);
-
-			draw();
-		};
-
-				function onAmplitudeSliderChange1() {
-			wave1.a = amplitudeSliderElt1.value;
-			$("#amplitudeValue1").innerHTML = wave1.a;
-			data1 = generateWave(wave1.f,wave1.a);
-			draw();
+			}],
+			yAxes: [{
+				display: true,
+				scaleLabel: {
+					display: true,
+					labelString: "Amplitude"
+				},
+				ticks: {
+					suggestedMin: 0,
+					suggestedMax: 40,
+				}
+			}]
 		}
+	}
+};
 
-		function onfrequencySliderChange1() {
-			wave1.f = frequencySliderElt1.value;
-			$("#frequencyValue1").innerHTML = wave1.f + " Hz";
-			data1 = generateWave(wave1.f,wave1.a);
-			draw();
-		}
+/*----------------------------------------------------------------------------------------------
+---------------------------------------------EVENTS---------------------------------------------
+----------------------------------------------------------------------------------------------*/
+window.onload = function() {
+	// Get the sliders' value
+	wave1.a = amplitudeSliderElt1.value;
+	wave1.f = frequencySliderElt1.value;
+	wave2.a = amplitudeSliderElt2.value;
+	wave2.f = frequencySliderElt2.value;
 
-		function onAmplitudeSliderChange2() {
-			wave2.a = amplitudeSliderElt2.value;
-			$("#amplitudeValue2").innerHTML = wave2.a;
-			data2 = generateWave(wave2.f,wave2.a);
-			draw();
-		}
+	data1 = generateWave(wave1.f,wave1.a);
+	data2 = generateWave(wave2.f,wave2.a);	
 
-		function onfrequencySliderChange2() {
-			wave2.f = frequencySliderElt2.value;
-			$("#frequencyValue2").innerHTML = wave2.f + " Hz";
-			data2 = generateWave(wave2.f,wave2.a);
-			draw();
-		}
+	// Create the charts
+	chart1 = new Chart(canvasCtx1, config1);
+	chart2 = new Chart(canvasCtx2, config2);
 
-		function onCheckBoxChange1() {
-			if(checkBoxElt1.checked) {
-				chart1.data.datasets[0].hidden = false;
-			}
-			else{
-				chart1.data.datasets[0].hidden = true;
-			}
-			draw();
-		}
+	draw();
+};
 
-		function onCheckBoxChange2() {
-			if(checkBoxElt2.checked) {
-				chart1.data.datasets[1].hidden = false;
-			}
-			else{
-				chart1.data.datasets[1].hidden = true;
-			}
-			draw();
-		}
+		function onAmplitudeSliderChange1() {
+	wave1.a = amplitudeSliderElt1.value;
+	$("#amplitudeValue1").innerHTML = wave1.a;
+	data1 = generateWave(wave1.f,wave1.a);
+	draw();
+}
 
-		function onSumCheckBoxChange() {
-			if(sumCheckBoxElt.checked) {
-				chart1.data.datasets[2].hidden = false;
-			}
-			else{
-				chart1.data.datasets[2].hidden = true;
-			}
-			draw();
-		}
+function onfrequencySliderChange1() {
+	wave1.f = frequencySliderElt1.value;
+	$("#frequencyValue1").innerHTML = wave1.f + " Hz";
+	data1 = generateWave(wave1.f,wave1.a);
+	draw();
+}
 
-		function onFftCheckBoxChange() {
-			if(fftCheckBoxElt.checked) {
-				$("div.canvas2").style.display="block";
-			}
-			else{
-				$("div.canvas2").style.display="none";
-			}
-			draw();
-		}
+function onAmplitudeSliderChange2() {
+	wave2.a = amplitudeSliderElt2.value;
+	$("#amplitudeValue2").innerHTML = wave2.a;
+	data2 = generateWave(wave2.f,wave2.a);
+	draw();
+}
 
-		function onInfoButtonClick() {
-			$("#modal").style.display="block";
-		}
+function onfrequencySliderChange2() {
+	wave2.f = frequencySliderElt2.value;
+	$("#frequencyValue2").innerHTML = wave2.f + " Hz";
+	data2 = generateWave(wave2.f,wave2.a);
+	draw();
+}
 
-		/*----------------------------------------------------------------------------------------------
-		------------------------------------------DRAW FUNCTION-----------------------------------------
-		----------------------------------------------------------------------------------------------*/
-		function draw() {
-			// Compute the sum and build the FFT's arrays
-			for(let i = 0; i < numSample; i++){
-				dataSum[i] = {x: data1[i].x, y: data1[i].y + data2[i].y};
-			}
+function onCheckBoxChange1() {
+	if(checkBoxElt1.checked) {
+		chart1.data.datasets[0].hidden = false;
+	}
+	else{
+		chart1.data.datasets[0].hidden = true;
+	}
+	draw();
+}
 
-			if(fftCheckBoxElt.checked){
-				// Compute the FFT
-				let spectrum = computeFFT(dataSum);
+function onCheckBoxChange2() {
+	if(checkBoxElt2.checked) {
+		chart1.data.datasets[1].hidden = false;
+	}
+	else{
+		chart1.data.datasets[1].hidden = true;
+	}
+	draw();
+}
 
-				// Update the fft chart
-				chart2.data.datasets[0].data = spectrum;
-				chart2.update();
-			}
+function onSumCheckBoxChange() {
+	if(sumCheckBoxElt.checked) {
+		chart1.data.datasets[2].hidden = false;
+	}
+	else{
+		chart1.data.datasets[2].hidden = true;
+	}
+	draw();
+}
 
-			// Update the first chart
-			// Only draw the visible part
-			chart1.data.datasets[0].data = data1.slice(0,0.1 * samplingFrequency);
-			chart1.data.datasets[1].data = data2.slice(0,0.1 * samplingFrequency);
-			chart1.data.datasets[2].data = dataSum.slice(0,0.1 * samplingFrequency);
-			chart1.update();
-		}
-	</script>
+function onFftCheckBoxChange() {
+	if(fftCheckBoxElt.checked) {
+		$("div.canvas2").style.display="block";
+	}
+	else{
+		$("div.canvas2").style.display="none";
+	}
+	draw();
+}
+
+function onInfoButtonClick() {
+	$("#modal").style.display="block";
+}
+
+/*----------------------------------------------------------------------------------------------
+------------------------------------------DRAW FUNCTION-----------------------------------------
+----------------------------------------------------------------------------------------------*/
+function draw() {
+	// Compute the sum and build the FFT's arrays
+	for(let i = 0; i < numSample; i++){
+		dataSum[i] = {x: data1[i].x, y: data1[i].y + data2[i].y};
+	}
+
+	if(fftCheckBoxElt.checked){
+		// Compute the FFT
+		let spectrum = computeFFT(dataSum);
+
+		// Update the fft chart
+		chart2.data.datasets[0].data = spectrum;
+		chart2.update();
+	}
+
+	// Update the first chart
+	// Only draw the visible part
+	chart1.data.datasets[0].data = data1.slice(0,0.1 * samplingFrequency);
+	chart1.data.datasets[1].data = data2.slice(0,0.1 * samplingFrequency);
+	chart1.data.datasets[2].data = dataSum.slice(0,0.1 * samplingFrequency);
+	chart1.update();
+}
+</script>
 </body>
 </html> 
