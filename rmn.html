@@ -385,7 +385,7 @@ function draw() {
 	data2 = nmrIntegration(totalPPM, pointPerPPM, peaks)
 
 	//Update the graph
-	chart.data.datasets[0].data = data2; // TODO usefull?
+	chart.data.datasets[0].data = data2;
 	chart.data.datasets[1].data = data1;
 	chart.update();
 }
@@ -429,17 +429,13 @@ function populatePeakControls(){
 ---------------------------------------------EVENTS---------------------------------------------
 ----------------------------------------------------------------------------------------------*/
 window.onload = function() {
-
-	// Generate the RMN spectrum
-	data1 = nmr(totalPPM, pointPerPPM, peaks); // TODO just draw?
+	// Add an initial peak
+	peaks[0] = {ppm: 1, mul: 3, nbH: 1};
+	populatePeakControls();
 
 	// Create the graph and link the datas
 	chart = new Chart(canvasCtx, config);
-	chart.data.datasets[0].data = data2;
-	chart.data.datasets[1].data = data1;
-
-	// Initial graph draw
-	chart.update();
+	draw();
 };
 
 function onInfoButtonClick() {
