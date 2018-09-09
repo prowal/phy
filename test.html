@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- 
+	MIT License
+
+	La Belle Physique : RMN
+
+	Copyright (c) 2018 Gaétan Walter
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+	-->
+
+	<title>TEST</title>
+
+	<link rel="stylesheet" href="lib/w3.css"> 
+
+	<link rel="stylesheet" href="lib/fontawesome/css/all.min.css">
+
+	<link rel="stylesheet" href="lib/phy.css">
+
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+
+	<script src="lib/phy.js"></script>
+
+	<style>
+
+	</style>
+
+</head>
+<body class="w3-light-grey">
+	<!-- Header bar -->
+	<div class="header w3-blue-grey">
+		<div class="w3-bar w3-card-4 w3-center">
+			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>TEST</b></span>
+			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle fa-lg"></i></b></button>
+			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><b><i class="fas fa-home fa-lg"></i></b></a>
+		</div> 
+	</div>
+
+	<div class="w3-row">
+		<div class="w3-col w3-right" style="width: 320px">
+			<!-- First right card -->
+			<div class="w3-card-4 w3-margin w3-white">
+				<header class="w3-container w3-blue-grey">
+					<h3>Ajouter des pics</h3>
+				</header>
+				<table class="w3-table w3-bordered w3-centered">
+					<tr>
+						<th>PPM</th>
+						<th>Mul</th>
+						<th>Nb H</th>
+						<th> </th>
+					</tr>
+					<tr id="peak1" style="display : none">
+						<td><input type="number" class="no-spin" id="ppmInput1" step="0.01"></td>
+						<td><input type="number" id="mulInput1" min="1" max="7" value="1"></td>
+						<td><input type="number" id="nbHInput1" min="1" max="20" value="1"></td>
+						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton1"><i class="fas fas fa-minus-circle"></i></button></td>
+					</tr>
+				</table>
+				<button class="w3-button w3-block w3-hover-green" id="addPeakButton"><i class="fas fa-plus-circle fa-lg"></i></button>
+			</div>
+		</div>
+		<!-- Graph card -->
+		<div class="w3-card-4 w3-rest w3-margin w3-white">
+			<div id="graphContainer" class="w3-container w3-margin" style="height: 40vh"></div>
+		</div>
+		<!-- FFT card -->
+		<div class="w3-card-4 w3-rest w3-margin w3-white">
+			<div id="fftContainer" class="w3-container w3-margin" style="height: 40vh"></div>
+		</div>
+	</div>
+
+	<!-- Modal card -->
+	<div id="modal" class="w3-modal">
+    <div class="w3-modal-content w3-animate-top w3-card-4">
+      <header class="w3-container w3-teal"> 
+        <span onclick="document.getElementById('modal').style.display='none'" class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
+        <h2>À propos</h2>
+      </header>
+      <div class="w3-container">
+				<div class="w3-container w3-cell"><p><i class="fas fa-info-circle fa-2x"></i></p></div>
+				<div class="w3-container w3-cell"><p>Application permettant de générer des spectres RMN (simplistes) suffisamment lisibles pour être intégrés dans des activités, exercices, DS...</p>
+					<p>Le site <a href="http://www.nmrdb.org/new_predictor">nmrdb</a> permet d'obtenir le spectre qui vous interesse juste en tracant la molécule.</p>
+				</div>
+			</div>
+			<div class="w3-container">
+				<div class="w3-container w3-cell"><p><i class="fab fa-firefox fa-2x"></i></p></div>
+				<div class="w3-container w3-cell"><p>Les applications utilisent des technologies modernes pour fonctionner (HTLM5, CSS et JS). Il est indispensable d'utiliser un navigateur internet récent pour les faire fonctionner. Les applications ont été testés sur Mozilla Firefox et Google Chrome.</p></div>
+			</div>
+			<div class="w3-container">
+				<div class="w3-container w3-cell"><p><i class="fas fa-envelope fa-2x"></i></p></div>
+				<div class="w3-container w3-cell"><p>pro.wal@protonmail.com</p></div>
+			</div>
+			<div class="w3-light-grey w3-section">
+				<button onclick="accordion('licenceAccordion')" class="w3-button w3-block">
+					<div class="w3-container w3-cell"><p><i class="fas fa-copyright fa-2x"></i></p></div>
+					<div class="w3-container w3-cell"><p>MIT Licence</p></div>
+				</button>
+				<div id="licenceAccordion" class="w3-hide w3-container">
+					<p><script src="lib/licence.js"></script></p>
+				</div>
+			</div>
+    </div>
+  </div>
+
+<script>
+const $ = document.querySelector.bind(document);
+
+// Get buttons contexts
+const addPeakButton = $("#addPeakButton");
+addPeakButton.addEventListener("click", onAddPeakButton);
+
+// Get inputs contexts
+
+// Get checkboxs contexts
+
+// Get sliders contexts
+
+// Declare vars
+let trace1;
+let trace2;
+
+let data1;
+let data2;
+
+let stabilization = true;
+
+// Get graph divs
+let graphDiv = Plotly.d3.select("#graphContainer").node();
+let fftDiv = Plotly.d3.select("#fftContainer").node();
+
+// Create an audio context
+let audioCtx = new (window.AudioContext || window.webkitAudioContext)(); // Maybe deprecated
+
+// Create an analyser
+let analyser = audioCtx.createAnalyser();
+
+// Set the analyser
+analyser.fftSize = 2048;
+let bufferLength = analyser.frequencyBinCount;
+let dataArray = new Uint8Array(bufferLength);
+analyser.getByteTimeDomainData(dataArray);
+
+// Only ask for audio
+var constraints = { audio: true, video: false }; 
+
+// Get the audio source and connect all nodes
+navigator.mediaDevices.getUserMedia(constraints)
+.then(function(stream) {
+  //let audio = document.querySelector("audio");
+  //audio.srcObject = stream;
+  //audio.onloadedmetadata = function(e) {
+  //  audio.play();
+  //};
+
+	// Create a MediaStreamAudioSourceNode
+	// Feed the HTMLMediaElement into it
+	let source = audioCtx.createMediaStreamSource(stream);
+	
+	// connect the AudioBufferSourceNode to the analyser
+	// and the analyser to the destination, so we can play the
+	// music and adjust the volume using the mouse cursor
+	source.connect(analyser);
+	analyser.connect(audioCtx.destination);
+})
+.catch(function(err) { console.log(err.name + ": " + err.message); }); // always check for errors at the end.
+
+
+/*----------------------------------------------------------------------------------------------
+-----------------------------------------GRAPH SETTINGS-----------------------------------------
+----------------------------------------------------------------------------------------------*/
+
+var layout = {
+  title:"Testtt",
+	xaxis: {
+    title: "x-axis title",
+		range: [0, 10]
+  },
+  yaxis: {
+    title: "y-axis title",
+		range: [-1, 1]
+  }
+};
+
+/*----------------------------------------------------------------------------------------------
+------------------------------------------DRAW FUNCTION-----------------------------------------
+----------------------------------------------------------------------------------------------*/
+function draw() {
+	requestAnimationFrame(draw);
+
+	// Get the new datas
+	analyser.getByteTimeDomainData(dataArray);
+
+	// Set the new datas
+	for(let i = 0; i < bufferLength; i++){
+		trace1.x[i] = i * 10 / bufferLength;
+		trace1.y[i] = dataArray[i] / 128.0 - 1;
+	}
+
+	if(stabilization == true){
+		stabilize(data1);
+	}
+
+	// Update the graph
+	if(layout.datarevision == 1){
+		layout.datarevision = 0;
+	}
+	else{
+		layout.datarevision = 1;
+	}
+	Plotly.react(graphDiv, data1, layout);
+};
+
+/*----------------------------------------------------------------------------------------------
+------------------------------------FUNCTION--------------------------------------
+----------------------------------------------------------------------------------------------*/
+
+function stabilize(_data){
+	let maximum = 0;
+	let maximumIndex = 0;
+	for(let i = 0; i < bufferLength / 20; i++){
+		if(_data[0].y[i] > maximum){
+			maximum = _data[0].y[i];
+			maximumIndex = i;
+		}
+	}
+
+	for(let i = 0; i < bufferLength - maximumIndex; i++){
+		_data[0].x[i + maximumIndex] = i * 10 / bufferLength;
+	}
+
+	_data[0].x.splice(0,maximumIndex);
+	_data[0].y.splice(0,maximumIndex);
+}
+
+/*----------------------------------------------------------------------------------------------
+---------------------------------------------EVENTS---------------------------------------------
+----------------------------------------------------------------------------------------------*/
+window.onload = function() {
+	//
+	trace1 = {
+		x: [],
+		y: [],
+		mode: "line"
+	};
+
+	data1 = [trace1];
+
+	// Create the graph and link the datas
+	Plotly.react(graphDiv, data1, layout, {displaylogo: false});
+	draw();
+};
+
+window.onresize = function() {
+	console.log("resize");
+  Plotly.Plots.resize(gd);
+};
+
+function onAddPeakButton() {
+	console.log(dataArray);
+}
+
+</script>
+</body>
+</html> 
