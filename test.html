@@ -43,6 +43,8 @@
 
 	<script src="lib/audio.js"></script>
 
+	<script src="lib/fft.js"></script>
+
 	<style>
 
 	</style>
@@ -139,20 +141,24 @@ addPeakButton.addEventListener("click", onAddPeakButton);
 // Get sliders contexts
 
 // Declare vars
-let trace1;
-let trace2;
-
-let data1;
-let data2;
+let trace1 = {x: [],y: [],mode: "line"};
+let trace2 = {x: [],y: [],mode: "line"};
+let data1 = [trace1];
+let data2 = [trace2];
 
 let stabilization = true;
+
+let bufferSize = 4096;
+
+// Create the fft object
+var fft = new FFTNayuki(bufferSize);
 
 // Get graph divs
 let graphDiv = Plotly.d3.select("#graphContainer").node();
 let fftDiv = Plotly.d3.select("#fftContainer").node();
 
 // Create a PhyAudio object
-let audio = new PhyAudio();
+let audio = new PhyAudio(bufferSize);
 
 /*----------------------------------------------------------------------------------------------
 -----------------------------------------GRAPH SETTINGS-----------------------------------------
@@ -173,10 +179,11 @@ let graphLayout = {
 let fftLayout = {
   title:"fft",
 	xaxis: {
-    title: "x-axis title"
+		title: "x-axis title",
   },
   yaxis: {
-    title: "y-axis title"
+		title: "y-axis title",
+		range: [0, 1]
   }
 };
 
@@ -186,14 +193,22 @@ let fftLayout = {
 function draw() {
 	requestAnimationFrame(draw);
 
-	// Update PhyAudio
+	// sample
 	let graphData = audio.getGraph();
-	let fftData = audio.getFft();
 
 	// Set the new datas
-	for(let i = 0; i < audio.bufferLength; i++){
-		trace1.x[i] = i * 10 / audio.bufferLength;
+	for(let i = 0; i < bufferSize; i++){
+		trace1.x[i] = i * 10 / bufferSize;
 		trace1.y[i] = graphData[i] / 128.0 - 1;
+	}
+
+	// Compute the fft
+	let fftData = fft.computeFft(trace1.y, 44100);
+
+	// Set the new fft datas
+	for(let i = 0; i < bufferSize / 44100 * 16000; i++){
+		trace2.x[i] = i / bufferSize * 44100;
+		trace2.y[i] = fftData[i].y * 2;	// Arbitrary
 	}
 
 	if(stabilization == true){
@@ -203,11 +218,15 @@ function draw() {
 	// Update the graph
 	if(graphLayout.datarevision == 1){
 		graphLayout.datarevision = 0;
+		fftLayout.datarevision = 0;
 	}
 	else{
 		graphLayout.datarevision = 1;
+		fftLayout.datarevision = 1;
 	}
-	Plotly.react(graphDiv, data1, graphLayout);
+	Plotly.update(graphDiv, data1, graphLayout);
+	Plotly.react(fftDiv, data2, fftLayout);
+
 };
 
 /*----------------------------------------------------------------------------------------------
@@ -217,15 +236,15 @@ function draw() {
 function stabilize(_data){
 	let maximum = 0;
 	let maximumIndex = 0;
-	for(let i = 0; i < audio.bufferLength / 10; i++){
+	for(let i = 0; i < bufferSize / 10; i++){
 		if(_data[0].y[i] > maximum){
 			maximum = _data[0].y[i];
 			maximumIndex = i;
 		}
 	}
 
-	for(let i = 0; i < audio.bufferLength - maximumIndex; i++){
-		_data[0].x[i + maximumIndex] = i * 10 / audio.bufferLength;
+	for(let i = 0; i < bufferSize - maximumIndex; i++){
+		_data[0].x[i + maximumIndex] = i * 10 / bufferSize;
 	}
 
 	_data[0].x.splice(0,maximumIndex);
@@ -236,23 +255,16 @@ function stabilize(_data){
 ---------------------------------------------EVENTS---------------------------------------------
 ----------------------------------------------------------------------------------------------*/
 window.onload = function() {
-	//
-	trace1 = {
-		x: [],
-		y: [],
-		mode: "line"
-	};
-
-	data1 = [trace1];
-
 	// Create the graph and link the datas
 	Plotly.react(graphDiv, data1, graphLayout, {displaylogo: false});
+	Plotly.react(fftDiv, data2, fftLayout, {displaylogo: false});
 	draw();
 };
 
 window.onresize = function() {
 	console.log("resize");
-  Plotly.Plots.resize(gd);
+	Plotly.Plots.resize(graphDiv);
+	Plotly.Plots.resize(fftDiv);
 };
 
 function onAddPeakButton() {
