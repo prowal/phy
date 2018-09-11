@@ -39,8 +39,9 @@
 
 	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-
 	<script src="lib/phy.js"></script>
+
+	<script src="lib/audio.js"></script>
 
 	<style>
 
@@ -150,48 +151,14 @@ let stabilization = true;
 let graphDiv = Plotly.d3.select("#graphContainer").node();
 let fftDiv = Plotly.d3.select("#fftContainer").node();
 
-// Create an audio context
-let audioCtx = new (window.AudioContext || window.webkitAudioContext)(); // Maybe deprecated
-
-// Create an analyser
-let analyser = audioCtx.createAnalyser();
-
-// Set the analyser
-analyser.fftSize = 2048;
-let bufferLength = analyser.frequencyBinCount;
-let dataArray = new Uint8Array(bufferLength);
-analyser.getByteTimeDomainData(dataArray);
-
-// Only ask for audio
-var constraints = { audio: true, video: false }; 
-
-// Get the audio source and connect all nodes
-navigator.mediaDevices.getUserMedia(constraints)
-.then(function(stream) {
-  //let audio = document.querySelector("audio");
-  //audio.srcObject = stream;
-  //audio.onloadedmetadata = function(e) {
-  //  audio.play();
-  //};
-
-	// Create a MediaStreamAudioSourceNode
-	// Feed the HTMLMediaElement into it
-	let source = audioCtx.createMediaStreamSource(stream);
-	
-	// connect the AudioBufferSourceNode to the analyser
-	// and the analyser to the destination, so we can play the
-	// music and adjust the volume using the mouse cursor
-	source.connect(analyser);
-	analyser.connect(audioCtx.destination);
-})
-.catch(function(err) { console.log(err.name + ": " + err.message); }); // always check for errors at the end.
-
+// Create a PhyAudio object
+let audio = new PhyAudio();
 
 /*----------------------------------------------------------------------------------------------
 -----------------------------------------GRAPH SETTINGS-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
 
-var layout = {
+let graphLayout = {
   title:"Testtt",
 	xaxis: {
     title: "x-axis title",
@@ -203,19 +170,30 @@ var layout = {
   }
 };
 
+let fftLayout = {
+  title:"fft",
+	xaxis: {
+    title: "x-axis title"
+  },
+  yaxis: {
+    title: "y-axis title"
+  }
+};
+
 /*----------------------------------------------------------------------------------------------
 ------------------------------------------DRAW FUNCTION-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
 function draw() {
 	requestAnimationFrame(draw);
 
-	// Get the new datas
-	analyser.getByteTimeDomainData(dataArray);
+	// Update PhyAudio
+	let graphData = audio.getGraph();
+	let fftData = audio.getFft();
 
 	// Set the new datas
-	for(let i = 0; i < bufferLength; i++){
-		trace1.x[i] = i * 10 / bufferLength;
-		trace1.y[i] = dataArray[i] / 128.0 - 1;
+	for(let i = 0; i < audio.bufferLength; i++){
+		trace1.x[i] = i * 10 / audio.bufferLength;
+		trace1.y[i] = graphData[i] / 128.0 - 1;
 	}
 
 	if(stabilization == true){
@@ -223,31 +201,31 @@ function draw() {
 	}
 
 	// Update the graph
-	if(layout.datarevision == 1){
-		layout.datarevision = 0;
+	if(graphLayout.datarevision == 1){
+		graphLayout.datarevision = 0;
 	}
 	else{
-		layout.datarevision = 1;
+		graphLayout.datarevision = 1;
 	}
-	Plotly.react(graphDiv, data1, layout);
+	Plotly.react(graphDiv, data1, graphLayout);
 };
 
 /*----------------------------------------------------------------------------------------------
-------------------------------------FUNCTION--------------------------------------
+-------------------------------------------FUNCTION---------------------------------------------
 ----------------------------------------------------------------------------------------------*/
 
 function stabilize(_data){
 	let maximum = 0;
 	let maximumIndex = 0;
-	for(let i = 0; i < bufferLength / 20; i++){
+	for(let i = 0; i < audio.bufferLength / 10; i++){
 		if(_data[0].y[i] > maximum){
 			maximum = _data[0].y[i];
 			maximumIndex = i;
 		}
 	}
 
-	for(let i = 0; i < bufferLength - maximumIndex; i++){
-		_data[0].x[i + maximumIndex] = i * 10 / bufferLength;
+	for(let i = 0; i < audio.bufferLength - maximumIndex; i++){
+		_data[0].x[i + maximumIndex] = i * 10 / audio.bufferLength;
 	}
 
 	_data[0].x.splice(0,maximumIndex);
@@ -268,7 +246,7 @@ window.onload = function() {
 	data1 = [trace1];
 
 	// Create the graph and link the datas
-	Plotly.react(graphDiv, data1, layout, {displaylogo: false});
+	Plotly.react(graphDiv, data1, graphLayout, {displaylogo: false});
 	draw();
 };
 
@@ -278,7 +256,7 @@ window.onresize = function() {
 };
 
 function onAddPeakButton() {
-	console.log(dataArray);
+	
 }
 
 </script>
