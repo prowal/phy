@@ -203,7 +203,7 @@ function draw() {
 	}
 
 	// Compute the fft
-	let fftData = fft.computeFft(trace1.y, 44100);
+	let fftData = fft.computeNormalizedFft(trace1.y, 44100, true);
 
 	// Set the new fft datas
 	for(let i = 0; i < bufferSize / 44100 * 16000; i++){
@@ -262,7 +262,6 @@ window.onload = function() {
 };
 
 window.onresize = function() {
-	console.log("resize");
 	Plotly.Plots.resize(graphDiv);
 	Plotly.Plots.resize(fftDiv);
 };
