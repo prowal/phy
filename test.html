@@ -130,6 +130,10 @@
 <script>
 const $ = document.querySelector.bind(document);
 
+
+let p1 = 0;
+let p2 = 0;
+
 // Get buttons contexts
 const addPeakButton = $("#addPeakButton");
 addPeakButton.addEventListener("click", onAddPeakButton);
@@ -224,8 +228,14 @@ function draw() {
 		graphLayout.datarevision = 1;
 		fftLayout.datarevision = 1;
 	}
-	Plotly.update(graphDiv, data1, graphLayout);
+	var t0 = performance.now();
+	Plotly.react(graphDiv, data1, graphLayout);
+	var t1 = performance.now();
+	console.log("update2: " + (t1 - t0) + " milliseconds.");
+	var t0 = performance.now();
 	Plotly.react(fftDiv, data2, fftLayout);
+	var t1 = performance.now();
+	console.log("update2: " + (t1 - t0) + " milliseconds.");
 
 };
 
