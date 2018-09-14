@@ -231,11 +231,7 @@ function generateWave(_frequency, _amplitude){
 -------------------------------------------FFT FUNCTION-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
 function computeFFT(_wave){
-	let wave = [];
-	for(let i = 0; i < _wave.length; i++){
-		wave[i] = _wave[i].y;
-	}
-	let spectrum = fft.computeCustomFft(wave, samplingFrequency, true, 6.2);
+	let spectrum = fft.computeCustomFft(_wave, samplingFrequency, true, 6.2);
 	spectrum.splice(900);
 	return spectrum;
 }

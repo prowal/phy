@@ -37,9 +37,7 @@
 
 	<link rel="stylesheet" href="lib/phy.css">
 
-	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
-	<script src="lib/Chart.min.js"></script>
+	<script src="https://code.highcharts.com/highcharts.src.js"></script>
 
 	<script src="lib/phy.js"></script>
 
@@ -85,43 +83,14 @@
 				</table>
 				<button class="w3-button w3-block w3-hover-green" id="addPeakButton"><i class="fas fa-plus-circle fa-lg"></i></button>
 			</div>
-			<!-- Second right card -->
-			<div class="w3-card-4 w3-margin">
-				<header class="w3-container w3-blue-grey">
-					<h3>Paramètres</h3>
-				</header>
-				<table class="w3-table w3-centered w3-white">
-					<tr>
-						<td>Volume :</td>
-						<td><input class="range-slider_range" id="volumeSlider" type="range" value="10" min="0" max="20"></td>
-					</tr>
-					<tr>
-						<td>Monochrome :</td>
-						<td>
-							<label class="switch">
-								<input type="checkbox" id="bwCheckbox">
-								<span class="toggleSlider round"></span>
-							</label>
-						</td>
-					</tr>
-				</table>
-			</div>
-			<!-- third right card -->
-			<div class="w3-card-4 w3-margin w3-white">
-				<button class="w3-button w3-block w3-hover-red" id="pauseButton"><h3 style="margin:0"><i class="fas fa-pause"></i> Pause</h3></button>
-			</div>
 		</div>
 		<!-- Graph card -->
 		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div id="graphContainer" class="w3-container w3-margin" style="height: 40vh">
-				<canvas class="canvas1"></canvas>
-			</div>
+			<div id="graphContainer" class="w3-container w3-margin" style="height: 40vh"></div>
 		</div>
 		<!-- FFT card -->
 		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div id="fftContainer" class="w3-container w3-margin" style="height: 40vh">
-				<canvas class="canvas2"></canvas>
-			</div>
+			<div id="fftContainer" class="w3-container w3-margin" style="height: 40vh"></div>
 		</div>
 	</div>
 
@@ -161,11 +130,13 @@
 <script>
 const $ = document.querySelector.bind(document);
 
+
 let p1 = 0;
 let p2 = 0;
-let p3 = 0;
 
-
+// Get buttons contexts
+const addPeakButton = $("#addPeakButton");
+addPeakButton.addEventListener("click", onAddPeakButton);
 
 // Get inputs contexts
 
@@ -174,145 +145,74 @@ let p3 = 0;
 // Get sliders contexts
 
 // Declare vars
-let data1 = [];
-let data2 = [];
-
-let chart1;
-let chart2;
+let trace1 = {x: [],y: [],mode: "line"};
+let trace2 = {x: [],y: [],mode: "line"};
+let data1 = [[0,0], [0,0]];
+let data2 = [trace2];
 
 let stabilization = true;
 
 let bufferSize = 4096;
-let echFrequency = 48000;
-
-let paused = false;
 
 // Create the fft object
 var fft = new FFTNayuki(bufferSize);
 
+// Get graph divs
+let graphDiv = "graphContainer";//Plotly.d3.select("#graphContainer").node();
+//let fftDiv = Plotly.d3.select("#fftContainer").node();
+
+let achart;
+
 // Create a PhyAudio object
 let audio = new PhyAudio(bufferSize);
-
-// Get canvas contexts and hide the FFT's canvas
-const canvasCtx1 = $("canvas.canvas1").getContext("2d");
-const canvasCtx2 = $("canvas.canvas2").getContext("2d");
-
-// Get buttons contexts
-const pauseButton = $("#pauseButton");
-pauseButton.addEventListener("click", onPauseButtonClick);
-
-
 
 /*----------------------------------------------------------------------------------------------
 -----------------------------------------GRAPH SETTINGS-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
 
 let graphConfig = {
-	type: "line",
-	data: {
-		datasets: [{
-			label: "TODO",
-			//data: data1,
-			borderColor: chartColors.pink,
-			// Hides the points...
-			radius: 0,
-			fill: false
-		}]
-	},
-	options: {
-		lineTension: 0,
-		responsive: true,
-		animation: false,
-		maintainAspectRatio: false,
-		legend: {
-				display: false
-			},
-		title: {
-			display: false,
-		},
-		scales: {
-			xAxes: [{
-				display: true,
-				type: "linear",
-				position: "bottom",
-				scaleLabel: {
-					display: true,
-					labelString: "Temps (s)"
-				},
-				ticks: {
-					min: 0,
-					max: 0.05,
-					//autoSkip: true,
-					//maxTicksLimit: 10,
-				}
-			}],
-			yAxes: [{
-				display: true,
-				scaleLabel: {
-					display: true,
-					labelString: "Amplitude"
-				},
-				ticks: {
-					suggestedMin: -1,
-					suggestedMax: 1,
-				}
-			}]
-		}
-	}
-};
 
-let fftConfig = {
-	type: "line",
-	data: {
-		datasets: [{
-			label: "Somme des ondes",
-			//data: data1,
-			borderColor: chartColors.pink,
-			// Hides the points...
-			radius: 0,
-			fill: false
-		}]
+title: {
+	text: 'Solar Employment Growth by Sector, 2010-2016'
+},
+
+subtitle: {
+	text: 'Source: thesolarfoundation.com'
+},
+
+yAxis: {
+	title: {
+		text: 'Number of Employees'
 	},
-	options: {
-		lineTension: 0,
-		responsive: true,
-		animation: false,
-		maintainAspectRatio: false,
-		legend: {
-				display: false
-			},
-		title: {
-			display: false,
-		},
-		scales: {
-			xAxes: [{
-				display: true,
-				type: "linear",
-				position: "bottom",
-				scaleLabel: {
-					display: true,
-					labelString: "Fréquence (Hz)"
-				},
-				ticks: {
-					min: 0,
-					max: 10000,
-					//autoSkip: true,
-					//maxTicksLimit: 10,
-				}
-			}],
-			yAxes: [{
-				display: true,
-				scaleLabel: {
-					display: true,
-					labelString: "Amplitude"
-				},
-				ticks: {
-					suggestedMin: 0,
-					suggestedMax: 1,
-				}
-			}]
-		}
-	}
+	min: -1,
+	max: 1
+},
+legend: {
+	layout: 'vertical',
+	align: 'right',
+	verticalAlign: 'middle'
+},
+
+plotOptions: {
+    series: {
+        animation: false
+    }
+},
+
+series: [{
+	name: 'Installation'
+}]
+}
+
+let fftLayout = {
+  title:"fft",
+	xaxis: {
+		title: "x-axis title",
+  },
+  yaxis: {
+		title: "y-axis title",
+		range: [0, 1]
+  }
 };
 
 /*----------------------------------------------------------------------------------------------
@@ -320,45 +220,47 @@ let fftConfig = {
 ----------------------------------------------------------------------------------------------*/
 function draw() {
 	requestAnimationFrame(draw);
-	if(paused == false){
+/*
 	// sample
 	let graphData = audio.getGraph();
-
+	let data = [[0,0],[0,0]];
 	// Set the new datas
 	for(let i = 0; i < bufferSize; i++){
-		data1[i] = {x: i / echFrequency, y: graphData[i] / 128.0 - 1};
+		data1[i] = [i * 10 / bufferSize , graphData[i] / 128.0 - 1];
 	}
 
 	// Compute the fft
-	let fftData = fft.computeNormalizedFft(data1, echFrequency, false);
+	let fftData = fft.computeNormalizedFft(trace1.y, 44100, true);
 
-	if(stabilization == true){
+	// Set the new fft datas
+	/*for(let i = 0; i < bufferSize / 44100 * 16000; i++){
+		data2[i] = [i / bufferSize * 44100, fftData[i].y * 2];
+	}
+
+	/*if(stabilization == true){
 		stabilize(data1);
 	}
 
-	// Trim unnecessary data
-	data1.splice(0.05 * echFrequency);
-
-	// Set the new fft datas
-	for(let i = 0; i < bufferSize / echFrequency * 10000; i++){
-		data2[i] = {x: fftData[i].x, y: fftData[i].y * 2 /*Arbitrary*/};
+	// Update the graph
+	/*if(graphLayout.datarevision == 1){
+		graphLayout.datarevision = 0;
+		fftLayout.datarevision = 0;
 	}
+	else{
+		graphLayout.datarevision = 1;
+		fftLayout.datarevision = 1;
+	}
+	//graphConfig.series[0].data = data1;
 
 	var t0 = performance.now();
-	
-	chart1.data.datasets[0].data = data1;
-	chart1.update();
+	achart.series[0].setData(data1, true);
+	console.log(data[0][1]);
 	var t1 = performance.now();
-	p1 += (t1 - t0);
-	p3 += 1;
-	//console.log("update1: " + p1/p3 + " milliseconds.");
-	t0 = performance.now();
-	chart2.data.datasets[0].data = data2;
-	chart2.update();
-	t1 = performance.now();
-	p2 += (t1 - t0);
-	//console.log("update2: " + p2/p3 + " milliseconds.");
-	};
+	console.log("update2: " + (t1 - t0) + " milliseconds.");
+	var t0 = performance.now();
+	//Plotly.react(fftDiv, data2, fftLayout);
+	var t1 = performance.now();
+	console.log("update2: " + (t1 - t0) + " milliseconds.");*/
 };
 
 /*----------------------------------------------------------------------------------------------
@@ -369,17 +271,18 @@ function stabilize(_data){
 	let maximum = 0;
 	let maximumIndex = 0;
 	for(let i = 0; i < bufferSize / 10; i++){
-		if(_data[i].y > maximum){
-			maximum = _data[i].y;
+		if(_data[0].y[i] > maximum){
+			maximum = _data[0].y[i];
 			maximumIndex = i;
 		}
 	}
 
 	for(let i = 0; i < bufferSize - maximumIndex; i++){
-		_data[i + maximumIndex].x = i / echFrequency;
+		_data[0].x[i + maximumIndex] = i * 10 / bufferSize;
 	}
 
-	_data.splice(0,maximumIndex);
+	_data[0].x.splice(0,maximumIndex);
+	_data[0].y.splice(0,maximumIndex);
 }
 
 /*----------------------------------------------------------------------------------------------
@@ -387,22 +290,60 @@ function stabilize(_data){
 ----------------------------------------------------------------------------------------------*/
 window.onload = function() {
 	// Create the graph and link the datas
-	chart1 = new Chart(canvasCtx1, graphConfig);
-	chart2 = new Chart(canvasCtx2, fftConfig);
+	//Plotly.react(graphDiv, data1, graphLayout, {displaylogo: false});
+	//Plotly.react(fftDiv, data2, fftLayout, {displaylogo: false});
+	achart = new Highcharts.Chart(graphDiv, graphConfig);
 	draw();
 };
 
-function onPauseButtonClick() {
-	if(paused == true){
-		paused = false;
-		pauseButton.classList.remove("w3-red");
-		pauseButton.classList.add("w3-white");
+window.onresize = function() {
+	Plotly.Plots.resize(graphDiv);
+	Plotly.Plots.resize(fftDiv);
+};
+
+function onAddPeakButton() {
+	// sample
+	let graphData = audio.getGraph();
+	let data = [[0,0],[0,0]];
+	// Set the new datas
+	for(let i = 0; i < bufferSize; i++){
+		data1[i] = [i * 10 / bufferSize , graphData[i] / 128.0 - 1];
+	}
+
+	// Compute the fft
+	let fftData = fft.computeNormalizedFft(trace1.y, 44100, true);
+
+	// Set the new fft datas
+	/*for(let i = 0; i < bufferSize / 44100 * 16000; i++){
+		data2[i] = [i / bufferSize * 44100, fftData[i].y * 2];
+	}*/
+
+	/*if(stabilization == true){
+		stabilize(data1);
+	}*/
+
+	// Update the graph
+	/*if(graphLayout.datarevision == 1){
+		graphLayout.datarevision = 0;
+		fftLayout.datarevision = 0;
 	}
 	else{
-		paused = true;
-		pauseButton.classList.remove("w3-white");
-		pauseButton.classList.add("w3-red");
-	}
+		graphLayout.datarevision = 1;
+		fftLayout.datarevision = 1;
+	}*/
+	//graphConfig.series[0].data = data1;
+	var newArray = [];
+	for (var i = 0; i < data1.length; i++)
+			newArray[i] = data1[i].slice();
+	var t0 = performance.now();
+	achart.series[0].setData(newArray, true, true, false);
+	console.log(newArray);
+	var t1 = performance.now();
+	console.log("update2: " + (t1 - t0) + " milliseconds.");
+	var t0 = performance.now();
+	//Plotly.react(fftDiv, data2, fftLayout);
+	var t1 = performance.now();
+	console.log("update2: " + (t1 - t0) + " milliseconds.");
 }
 
 </script>
