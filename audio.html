@@ -6,7 +6,7 @@
 	<!-- 
 	MIT License
 
-	La Belle Physique : RMN
+	La Belle Physique : Analyseur audio
 
 	Copyright (c) 2018 Gaétan Walter
 
@@ -29,9 +29,10 @@
 	SOFTWARE.
 	-->
 
-	<title>TEST</title>
+	<title>Analyseur audio</title>
 
-	<link rel="stylesheet" href="lib/w3.css"> 
+	<link rel="stylesheet" href="lib/w3.css">
+	<link rel="stylesheet" href="lib/w3-theme-teal.css"> 
 
 	<link rel="stylesheet" href="lib/fontawesome/css/all.min.css">
 
@@ -54,59 +55,33 @@
 </head>
 <body class="w3-light-grey">
 	<!-- Header bar -->
-	<div class="header w3-blue-grey">
-		<div class="w3-bar w3-card-4 w3-center">
-			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>TEST</b></span>
+	<div class="w3-card-4 w3-theme">
+		<div class="w3-bar w3-center">
+			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>Analyseur audio</b></span>
 			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle fa-lg"></i></b></button>
 			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><b><i class="fas fa-home fa-lg"></i></b></a>
-		</div> 
+		</div>
+		<div class="w3-bar">
+			<button id ="realtimeButton" class="w3-bar-item w3-button w3-hover-none phy-tab">TEMPS REEL</button>
+			<button id ="recordButton" class="w3-bar-item w3-button w3-hover-none phy-tab">ENREGISTRER</button>
+			<button class="w3-bar-item w3-button w3-hover-none phy-tab">AAA</button>
+		</div>
 	</div>
 
-	<div class="w3-row">
+	<div id="realtimeTab" class="w3-row">
 		<div class="w3-col w3-right" style="width: 320px">
 			<!-- First right card -->
-			<div class="w3-card-4 w3-margin w3-white">
-				<header class="w3-container w3-blue-grey">
-					<h3>Ajouter des pics</h3>
-				</header>
-				<table class="w3-table w3-bordered w3-centered">
-					<tr>
-						<th>PPM</th>
-						<th>Mul</th>
-						<th>Nb H</th>
-						<th> </th>
-					</tr>
-					<tr id="peak1" style="display : none">
-						<td><input type="number" class="no-spin" id="ppmInput1" step="0.01"></td>
-						<td><input type="number" id="mulInput1" min="1" max="7" value="1"></td>
-						<td><input type="number" id="nbHInput1" min="1" max="20" value="1"></td>
-						<td style="padding: 0px"><button class="w3-bar-item w3-button w3-right w3-large w3-hover-red" id="removePeakButton1"><i class="fas fas fa-minus-circle"></i></button></td>
-					</tr>
-				</table>
-				<button class="w3-button w3-block w3-hover-green" id="addPeakButton"><i class="fas fa-plus-circle fa-lg"></i></button>
-			</div>
-			<!-- Second right card -->
 			<div class="w3-card-4 w3-margin">
-				<header class="w3-container w3-blue-grey">
+				<header class="w3-container w3-theme">
 					<h3>Paramètres</h3>
 				</header>
-				<table class="w3-table w3-centered w3-white">
-					<tr>
-						<td>Volume :</td>
-						<td><input class="range-slider_range" id="volumeSlider" type="range" value="10" min="0" max="20"></td>
-					</tr>
-					<tr>
-						<td>Monochrome :</td>
-						<td>
-							<label class="switch">
-								<input type="checkbox" id="bwCheckbox">
-								<span class="toggleSlider round"></span>
-							</label>
-						</td>
-					</tr>
-				</table>
+				<div class="w3-container w3-white">
+					<p class="w3-opacity"><b>Amplification :</b></p>
+					<input class="range-slider_range" id="amplificationSlider" type="range" value="10" min="0" max="20">
+					<span class="range-slider_value" id="amplificationValue">10</span>
+				</div>
 			</div>
-			<!-- third right card -->
+			<!-- Second right card -->
 			<div class="w3-card-4 w3-margin w3-white">
 				<button class="w3-button w3-block w3-hover-red" id="pauseButton"><h3 style="margin:0"><i class="fas fa-pause"></i> Pause</h3></button>
 			</div>
@@ -123,6 +98,8 @@
 				<canvas class="canvas2"></canvas>
 			</div>
 		</div>
+	</div>
+	<div id="recordTab" class="w3-row" style="display:none">
 	</div>
 
 	<!-- Modal card -->
@@ -171,8 +148,6 @@ let p3 = 0;
 
 // Get checkboxs contexts
 
-// Get sliders contexts
-
 // Declare vars
 let data1 = [];
 let data2 = [];
@@ -197,9 +172,27 @@ let audio = new PhyAudio(bufferSize);
 const canvasCtx1 = $("canvas.canvas1").getContext("2d");
 const canvasCtx2 = $("canvas.canvas2").getContext("2d");
 
+// Get sliders contexts
+const amplificationSlider = $("#amplificationSlider");
+const amplificationValue = $("#amplificationValue");
+amplificationSlider.addEventListener("input", onAmplificationSliderChange);
+amplificationSlider.addEventListener("dblclick", onAmplificationSliderDblClick);
+amplificationValue.addEventListener("dblclick", onAmplificationSliderDblClick);
+
+
 // Get buttons contexts
 const pauseButton = $("#pauseButton");
 pauseButton.addEventListener("click", onPauseButtonClick);
+
+let tabButtons = [];
+tabButtons[0] = $("#realtimeButton");
+tabButtons[1] = $("#recordButton");
+tabButtons[0].addEventListener("click", function(){onTabButtonClick(0)});
+tabButtons[1].addEventListener("click", function(){onTabButtonClick(1)});
+
+let tabs = [];
+tabs[0] = $("#realtimeTab");
+tabs[1] = $("#recordTab");
 
 
 
@@ -385,13 +378,6 @@ function stabilize(_data){
 /*----------------------------------------------------------------------------------------------
 ---------------------------------------------EVENTS---------------------------------------------
 ----------------------------------------------------------------------------------------------*/
-window.onload = function() {
-	// Create the graph and link the datas
-	chart1 = new Chart(canvasCtx1, graphConfig);
-	chart2 = new Chart(canvasCtx2, fftConfig);
-	draw();
-};
-
 function onPauseButtonClick() {
 	if(paused == true){
 		paused = false;
@@ -404,6 +390,48 @@ function onPauseButtonClick() {
 		pauseButton.classList.add("w3-red");
 	}
 }
+
+function onTabButtonClick(_id) {
+	// UnActivate all buttons
+	for(let i = 0; i < tabButtons.length; i++){
+		tabButtons[i].classList.remove("phy-tab-active");
+	}
+	// Activate the clicked button
+	tabButtons[_id].classList.add("phy-tab-active");
+
+	// Hide all tabs
+	for(let i = 0; i < tabs.length; i++){
+		tabs[i].style.display = "none";
+	}
+
+	// Show the active tab
+	tabs[_id].style.display = "block";
+}
+
+function onAmplificationSliderChange() {
+	audio.setGain(amplificationSlider.value / 10); // /10 to have integer values in the slider
+	$("#amplificationValue").innerHTML = "x " + audio.gain;
+}
+
+function onAmplificationSliderDblClick() {
+	audio.setGain(1); // Default
+	amplificationSlider.value = 10;
+	$("#amplificationValue").innerHTML = "x " + audio.gain;
+}
+
+window.onload = function() {
+	// Create the graph and link the datas
+	chart1 = new Chart(canvasCtx1, graphConfig);
+	chart2 = new Chart(canvasCtx2, fftConfig);
+
+	// Init the gain slider
+	onAmplificationSliderChange()
+
+	// Activate a tab
+	onTabButtonClick(0);
+
+	draw();
+};
 
 </script>
 </body>

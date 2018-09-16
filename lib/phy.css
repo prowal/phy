@@ -27,6 +27,21 @@ SOFTWARE.
 /* Remove borders when highlighted in Chrome*/
 button:focus {outline:0;}
 
+/* Custom tabs*/
+.phy-tab{
+	font-weight: bold;
+	opacity:0.80;
+}
+.phy-tab:hover{
+	opacity:1 !important;
+	color: white !important;
+}
+.phy-tab-active{
+	font-weight: bold;
+	opacity:1 !important;
+	border-bottom: 3px solid white !important;
+}
+
 /* Remove the underline on card links*/
 a.w3-card-4{text-decoration: none;}
 
