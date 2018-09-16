@@ -62,8 +62,8 @@
 			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><b><i class="fas fa-home fa-lg"></i></b></a>
 		</div>
 		<div class="w3-bar">
-			<button id ="realtimeButton" class="w3-bar-item w3-button w3-hover-none phy-tab">TEMPS REEL</button>
-			<button id ="recordButton" class="w3-bar-item w3-button w3-hover-none phy-tab">ENREGISTRER</button>
+			<button id ="realtimeTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">TEMPS REEL</button>
+			<button id ="recordTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">ENREGISTRER</button>
 			<button class="w3-bar-item w3-button w3-hover-none phy-tab">AAA</button>
 		</div>
 	</div>
@@ -84,6 +84,7 @@
 			<!-- Second right card -->
 			<div class="w3-card-4 w3-margin w3-white">
 				<button class="w3-button w3-block w3-hover-red" id="pauseButton"><h3 style="margin:0"><i class="fas fa-pause"></i> Pause</h3></button>
+				<button class="w3-button w3-block" id="recordButton" style="display:none"><h3 style="margin:0"><i class="fas fa-save"></i> Enregistrer</h3></button>
 			</div>
 		</div>
 		<!-- Graph card -->
@@ -184,9 +185,12 @@ amplificationValue.addEventListener("dblclick", onAmplificationSliderDblClick);
 const pauseButton = $("#pauseButton");
 pauseButton.addEventListener("click", onPauseButtonClick);
 
+const recordButton = $("#recordButton");
+recordButton.addEventListener("click", onRecordButtonClick);
+
 let tabButtons = [];
-tabButtons[0] = $("#realtimeButton");
-tabButtons[1] = $("#recordButton");
+tabButtons[0] = $("#realtimeTabButton");
+tabButtons[1] = $("#recordTabButton");
 tabButtons[0].addEventListener("click", function(){onTabButtonClick(0)});
 tabButtons[1].addEventListener("click", function(){onTabButtonClick(1)});
 
@@ -383,12 +387,20 @@ function onPauseButtonClick() {
 		paused = false;
 		pauseButton.classList.remove("w3-red");
 		pauseButton.classList.add("w3-white");
+		// Hide the record button
+		recordButton.style.display = "none";
 	}
 	else{
 		paused = true;
 		pauseButton.classList.remove("w3-white");
 		pauseButton.classList.add("w3-red");
+		// Show the record button
+		recordButton.style.display = "block";
 	}
+}
+
+function onRecordButtonClick() {
+
 }
 
 function onTabButtonClick(_id) {
