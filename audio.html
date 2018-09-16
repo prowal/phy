@@ -33,6 +33,7 @@
 
 	<link rel="stylesheet" href="lib/w3.css">
 	<link rel="stylesheet" href="lib/w3-theme-teal.css"> 
+	<link rel="stylesheet" href="lib/w3-theme-indigo.css"> 
 
 	<link rel="stylesheet" href="lib/fontawesome/css/all.min.css">
 
@@ -61,10 +62,15 @@
 			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle fa-lg"></i></b></button>
 			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><b><i class="fas fa-home fa-lg"></i></b></a>
 		</div>
-		<div class="w3-bar">
+		<div id="tabBar" class="w3-bar">
 			<button id ="realtimeTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">TEMPS REEL</button>
 			<button id ="recordTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">ENREGISTRER</button>
-			<button class="w3-bar-item w3-button w3-hover-none phy-tab">AAA</button>
+			<span class="w3-bar-item"><i class="fas fa-minus fa-rotate-90"></i></span>
+			<button class="w3-bar-item w3-button w3-hover-none phy-tab"><i class="fas fa-file-audio"></i> Enreg. 1</button>
+			<button class="w3-bar-item w3-button w3-hover-none phy-tab"><i class="fas fa-file-audio"></i> Enreg. 1</button>
+			<button class="w3-bar-item w3-button w3-hover-none phy-tab"><i class="fas fa-file-audio"></i> Enreg. 1</button>
+			<button class="w3-bar-item w3-button w3-hover-none phy-tab"><i class="fas fa-file-audio"></i> Enreg. 1</button>
+			<button class="w3-bar-item w3-button w3-hover-none phy-tab"><i class="fas fa-file-audio"></i> Enreg. 1</button>
 		</div>
 	</div>
 
@@ -95,7 +101,7 @@
 		</div>
 		<!-- FFT card -->
 		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div id="fftContainer" class="w3-container w3-margin" style="height: 40vh">
+			<div id="fftContainer" class="w3-container w3-margin" style="height: 35vh">
 				<canvas class="canvas2"></canvas>
 			</div>
 		</div>
@@ -150,8 +156,8 @@ let p3 = 0;
 // Get checkboxs contexts
 
 // Declare vars
-let data1 = [];
-let data2 = [];
+let realtimeWaveData = [];
+let realtimeFourierData = [];
 
 let chart1;
 let chart2;
@@ -161,15 +167,17 @@ let stabilization = true;
 let bufferSize = 4096;
 let echFrequency = 48000;
 
+let activeTab;
+
 let paused = false;
 
-// Create the fft object
-var fft = new FFTNayuki(bufferSize);
+// Create the fourier object
+var fourier = new FFTNayuki(bufferSize);
 
 // Create a PhyAudio object
 let audio = new PhyAudio(bufferSize);
 
-// Get canvas contexts and hide the FFT's canvas
+// Get canvas contexts and hide the fourier's canvas
 const canvasCtx1 = $("canvas.canvas1").getContext("2d");
 const canvasCtx2 = $("canvas.canvas2").getContext("2d");
 
@@ -180,13 +188,8 @@ amplificationSlider.addEventListener("input", onAmplificationSliderChange);
 amplificationSlider.addEventListener("dblclick", onAmplificationSliderDblClick);
 amplificationValue.addEventListener("dblclick", onAmplificationSliderDblClick);
 
-
-// Get buttons contexts
-const pauseButton = $("#pauseButton");
-pauseButton.addEventListener("click", onPauseButtonClick);
-
-const recordButton = $("#recordButton");
-recordButton.addEventListener("click", onRecordButtonClick);
+// Get the tab bar and tab buttons contexts
+const tabBar = $("#tabBar");
 
 let tabButtons = [];
 tabButtons[0] = $("#realtimeTabButton");
@@ -197,6 +200,13 @@ tabButtons[1].addEventListener("click", function(){onTabButtonClick(1)});
 let tabs = [];
 tabs[0] = $("#realtimeTab");
 tabs[1] = $("#recordTab");
+
+// Get buttons contexts
+const pauseButton = $("#pauseButton");
+pauseButton.addEventListener("click", onPauseButtonClick);
+
+const recordButton = $("#recordButton");
+recordButton.addEventListener("click", onRecordButtonClick);
 
 
 
@@ -209,7 +219,6 @@ let graphConfig = {
 	data: {
 		datasets: [{
 			label: "TODO",
-			//data: data1,
 			borderColor: chartColors.pink,
 			// Hides the points...
 			radius: 0,
@@ -258,12 +267,11 @@ let graphConfig = {
 	}
 };
 
-let fftConfig = {
+let fourierConfig = {
 	type: "line",
 	data: {
 		datasets: [{
 			label: "Somme des ondes",
-			//data: data1,
 			borderColor: chartColors.pink,
 			// Hides the points...
 			radius: 0,
@@ -313,49 +321,63 @@ let fftConfig = {
 };
 
 /*----------------------------------------------------------------------------------------------
-------------------------------------------DRAW FUNCTION-----------------------------------------
+-----------------------------------------DRAW FUNCTIONS-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
-function draw() {
-	requestAnimationFrame(draw);
+function realtimeDraw() {
 	if(paused == false){
 	// sample
 	let graphData = audio.getGraph();
 
 	// Set the new datas
 	for(let i = 0; i < bufferSize; i++){
-		data1[i] = {x: i / echFrequency, y: graphData[i] / 128.0 - 1};
+		realtimeWaveData[i] = {x: i / echFrequency, y: graphData[i] / 128.0 - 1};
 	}
 
-	// Compute the fft
-	let fftData = fft.computeNormalizedFft(data1, echFrequency, false);
+	// Compute the fourier
+	let fourierData = fourier.computeNormalizedFft(realtimeWaveData, echFrequency, false);
 
 	if(stabilization == true){
-		stabilize(data1);
+		stabilize(realtimeWaveData);
 	}
 
 	// Trim unnecessary data
-	data1.splice(0.05 * echFrequency);
+	realtimeWaveData.splice(0.05 * echFrequency);
 
-	// Set the new fft datas
+	// Set the new fourier datas
 	for(let i = 0; i < bufferSize / echFrequency * 10000; i++){
-		data2[i] = {x: fftData[i].x, y: fftData[i].y * 2 /*Arbitrary*/};
+		realtimeFourierData[i] = {x: fourierData[i].x, y: fourierData[i].y * 2 /*Arbitrary*/};
 	}
 
 	var t0 = performance.now();
 	
-	chart1.data.datasets[0].data = data1;
+	chart1.data.datasets[0].data = realtimeWaveData;
 	chart1.update();
 	var t1 = performance.now();
 	p1 += (t1 - t0);
 	p3 += 1;
 	//console.log("update1: " + p1/p3 + " milliseconds.");
 	t0 = performance.now();
-	chart2.data.datasets[0].data = data2;
+	chart2.data.datasets[0].data = realtimeFourierData;
 	chart2.update();
 	t1 = performance.now();
 	p2 += (t1 - t0);
 	//console.log("update2: " + p2/p3 + " milliseconds.");
 	};
+}
+
+function recordDraw() {
+
+}
+
+function draw() {
+	requestAnimationFrame(draw);
+
+	if(activeTab == 0){
+		realtimeDraw();
+	}
+	else{
+		recordDraw();
+	}
 };
 
 /*----------------------------------------------------------------------------------------------
@@ -400,8 +422,26 @@ function onPauseButtonClick() {
 }
 
 function onRecordButtonClick() {
+	// Click feedback animation
+	recordButton.classList.remove("w3-animate-opacity");
+	void recordButton.offsetWidth; // Provoke a reflow to allow a new animation
+	recordButton.classList.add("w3-animate-opacity");
+	
+	// Add a tab button in the tabBar
+	let newButton = document.createElement("button");
 
-}
+	// Add the icon
+	let audioFileIcon = document.createElement("i");
+	audioFileIcon.className ="fas fa-file-audio" ;
+	newButton.appendChild(audioFileIcon);
+	
+	// Set the button's text
+	let newText = document.createTextNode(" Enreg");
+	newButton.appendChild(newText);
+
+	newButton.className ="w3-bar-item w3-button w3-hover-none phy-tab" ;
+	tabBar.appendChild(newButton);
+	}
 
 function onTabButtonClick(_id) {
 	// UnActivate all buttons
@@ -410,6 +450,9 @@ function onTabButtonClick(_id) {
 	}
 	// Activate the clicked button
 	tabButtons[_id].classList.add("phy-tab-active");
+
+	// Store the activeTab id
+	activeTab = _id;
 
 	// Hide all tabs
 	for(let i = 0; i < tabs.length; i++){
@@ -434,7 +477,7 @@ function onAmplificationSliderDblClick() {
 window.onload = function() {
 	// Create the graph and link the datas
 	chart1 = new Chart(canvasCtx1, graphConfig);
-	chart2 = new Chart(canvasCtx2, fftConfig);
+	chart2 = new Chart(canvasCtx2, fourierConfig);
 
 	// Init the gain slider
 	onAmplificationSliderChange()

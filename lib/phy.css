@@ -31,6 +31,9 @@ button:focus {outline:0;}
 .phy-tab{
 	font-weight: bold;
 	opacity:0.80;
+	border-bottom: 3px solid rgba(0, 0, 0, 0) !important; /*Transparent border*/
+	-webkit-transition: .4s;
+	transition: .4s;
 }
 .phy-tab:hover{
 	opacity:1 !important;
@@ -134,18 +137,18 @@ input:checked + .toggleSlider:before {
 	width: 20px;
 	height: 20px;
 	border-radius: 50%;
-	background: #2c3e50;
+	background: #3f51b5;
 	cursor: pointer;
 	-webkit-transition: background .15s ease-in-out;
 	transition: background .15s ease-in-out;
 }
 
 .range-slider_range::-webkit-slider-thumb:hover {
-	background: #1abc9c;
+	background: #009688;
 }
 
 .range-slider_range:active::-webkit-slider-thumb {
-	background: #1abc9c;
+	background: #009688;
 }
 
 .range-slider_range::-moz-range-thumb {
@@ -153,18 +156,18 @@ input:checked + .toggleSlider:before {
 	height: 20px;
 	border: 0;
 	border-radius: 50%;
-	background: #2c3e50;
+	background: #3f51b5;
 	cursor: pointer;
 	-webkit-transition: background .15s ease-in-out;
 	transition: background .15s ease-in-out;
 }
 
 .range-slider_range::-moz-range-thumb:hover {
-	background: #1abc9c;
+	background: #009688;
 }
 
 .range-slider_range:active::-moz-range-thumb {
-	background: #1abc9c;
+	background: #009688;
 }
 
 /* custom label */
@@ -176,7 +179,7 @@ input:checked + .toggleSlider:before {
 	line-height: 20px;
 	text-align: center;
 	border-radius: 3px;
-	background: #2c3e50;
+	background: #3f51b5;
 	padding: 4px 4px;
 	margin-left: 8px;
 	margin-bottom: 8px;
@@ -189,7 +192,7 @@ input:checked + .toggleSlider:before {
 	width: 0;
 	height: 0;
 	border-top: 7px solid transparent;
-	border-right: 7px solid #2c3e50;
+	border-right: 7px solid #3f51b5;
 	border-bottom: 7px solid transparent;
 	content: '';
 }
