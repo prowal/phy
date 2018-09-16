@@ -63,8 +63,8 @@
 			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><b><i class="fas fa-home fa-lg"></i></b></a>
 		</div>
 		<div id="tabBar" class="w3-bar">
-			<button id ="realtimeTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">TEMPS REEL</button>
-			<button id ="recordTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">ENREGISTRER</button>
+			<button id ="rtTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">TEMPS REEL</button>
+			<button id ="recTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">ENREGISTRER</button>
 			<span class="w3-bar-item"><i class="fas fa-minus fa-rotate-90"></i></span>
 			<button class="w3-bar-item w3-button w3-hover-none phy-tab"><i class="fas fa-file-audio"></i> Enreg. 1</button>
 			<button class="w3-bar-item w3-button w3-hover-none phy-tab"><i class="fas fa-file-audio"></i> Enreg. 1</button>
@@ -74,7 +74,7 @@
 		</div>
 	</div>
 
-	<div id="realtimeTab" class="w3-row">
+	<div id="rtTab" class="w3-row">
 		<div class="w3-col w3-right" style="width: 320px">
 			<!-- First right card -->
 			<div class="w3-card-4 w3-margin">
@@ -90,23 +90,23 @@
 			<!-- Second right card -->
 			<div class="w3-card-4 w3-margin w3-white">
 				<button class="w3-button w3-block w3-hover-red" id="pauseButton"><h3 style="margin:0"><i class="fas fa-pause"></i> Pause</h3></button>
-				<button class="w3-button w3-block" id="recordButton" style="display:none"><h3 style="margin:0"><i class="fas fa-save"></i> Enregistrer</h3></button>
+				<button class="w3-button w3-block" id="recButton" style="display:none"><h3 style="margin:0"><i class="fas fa-save"></i> Enregistrer</h3></button>
 			</div>
 		</div>
 		<!-- Graph card -->
 		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div id="graphContainer" class="w3-container w3-margin" style="height: 40vh">
-				<canvas class="canvas1"></canvas>
+			<div class="w3-container w3-margin" style="height: 40vh">
+				<canvas class="rtWaveCanvas"></canvas>
 			</div>
 		</div>
 		<!-- FFT card -->
 		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div id="fftContainer" class="w3-container w3-margin" style="height: 35vh">
-				<canvas class="canvas2"></canvas>
+			<div class="w3-container w3-margin" style="height: 35vh">
+				<canvas class="rtFourierCanvas"></canvas>
 			</div>
 		</div>
 	</div>
-	<div id="recordTab" class="w3-row" style="display:none">
+	<div id="recTab" class="w3-row" style="display:none">
 	</div>
 
 	<!-- Modal card -->
@@ -156,11 +156,11 @@ let p3 = 0;
 // Get checkboxs contexts
 
 // Declare vars
-let realtimeWaveData = [];
-let realtimeFourierData = [];
+let rtWaveData = [];
+let rtFourierData = [];
 
-let chart1;
-let chart2;
+let rtWaveChart;
+let rtFourierChart;
 
 let stabilization = true;
 
@@ -178,35 +178,35 @@ var fourier = new FFTNayuki(bufferSize);
 let audio = new PhyAudio(bufferSize);
 
 // Get canvas contexts and hide the fourier's canvas
-const canvasCtx1 = $("canvas.canvas1").getContext("2d");
-const canvasCtx2 = $("canvas.canvas2").getContext("2d");
+const rtWaveCanvasCtx = $("canvas.rtWaveCanvas").getContext("2d");
+const rtFourierCanvasCtx = $("canvas.rtFourierCanvas").getContext("2d");
 
-// Get sliders contexts
+// Get sliders elements
 const amplificationSlider = $("#amplificationSlider");
 const amplificationValue = $("#amplificationValue");
 amplificationSlider.addEventListener("input", onAmplificationSliderChange);
 amplificationSlider.addEventListener("dblclick", onAmplificationSliderDblClick);
 amplificationValue.addEventListener("dblclick", onAmplificationSliderDblClick);
 
-// Get the tab bar and tab buttons contexts
+// Get the tab bar and tab buttons elements
 const tabBar = $("#tabBar");
 
 let tabButtons = [];
-tabButtons[0] = $("#realtimeTabButton");
-tabButtons[1] = $("#recordTabButton");
+tabButtons[0] = $("#rtTabButton");
+tabButtons[1] = $("#recTabButton");
 tabButtons[0].addEventListener("click", function(){onTabButtonClick(0)});
 tabButtons[1].addEventListener("click", function(){onTabButtonClick(1)});
 
 let tabs = [];
-tabs[0] = $("#realtimeTab");
-tabs[1] = $("#recordTab");
+tabs[0] = $("#rtTab");
+tabs[1] = $("#recTab");
 
-// Get buttons contexts
+// Get buttons elements
 const pauseButton = $("#pauseButton");
 pauseButton.addEventListener("click", onPauseButtonClick);
 
-const recordButton = $("#recordButton");
-recordButton.addEventListener("click", onRecordButtonClick);
+const recButton = $("#recButton");
+recButton.addEventListener("click", onRecordButtonClick);
 
 
 
@@ -330,35 +330,35 @@ function realtimeDraw() {
 
 	// Set the new datas
 	for(let i = 0; i < bufferSize; i++){
-		realtimeWaveData[i] = {x: i / echFrequency, y: graphData[i] / 128.0 - 1};
+		rtWaveData[i] = {x: i / echFrequency, y: graphData[i] / 128.0 - 1};
 	}
 
 	// Compute the fourier
-	let fourierData = fourier.computeNormalizedFft(realtimeWaveData, echFrequency, false);
+	let fourierData = fourier.computeNormalizedFft(rtWaveData, echFrequency, false);
 
 	if(stabilization == true){
-		stabilize(realtimeWaveData);
+		stabilize(rtWaveData);
 	}
 
 	// Trim unnecessary data
-	realtimeWaveData.splice(0.05 * echFrequency);
+	rtWaveData.splice(0.05 * echFrequency);
 
 	// Set the new fourier datas
 	for(let i = 0; i < bufferSize / echFrequency * 10000; i++){
-		realtimeFourierData[i] = {x: fourierData[i].x, y: fourierData[i].y * 2 /*Arbitrary*/};
+		rtFourierData[i] = {x: fourierData[i].x, y: fourierData[i].y * 2 /*Arbitrary*/};
 	}
 
 	var t0 = performance.now();
 	
-	chart1.data.datasets[0].data = realtimeWaveData;
-	chart1.update();
+	rtWaveChart.data.datasets[0].data = rtWaveData;
+	rtWaveChart.update();
 	var t1 = performance.now();
 	p1 += (t1 - t0);
 	p3 += 1;
 	//console.log("update1: " + p1/p3 + " milliseconds.");
 	t0 = performance.now();
-	chart2.data.datasets[0].data = realtimeFourierData;
-	chart2.update();
+	rtFourierChart.data.datasets[0].data = rtFourierData;
+	rtFourierChart.update();
 	t1 = performance.now();
 	p2 += (t1 - t0);
 	//console.log("update2: " + p2/p3 + " milliseconds.");
@@ -410,22 +410,22 @@ function onPauseButtonClick() {
 		pauseButton.classList.remove("w3-red");
 		pauseButton.classList.add("w3-white");
 		// Hide the record button
-		recordButton.style.display = "none";
+		recButton.style.display = "none";
 	}
 	else{
 		paused = true;
 		pauseButton.classList.remove("w3-white");
 		pauseButton.classList.add("w3-red");
 		// Show the record button
-		recordButton.style.display = "block";
+		recButton.style.display = "block";
 	}
 }
 
 function onRecordButtonClick() {
 	// Click feedback animation
-	recordButton.classList.remove("w3-animate-opacity");
-	void recordButton.offsetWidth; // Provoke a reflow to allow a new animation
-	recordButton.classList.add("w3-animate-opacity");
+	recButton.classList.remove("w3-animate-opacity");
+	void recButton.offsetWidth; // Provoke a reflow to allow a new animation
+	recButton.classList.add("w3-animate-opacity");
 	
 	// Add a tab button in the tabBar
 	let newButton = document.createElement("button");
@@ -476,8 +476,8 @@ function onAmplificationSliderDblClick() {
 
 window.onload = function() {
 	// Create the graph and link the datas
-	chart1 = new Chart(canvasCtx1, graphConfig);
-	chart2 = new Chart(canvasCtx2, fourierConfig);
+	rtWaveChart = new Chart(rtWaveCanvasCtx, graphConfig);
+	rtFourierChart = new Chart(rtFourierCanvasCtx, fourierConfig);
 
 	// Init the gain slider
 	onAmplificationSliderChange()
