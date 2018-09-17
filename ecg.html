@@ -33,6 +33,8 @@
 	<link rel="icon" href="img/ecg.ico" />
 
 	<link rel="stylesheet" href="lib/w3.css"> 
+	<link rel="stylesheet" href="lib/w3-theme-teal.css"> 
+	<link rel="stylesheet" href="lib/w3-theme-indigo.css"> 
 
 	<link rel="stylesheet" href="lib/fontawesome/css/all.min.css">
 
@@ -47,7 +49,7 @@
 </head>
 <body class="w3-light-grey">
 	<!-- Header bar -->
-	<div class="header w3-blue-grey">
+	<div class="header w3-theme">
 		<div class="w3-bar w3-card-4 w3-center">
 			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>Electrocardiogrammes</b></span>
 			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle fa-lg"></i></b></button>
@@ -59,26 +61,26 @@
 		<div class="w3-col w3-right" style="width: 285px">
 			<!-- First right card -->
 			<div class="w3-card-4 w3-margin">
-				<header class="w3-container w3-blue-grey">
+				<header class="w3-container w3-theme">
 					<h3>Choix du sportif</h3>
 				</header>
 				<div class="w3-container" style="padding: 0px">
-					<button class="w3-button w3-block w3-hover-green" id="sportButton1"><i class="fas fa-basketball-ball fa-lg"></i> Basketeur</button>
-					<button class="w3-button w3-block w3-hover-green" id="sportButton2"><i class="fas fa-futbol fa-lg"></i> Footballer</button>
-					<button class="w3-button w3-block w3-hover-green" id="sportButton3"><i class="fas fa-bicycle fa-lg"></i> Cycliste</button>
-					<button class="w3-button w3-block w3-hover-green" id="sportButton4"><i class="fas fa-swimmer fa-lg"></i> Nageur</button>
-					<button class="w3-button w3-block w3-hover-green" id="sportButton5"><i class="fas fa-walking fa-lg"></i> Sprinteur</button>
+					<button class="w3-button w3-block w3-hover-theme2" id="sportButton1"><i class="fas fa-basketball-ball fa-lg"></i> Basketeur</button>
+					<button class="w3-button w3-block w3-hover-theme2" id="sportButton2"><i class="fas fa-futbol fa-lg"></i> Footballer</button>
+					<button class="w3-button w3-block w3-hover-theme2" id="sportButton3"><i class="fas fa-bicycle fa-lg"></i> Cycliste</button>
+					<button class="w3-button w3-block w3-hover-theme2" id="sportButton4"><i class="fas fa-swimmer fa-lg"></i> Nageur</button>
+					<button class="w3-button w3-block w3-hover-theme2" id="sportButton5"><i class="fas fa-walking fa-lg"></i> Sprinteur</button>
 				</div>
 			</div>
 			<!-- Second right card -->
 			<div class="w3-card-4 w3-margin">
-				<header class="w3-container w3-blue-grey">
+				<header class="w3-container w3-theme">
 					<h3>Etat du sportif</h3>
 				</header>
 				<div class="w3-container" style="padding: 0px">
-					<button class="w3-button w3-block w3-hover-green" id="stateButton1">Au repos</button>
-					<button class="w3-button w3-block w3-hover-green" id="stateButton2">Après l'effort</button>
-					<button class="w3-button w3-block w3-hover-green" id="stateButton3">Après récupération</button>
+					<button class="w3-button w3-block w3-hover-theme2" id="stateButton1">Au repos</button>
+					<button class="w3-button w3-block w3-hover-theme2" id="stateButton2">Après l'effort</button>
+					<button class="w3-button w3-block w3-hover-theme2" id="stateButton3">Après récupération</button>
 				</div>
 			</div>
 			<!-- Third right card -->
@@ -97,7 +99,7 @@
 	<!-- Modal card -->
 	<div id="modal" class="w3-modal">
     <div class="w3-modal-content w3-animate-top w3-card-4">
-      <header class="w3-container w3-teal"> 
+      <header class="w3-container w3-theme2"> 
         <span onclick="document.getElementById('modal').style.display='none'" class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
         <h2>À propos</h2>
       </header>
@@ -234,14 +236,14 @@ let config = {
 	data: {
 		datasets: [{
 			label: "ECG",
-			borderColor: chartColors.blue,
+			borderColor: phyColors.theme2,
 			// Hides the points...
 			radius: 0,
 			fill: false
 		},
 		{
 			label: "ECG2",
-			borderColor: chartColors.blue,
+			borderColor: phyColors.theme2,
 			radius: 0,
 			fill: false
 		}
@@ -447,12 +449,14 @@ window.onload = function() {
 function onSportButtonClick(id){
 	// Grey out all buttons
 	for(let i = 0; i < 5; i++){
+		sportButtons[i].classList.remove("w3-theme2");
 		sportButtons[i].classList.add("w3-white");
+
 	}
 
 	// Highlight the active button
 	sportButtons[id].classList.remove("w3-white");
-	sportButtons[id].classList.add("w3-green");
+	sportButtons[id].classList.add("w3-theme2");
 	activeSportButtonID = id;
 
 	if(id == 2 || id == 4){
@@ -485,12 +489,13 @@ function onSportButtonClick(id){
 function onStateButtonClick(id){
 	// Grey out all buttons
 	for(let i = 0; i < 3; i++){
+		stateButtons[i].classList.remove("w3-theme2");
 		stateButtons[i].classList.add("w3-white");
 	}
 
 	// Highlight the active button
 	stateButtons[id].classList.remove("w3-white");
-	stateButtons[id].classList.add("w3-green");
+	stateButtons[id].classList.add("w3-theme2");
 	activeStateButtonID = id;
 
 	changePeriod();
