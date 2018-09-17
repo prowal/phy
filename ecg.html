@@ -81,11 +81,7 @@
 					<button class="w3-button w3-block w3-hover-green" id="stateButton3">Après récupération</button>
 				</div>
 			</div>
-			<!-- Fourth right card -->
-			<div class="w3-card-4 w3-margin w3-padding w3-teal" id="scale">
-				<h4 class="w3-margin">Echelle horizontale : 1 graduation = 0,08 s</h4>
-			</div>
-			<!-- Fourth right card -->
+			<!-- Third right card -->
 			<div class="w3-card-4 w3-margin w3-white">
 					<button class="w3-button w3-block w3-hover-red" id="pauseButton"><h3 style="margin:0"><i class="fas fa-pause"></i> Pause</h3></button>
 			</div>
@@ -261,6 +257,9 @@ let config = {
 			},
 		title: {
 			display: false,
+			fontSize : 20,
+			fontColor: "#3f51b5",
+			text: "Echelle horizontale : 1 graduation = 0,08 s"
 		},
 		scales: {
 			xAxes: [{
@@ -464,21 +463,20 @@ function onSportButtonClick(id){
 		chart.options.scales.xAxes[0].ticks = withTicks;
 	}
 
+	// Display the scale as title
+	if(id == 2){
+		chart.options.title.display = true;
+	}
+	else{
+		chart.options.title.display = false;
+	}
+
 	// Hide the vertical gridLines
 	if(id == 4){
 		chart.options.scales.xAxes[0].gridLines.display = false;
 	}
 	else{
 		chart.options.scales.xAxes[0].gridLines.display = true;
-	}
-
-	// Hide / Show the scale
-	if(id == 2){
-		$("div#scale").style.display="block";
-		chart.options.scales.xAxes[0].ticks = noTicks;
-	}
-	else{
-		$("div#scale").style.display="none";
 	}
 
 	onStateButtonClick(activeStateButtonID);
