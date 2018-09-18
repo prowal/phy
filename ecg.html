@@ -177,9 +177,9 @@ const canvasCtx = $("canvas.canvas").getContext("2d");
 // Set the periods
 let period;
 let periods = [];
-periods[0] = [0.85714,0.5,0.75]; // R = 70 120 80 Ir = 7
+periods[0] = [0.85,0.5,0.75]; // R = 70 120 80 Ir = 7
 periods[1] = [0.8,0.5,0.7];
-periods[2] = [1,0.54545,0.85714]; // R = 60 110 70 Ir = 4
+periods[2] = [1,0.54545,0.85]; // R = 60 110 70 Ir = 4
 periods[3] = [0.8,0.5,0.7];
 periods[4] = [0.66667,0.428571,0.6]; // R = 90 140 100 Ir = 13
 
@@ -314,7 +314,7 @@ function generateRandomPeriods(){
 ----------------------------------------------------------------------------------------------*/
 function generateRandomNoP(){
 	for(let i = 0; i < 5000; i++){
-		if(Math.random() < 0.16){
+		if(Math.random() < 0.20){
 			noPPeriods[i] = true;
 		}
 		else{
