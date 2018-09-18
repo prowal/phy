@@ -73,8 +73,45 @@
 			<button class="w3-bar-item w3-button w3-hover-none phy-tab"><i class="fas fa-file-audio"></i> Enreg. 1</button>
 		</div>
 	</div>
-
+	<!-------------------------------------------------------------------------->
+	<!-------------------------------REALTIME TAB------------------------------->
+	<!-------------------------------------------------------------------------->
 	<div id="rtTab" class="w3-row">
+		<div class="w3-col w3-right" style="width: 320px">
+			<!-- First right card -->
+			<div class="w3-card-4 w3-margin">
+				<header class="w3-container w3-theme">
+					<h3>Paramètres</h3>
+				</header>
+				<div class="w3-container w3-white">
+					<p class="w3-opacity"><b>Amplification :</b></p>
+					<input class="range-slider_range" id="rtAmplificationSlider" type="range" value="10" min="0" max="20">
+					<span class="range-slider_value" id="rtAmplificationValue">x 1</span>
+				</div>
+			</div>
+			<!-- Second right card -->
+			<div class="w3-card-4 w3-margin w3-white">
+				<button class="w3-button w3-block w3-hover-red" id="pauseButton"><h3 style="margin:0"><i class="fas fa-pause"></i> Pause</h3></button>
+				<button class="w3-button w3-block" id="recButton" style="display:none"><h3 style="margin:0"><i class="fas fa-save"></i> Enregistrer</h3></button>
+			</div>
+		</div>
+		<!-- Graph card -->
+		<div class="w3-card-4 w3-rest w3-margin w3-white">
+			<div class="w3-container w3-margin" style="height: 40vh">
+				<canvas class="rtWaveCanvas"></canvas>
+			</div>
+		</div>
+		<!-- Fourier card -->
+		<div class="w3-card-4 w3-rest w3-margin w3-white">
+			<div class="w3-container w3-margin" style="height: 35vh">
+				<canvas class="rtFourierCanvas"></canvas>
+			</div>
+		</div>
+	</div>
+	<!-------------------------------------------------------------------------->
+	<!--------------------------------RECORD TAB-------------------------------->
+	<!-------------------------------------------------------------------------->
+	<div id="recTab" class="w3-row" style="display:none">
 		<div class="w3-col w3-right" style="width: 320px">
 			<!-- First right card -->
 			<div class="w3-card-4 w3-margin">
@@ -99,14 +136,12 @@
 				<canvas class="rtWaveCanvas"></canvas>
 			</div>
 		</div>
-		<!-- FFT card -->
+		<!-- Fourier card -->
 		<div class="w3-card-4 w3-rest w3-margin w3-white">
 			<div class="w3-container w3-margin" style="height: 35vh">
 				<canvas class="rtFourierCanvas"></canvas>
 			</div>
-		</div>
-	</div>
-	<div id="recTab" class="w3-row" style="display:none">
+		</div>		
 	</div>
 
 	<!-- Modal card -->
@@ -182,11 +217,11 @@ const rtWaveCanvasCtx = $("canvas.rtWaveCanvas").getContext("2d");
 const rtFourierCanvasCtx = $("canvas.rtFourierCanvas").getContext("2d");
 
 // Get sliders elements
-const amplificationSlider = $("#amplificationSlider");
-const amplificationValue = $("#amplificationValue");
-amplificationSlider.addEventListener("input", onAmplificationSliderChange);
-amplificationSlider.addEventListener("dblclick", onAmplificationSliderDblClick);
-amplificationValue.addEventListener("dblclick", onAmplificationSliderDblClick);
+const rtAmplificationSlider = $("#rtAmplificationSlider");
+const rtAmplificationValue = $("#rtAmplificationValue");
+rtAmplificationSlider.addEventListener("input", onRtAmplificationSliderChange);
+rtAmplificationSlider.addEventListener("dblclick", onRtAmplificationSliderDblClick);
+rtAmplificationValue.addEventListener("dblclick", onRtAmplificationSliderDblClick);
 
 // Get the tab bar and tab buttons elements
 const tabBar = $("#tabBar");
@@ -463,15 +498,15 @@ function onTabButtonClick(_id) {
 	tabs[_id].style.display = "block";
 }
 
-function onAmplificationSliderChange() {
-	audio.setGain(amplificationSlider.value / 10); // /10 to have integer values in the slider
-	$("#amplificationValue").innerHTML = "x " + audio.gain;
+function onRtAmplificationSliderChange() {
+	audio.setGain(rtAmplificationSlider.value / 10); // /10 to have integer values in the slider
+	rtAmplificationValue.innerHTML = "x " + audio.gain;
 }
 
-function onAmplificationSliderDblClick() {
+function onRtAmplificationSliderDblClick() {
 	audio.setGain(1); // Default
-	amplificationSlider.value = 10;
-	$("#amplificationValue").innerHTML = "x " + audio.gain;
+	rtAmplificationSlider.value = 10;
+	rtAmplificationValue.innerHTML = "x " + audio.gain;
 }
 
 window.onload = function() {
@@ -480,7 +515,7 @@ window.onload = function() {
 	rtFourierChart = new Chart(rtFourierCanvasCtx, fourierConfig);
 
 	// Init the gain slider
-	onAmplificationSliderChange()
+	onRtAmplificationSliderChange()
 
 	// Activate a tab
 	onTabButtonClick(0);
