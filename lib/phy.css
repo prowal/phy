@@ -45,6 +45,16 @@ button:focus {outline:0;}
 	border-bottom: 3px solid white !important;
 }
 
+/* Custom menu items*/
+.phy-menu-label{
+	margin-top: 20px;
+	display:inline-block;
+}
+
+.phy-no-bmargin{
+	margin-bottom: 0px!important;
+}
+
 /* Remove the underline on card links*/
 a.w3-card-4{text-decoration: none;}
 
