@@ -34,6 +34,8 @@
 	<link rel="icon" href="img/rmn.ico" />
 
 	<link rel="stylesheet" href="lib/w3.css"> 
+	<link rel="stylesheet" href="lib/w3-theme-teal.css"> 
+	<link rel="stylesheet" href="lib/w3-theme-indigo.css"> 
 
 	<link rel="stylesheet" href="lib/fontawesome/css/all.min.css">
 
@@ -58,7 +60,7 @@
 </head>
 <body class="w3-light-grey">
 	<!-- Header bar -->
-	<div class="header w3-blue-grey">
+	<div class="header w3-theme">
 		<div class="w3-bar w3-card-4 w3-center">
 			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>Générateur simpliste de spectres RMN</b></span>
 			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle fa-lg"></i></b></button>
@@ -70,7 +72,7 @@
 		<div class="w3-col w3-right" style="width: 320px">
 			<!-- First right card -->
 			<div class="w3-card-4 w3-margin w3-white">
-				<header class="w3-container w3-blue-grey">
+				<header class="w3-container w3-theme">
 					<h3>Ajouter des pics</h3>
 				</header>
 				<table class="w3-table w3-bordered w3-centered">
@@ -139,7 +141,7 @@
 			</div>
 			<!-- Second right card -->
 			<div class="w3-card-4 w3-margin">
-				<header class="w3-container w3-blue-grey">
+				<header class="w3-container w3-theme">
 					<h3>Courbe d'intégration</h3>
 				</header>
 				<div class="w3-container w3-white">
@@ -154,7 +156,7 @@
 			</div>
 			<!-- Third right card -->
 			<div class="w3-card-4 w3-margin">
-				<header class="w3-container w3-blue-grey">
+				<header class="w3-container w3-theme">
 					<h3>Paramètres</h3>
 				</header>
 				<table class="w3-table w3-centered w3-white">
@@ -185,7 +187,7 @@
 	<!-- Modal card -->
 	<div id="modal" class="w3-modal">
     <div class="w3-modal-content w3-animate-top w3-card-4">
-      <header class="w3-container w3-teal"> 
+      <header class="w3-container w3-theme2"> 
         <span onclick="document.getElementById('modal').style.display='none'" class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
         <h2>À propos</h2>
       </header>
@@ -323,7 +325,7 @@ let config = {
 	data: {
 		datasets: [{
 			label: "Courbe d'integration",
-			borderColor: chartColors.deepOrange,
+			borderColor: phyColors.deepOrange,
 			// Hides the points...
 			radius: 0,
 			hitRadius: 0,
@@ -332,7 +334,7 @@ let config = {
 			hidden: true
 		},{
 			label: "Spectre RMN",
-			borderColor: chartColors.blue,
+			borderColor: phyColors.theme2,
 			radius: 0,
 			hitRadius: 0,
 			fill: false
@@ -536,12 +538,12 @@ function onPeakSizeSlider() {
 
 function onBwCheckbox() {
 	if(bwCheckbox.checked) {
-		chart.data.datasets[0].borderColor = chartColors.black;
-		chart.data.datasets[1].borderColor = chartColors.black;
+		chart.data.datasets[0].borderColor = phyColors.black;
+		chart.data.datasets[1].borderColor = phyColors.black;
 	}
 	else{
-		chart.data.datasets[0].borderColor = chartColors.deepOrange;
-		chart.data.datasets[1].borderColor = chartColors.blue;
+		chart.data.datasets[0].borderColor = phyColors.deepOrange;
+		chart.data.datasets[1].borderColor = phyColors.theme2;
 	}
 	draw();
 };

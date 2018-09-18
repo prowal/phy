@@ -32,7 +32,9 @@
 
 	<link rel="icon" href="img/addition.ico" />
 
-	<link rel="stylesheet" href="lib/w3.css"> 
+	<link rel="stylesheet" href="lib/w3.css">
+	<link rel="stylesheet" href="lib/w3-theme-teal.css"> 
+	<link rel="stylesheet" href="lib/w3-theme-indigo.css"> 
 
 	<link rel="stylesheet" href="lib/fontawesome/css/all.min.css">
 
@@ -47,7 +49,7 @@
 </head>
 <body class="w3-light-grey">
 	<!-- Header bar -->
-	<div class="header w3-blue-grey">
+	<div class="header w3-theme">
 		<div class="w3-bar w3-card-4 w3-center">
 			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>Addition d'onde et analyse spectrale</b></span>
 			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle fa-lg"></i></b></button>
@@ -134,7 +136,7 @@
 	<!-- Modal card -->
 	<div id="modal" class="w3-modal">
 			<div class="w3-modal-content w3-animate-top w3-card-4">
-				<header class="w3-container w3-teal"> 
+				<header class="w3-container w3-theme2"> 
 					<span onclick="document.getElementById('modal').style.display='none'" class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
 					<h2>À propos</h2>
 				</header>
@@ -245,7 +247,7 @@ let config1 = {
 		datasets: [{
 			label: "Onde 1",
 			//data: data1,
-			borderColor: chartColors.blue,
+			borderColor: phyColors.blue,
 			// Hides the points...
 			radius: 0,
 			fill: false
@@ -253,7 +255,7 @@ let config1 = {
 		{
 			label: "Onde 2",
 			//data: data2,
-			borderColor: chartColors.deepOrange,
+			borderColor: phyColors.deepOrange,
 			// Hides the points...
 			radius: 0,
 			fill: false,
@@ -261,7 +263,7 @@ let config1 = {
 		{
 			label: "Somme des ondes",
 			//data: data2,
-			borderColor: chartColors.pink,
+			borderColor: phyColors.pink,
 			// Hides the points...
 			radius: 0,
 			fill: false,
@@ -318,7 +320,7 @@ let config2 = {
 		datasets: [{
 			label: "Somme des ondes",
 			//data: data1,
-			borderColor: chartColors.pink,
+			borderColor: phyColors.pink,
 			// Hides the points...
 			radius: 0,
 			fill: false
