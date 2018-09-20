@@ -195,8 +195,8 @@ let rtWaveChart;
 let rtFourierChart;
 
 let recWaveData = [{
-  x: [1, 2, 3, 4],
-  y: [10, 15, 13, 17],
+  x: [],
+  y: [],
   mode: "line",
   name: "TODO",
 	line: {
@@ -218,20 +218,27 @@ let recFourierData = [{
 let recWaveChart;
 let recFourierChart;
 
-let stabilization = true;
-
-let bufferSize = 4096;
-let echFrequency = 48000; // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO (may vary!)
-
 let activeTab;
 
+
+// realtime vars
+let bufferSize = 4096;
+let sampleFrequency = 48000; // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO (may vary!)
+
 let paused = false;
+let stabilization = true;
+
+// record vars
+let sampleLength = 0.05; // TODO TODO TODO TODO get the actual value from html
+let recSampleFrequency = sampleFrequency;
+let recBufferSize = sampleLength * recSampleFrequency;
 
 // Create the fourier object
 var fourier = new FFTNayuki(bufferSize);
 
 // Create a PhyAudio object
 let audio = new PhyAudio(bufferSize);
+//let audio2 = new PhyAudio2();
 
 // Get canvas contexts (rt)
 const rtWaveCanvasCtx = $("canvas.rtWaveCanvas").getContext("2d");
@@ -247,6 +254,10 @@ const rtAmplificationValue = $("#rtAmplificationValue");
 rtAmplificationSlider.addEventListener("input", onRtAmplificationSliderChange);
 rtAmplificationSlider.addEventListener("dblclick", onRtAmplificationSliderDblClick);
 rtAmplificationValue.addEventListener("dblclick", onRtAmplificationSliderDblClick);
+
+// Get inputs elements
+const sampleLengthInput = $("#sampleLengthInput");
+sampleLengthInput.addEventListener("input", onSampleLengthInput);
 
 // Get the tab bar and tab buttons elements
 const tabBar = $("#tabBar");
@@ -268,6 +279,8 @@ pauseButton.addEventListener("click", onPauseButtonClick);
 const rtSaveButton = $("#rtSaveButton");
 rtSaveButton.addEventListener("click", onRtSaveButtonClick);
 
+const sampleButton = $("#sampleButton");
+sampleButton.addEventListener("click", onSampleButton);
 
 
 /*----------------------------------------------------------------------------------------------
@@ -430,21 +443,21 @@ function realtimeDraw() {
 
 	// Set the new datas
 	for(let i = 0; i < bufferSize; i++){
-		rtWaveData[i] = {x: i / echFrequency, y: graphData[i] / 128.0 - 1};
+		rtWaveData[i] = {x: i / sampleFrequency, y: graphData[i] / 128.0 - 1};
 	}
 
 	// Compute the fourier
-	let fourierData = fourier.computeNormalizedFft(rtWaveData, echFrequency, false);
+	let fourierData = fourier.computeNormalizedFft(rtWaveData, sampleFrequency, false);
 
 	if(stabilization == true){
 		stabilize(rtWaveData);
 	}
 
 	// Trim unnecessary data
-	rtWaveData.splice(0.05 * echFrequency);
+	rtWaveData.splice(0.05 * sampleFrequency);
 
 	// Set the new fourier datas
-	for(let i = 0; i < bufferSize / echFrequency * 10000; i++){
+	for(let i = 0; i < bufferSize / sampleFrequency * 10000; i++){
 		rtFourierData[i] = {x: fourierData[i].x, y: fourierData[i].y * 2 /*Arbitrary*/};
 	}
 
@@ -466,6 +479,26 @@ function realtimeDraw() {
 }
 
 function recordDraw() {
+	
+	// sample
+	if(audio.isDataAvailable() == true){
+		let graphData = audio.getRecord();
+		
+		// Set the new datas
+		for(let i = 0; i < recBufferSize; i++){
+			recWaveData[0].x[i] = i / recSampleFrequency;
+			recWaveData[0].y[i] = graphData[i];
+		}
+	}
+	// Ugly hack to force plotly to redraw
+	if(recGraphConfig.datarevision == 1){
+		recGraphConfig.datarevision = 0;
+		recFourierConfig.datarevision = 0;
+	}
+	else{
+		recGraphConfig.datarevision = 1;
+		recFourierConfig.datarevision = 1;
+	}
 	Plotly.react("recGraphContainer", recWaveData, recGraphConfig);
 	Plotly.react("recFourierContainer", recFourierData, recFourierConfig);
 }
@@ -496,7 +529,7 @@ function stabilize(_data){
 	}
 
 	for(let i = 0; i < bufferSize - maximumIndex; i++){
-		_data[i + maximumIndex].x = i / echFrequency;
+		_data[i + maximumIndex].x = i / sampleFrequency;
 	}
 
 	_data.splice(0,maximumIndex);
@@ -544,6 +577,22 @@ function onRtSaveButtonClick() {
 	tabBar.appendChild(newButton);
 	}
 
+function onSampleButton() {
+	audio.startRecording(sampleLength);
+	console.log(sampleLength);
+	recordDraw();
+}
+
+function onSampleLengthInput() {
+	// TODO Add checks!
+	sampleLength = sampleLengthInput.value;
+	recBufferSize = sampleLength * recSampleFrequency;
+
+	// Set graph axes range
+	recGraphConfig.xaxis.range[1] = sampleLength;
+}
+
+
 function onTabButtonClick(_id) {
 	// UnActivate all buttons
 	for(let i = 0; i < tabButtons.length; i++){
@@ -584,8 +633,8 @@ window.onload = function() {
 	onRtAmplificationSliderChange()
 
 	// Create the rec graph and link the datas
-	Plotly.react("recGraphContainer", recWaveData, recGraphConfig, {displaylogo: false, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-	Plotly.react("recFourierContainer", recFourierData, recFourierConfig, {displaylogo: false, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+	Plotly.react("recGraphContainer", recWaveData, recGraphConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+	Plotly.react("recFourierContainer", recFourierData, recFourierConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
 
 	//window.onresize();
 
