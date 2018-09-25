@@ -42,7 +42,7 @@
 
 	<script src="lib/Chart.min.js"></script>
 
-	<script src="lib/fft.js"></script>
+	<script src="lib/fourier.js"></script>
 
 	<script src="lib/phy.js"></script>
 
@@ -182,7 +182,7 @@ let data2;
 let dataSum = [];
 
 // Create the fft object
-var fft = new FFTNayuki(numSample * 2);
+var fft = new Fourier(numSample * 2);
 
 // Get canvas contexts and hide the FFT's canvas
 const canvasCtx1 = $("canvas.canvas1").getContext("2d");

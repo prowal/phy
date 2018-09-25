@@ -47,7 +47,7 @@
 
 	<script src="lib/audio.js"></script>
 
-	<script src="lib/fft.js"></script>
+	<script src="lib/fourier.js"></script>
 
 	<style>
 
@@ -205,8 +205,8 @@ let recWaveData = [{
   }
 }];
 let recFourierData = [{
-  x: [1, 2, 3, 4],
-  y: [10, 15, 13, 17],
+  x: [],
+  y: [],
   mode: "line",
   name: "TODO",
 	line: {
@@ -219,6 +219,7 @@ let recWaveChart;
 let recFourierChart;
 
 let activeTab;
+
 
 
 // realtime vars
@@ -234,7 +235,7 @@ let recSampleFrequency = sampleFrequency;
 let recBufferSize = sampleLength * recSampleFrequency;
 
 // Create the fourier object
-var fourier = new FFTNayuki(bufferSize);
+var fourier = new Fourier(bufferSize);
 
 // Create a PhyAudio object
 let audio = new PhyAudio(bufferSize);
@@ -374,8 +375,6 @@ let rtFourierConfig = {
 				ticks: {
 					min: 0,
 					max: 10000,
-					//autoSkip: true,
-					//maxTicksLimit: 10,
 				}
 			}],
 			yAxes: [{
@@ -491,28 +490,47 @@ function realtimeDraw() {
 }
 
 function recordDraw() {
-	
 	// sample
 	if(audio.isDataAvailable() == true){
 		let graphData = audio.getRecord();
+
+		let fftInput = [];
 		
 		// Set the new datas
 		for(let i = 0; i < recBufferSize; i++){
 			recWaveData[0].x[i] = i / recSampleFrequency;
 			recWaveData[0].y[i] = graphData[i];
+
+			// Change data format to be able to perform fft on it
+			fftInput[i] = {x: recWaveData[0].x[i], y: recWaveData[0].y[i]}
 		}
+
+		// Ugly hack to force plotly to redraw
+		if(recGraphConfig.datarevision == 1){
+			recGraphConfig.datarevision = 0;
+			recFourierConfig.datarevision = 0;
+		}
+		else{
+			recGraphConfig.datarevision = 1;
+			recFourierConfig.datarevision = 1;
+		}
+		//Draw the wave
+		var t0 = performance.now();
+		Plotly.react("recGraphContainer", recWaveData, recGraphConfig);
+		var t1 = performance.now();
+		console.log("update1: " + (t1-t0) + " milliseconds.");
+
+		// Build an array of datas
+		// Plot the dft
+		let dftResult = fourier.computeNormalizedFft(fftInput, sampleFrequency, false)
+		var t2 = performance.now();
+		console.log("update1: " + (t2-t1) + " milliseconds.");
+		for(let i = 0; i < dftResult.length / sampleFrequency * 2 * 10000; i++){
+			recFourierData[0].x[i] = dftResult[i].x;
+			recFourierData[0].y[i] = dftResult[i].y;
+		}
+		Plotly.react("recFourierContainer", recFourierData, recFourierConfig);
 	}
-	// Ugly hack to force plotly to redraw
-	if(recGraphConfig.datarevision == 1){
-		recGraphConfig.datarevision = 0;
-		recFourierConfig.datarevision = 0;
-	}
-	else{
-		recGraphConfig.datarevision = 1;
-		recFourierConfig.datarevision = 1;
-	}
-	Plotly.react("recGraphContainer", recWaveData, recGraphConfig);
-	Plotly.react("recFourierContainer", recFourierData, recFourierConfig);
 }
 
 function draw() {
@@ -527,7 +545,15 @@ function draw() {
 };
 
 /*----------------------------------------------------------------------------------------------
--------------------------------------------FUNCTION---------------------------------------------
+--------------------------------------STABILIZE FUNCTION----------------------------------------
+----------------------------------------------------------------------------------------------*/
+
+function populateTabs(){
+
+}
+
+/*----------------------------------------------------------------------------------------------
+--------------------------------------STABILIZE FUNCTION----------------------------------------
 ----------------------------------------------------------------------------------------------*/
 
 function stabilize(_data){
@@ -644,7 +670,7 @@ window.onload = function() {
 	// Init the rt gain slider
 	onRtAmplificationSliderChange()
 
-	// Create the rec graph and link the datas
+	// Create the rec graphs and link the datas
 	Plotly.react("recGraphContainer", recWaveData, recGraphConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
 	Plotly.react("recFourierContainer", recFourierData, recFourierConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
 
