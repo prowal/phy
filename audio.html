@@ -472,26 +472,21 @@ function realtimeDraw() {
 		rtFourierData[i] = {x: fourierData[i].x, y: fourierData[i].y * 2 /*Arbitrary*/};
 	}
 
-	var t0 = performance.now();
-	
 	rtWaveChart.data.datasets[0].data = rtWaveData;
 	rtWaveChart.update();
-	var t1 = performance.now();
-	p1 += (t1 - t0);
-	p3 += 1;
-	//console.log("update1: " + p1/p3 + " milliseconds.");
-	t0 = performance.now();
 	rtFourierChart.data.datasets[0].data = rtFourierData;
 	rtFourierChart.update();
-	t1 = performance.now();
-	p2 += (t1 - t0);
-	//console.log("update2: " + p2/p3 + " milliseconds.");
 	};
 }
 
 function recordDraw() {
 	// sample
 	if(audio.isDataAvailable() == true){
+		// Discard old datas
+		recWaveData[0].x.splice(0,recWaveData[0].x.length);
+		recWaveData[0].y.splice(0,recWaveData[0].y.length);
+
+		// Get the recorded datas
 		let graphData = audio.getRecord();
 
 		let fftInput = [];
@@ -515,16 +510,10 @@ function recordDraw() {
 			recFourierConfig.datarevision = 1;
 		}
 		//Draw the wave
-		var t0 = performance.now();
 		Plotly.react("recGraphContainer", recWaveData, recGraphConfig);
-		var t1 = performance.now();
-		console.log("update1: " + (t1-t0) + " milliseconds.");
 
-		// Build an array of datas
-		// Plot the dft
+		// Compute and plot the dft
 		let dftResult = fourier.computeNormalizedFft(fftInput, sampleFrequency, false)
-		var t2 = performance.now();
-		console.log("update1: " + (t2-t1) + " milliseconds.");
 		for(let i = 0; i < dftResult.length / sampleFrequency * 2 * 10000; i++){
 			recFourierData[0].x[i] = dftResult[i].x;
 			recFourierData[0].y[i] = dftResult[i].y;
@@ -616,9 +605,8 @@ function onRtSaveButtonClick() {
 	}
 
 function onSampleButton() {
+	// Record new datas
 	audio.startRecording(sampleLength);
-	console.log(sampleLength);
-	recordDraw();
 }
 
 function onSampleLengthInput() {
@@ -629,7 +617,6 @@ function onSampleLengthInput() {
 	// Set graph axes range
 	recGraphConfig.xaxis.range[1] = sampleLength;
 }
-
 
 function onTabButtonClick(_id) {
 	// UnActivate all buttons
@@ -649,6 +636,12 @@ function onTabButtonClick(_id) {
 
 	// Show the active tab
 	tabs[_id].style.display = "block";
+
+	// Draw the graphs if the record tab is active
+	if(activeTab == 1){
+		Plotly.react("recGraphContainer", recWaveData, recGraphConfig);
+		Plotly.react("recFourierContainer", recFourierData, recFourierConfig);
+	}
 }
 
 function onRtAmplificationSliderChange() {
@@ -673,8 +666,6 @@ window.onload = function() {
 	// Create the rec graphs and link the datas
 	Plotly.react("recGraphContainer", recWaveData, recGraphConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
 	Plotly.react("recFourierContainer", recFourierData, recFourierConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-
-	//window.onresize();
 
 	// Activate a tab
 	onTabButtonClick(0);
