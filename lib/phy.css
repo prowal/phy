@@ -44,6 +44,30 @@ button:focus {outline:0;}
 	opacity:1 !important;
 	border-bottom: 3px solid white !important;
 }
+.phy-tab:hover + .phy-tab-close-button { 
+	opacity:0.8!important;
+	-webkit-transition: .3s;
+	transition: .3s;
+}
+.phy-tab-close-button{
+	padding: 1px;
+	opacity:0;
+	border-bottom: 3px solid rgba(0, 0, 0, 0) !important; /*Transparent border*/
+	-webkit-transition: .3s;
+	transition: .3s;
+}
+.phy-tab-close-button:hover{
+	opacity:1 !important;
+	color: white !important;
+}
+
+.phy-fadeout {
+  display: none;
+	opacity: 0;
+	left:0;
+	transition: 200ms ease;
+  /*transition: visibility 0s 0.2s, opacity 0.2s linear;*/
+}
 
 /* Custom menu items*/
 .phy-menu-label{
