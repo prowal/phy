@@ -285,18 +285,7 @@ let recSampleFrequency = sampleFrequency;
 let recBufferSize = sampleLength * recSampleFrequency;
 
 // save vars
-let saves = [
-	{
-		name: "test",
-		x:[0.01,0.02],
-		y:[1,1.2]
-	},
-	{
-		name: "test2",
-		x:[0.01,0.02],
-		y:[1,2]
-	}
-]
+let saves = [];
 
 // Create the fourier object
 let fourier = new Fourier(bufferSize);
@@ -445,7 +434,7 @@ let rtFourierConfig = {
 				},
 				ticks: {
 					suggestedMin: 0,
-					suggestedMax: 1,
+					suggestedMax: 0.6,
 				}
 			}]
 		}
@@ -463,11 +452,15 @@ let recGraphConfig = {
   xaxis: {
     title: "Temps (s)",
 		titlefont: {size: 12},
+		tickmode: "auto",
+		nticks: 11,
 		range: [0, 0.05]
   },
   yaxis: {
     title: "Amplitude",
 		titlefont: {size: 12},
+		tickmode: "auto",
+		nticks: 11,
 		range: [-1, 1]
   },
 	margin: {
@@ -488,12 +481,14 @@ let recFourierConfig = {
     color: '#666'
   },
   xaxis: {
-    title: "Fréquence (Hz)",
+		title: "Fréquence (Hz)",
+		titlefont: {size: 12},
 		range: [0, 10000]
   },
   yaxis: {
-    title: "Amplitude",
-		range: [0, 1]
+		title: "Amplitude",
+		titlefont: {size: 12},
+		range: [0, 0.6]
   },
 	margin: {
     l: 40,
@@ -515,11 +510,15 @@ let savGraphConfig = {
   xaxis: {
     title: "Temps (s)",
 		titlefont: {size: 12},
+		tickmode: "auto",
+		nticks: 11,
 		range: [0, 0.05]
   },
   yaxis: {
     title: "Amplitude",
 		titlefont: {size: 12},
+		tickmode: "auto",
+		nticks: 11,
 		range: [-1, 1]
   },
 	margin: {
@@ -540,12 +539,14 @@ let savFourierConfig = {
     color: '#666'
   },
   xaxis: {
-    title: "Fréquence (Hz)",
+		title: "Fréquence (Hz)",
+		titlefont: {size: 12},
 		range: [0, 10000]
   },
   yaxis: {
-    title: "Amplitude",
-		range: [0, 1]
+		title: "Amplitude",
+		titlefont: {size: 12},
+		range: [0, 0.6]
   },
 	margin: {
     l: 40,
@@ -566,25 +567,26 @@ function realtimeDraw() {
 
 	// Set the new datas
 	for(let i = 0; i < bufferSize; i++){
-		rtWaveData[i] = {x: i / sampleFrequency, y: graphData[i] / 128.0 - 1};
+		rtWaveData[i] = {x: i / sampleFrequency, y: graphData[i] /*/ 128.0 - 1*/};
 	}
 
 	// Compute the fourier
 	let fourierData = fourier.computeNormalizedFft(rtWaveData, sampleFrequency, false);
 
-	if(stabilization == true){
-		stabilize(rtWaveData);
-	}
-
 	// Trim unnecessary data
-	rtWaveData.splice(0.05 * sampleFrequency);
+	let trimedRtWaveData = JSON.parse(JSON.stringify(rtWaveData));
+
+	if(stabilization == true){
+		stabilize(trimedRtWaveData);
+	}
+	trimedRtWaveData.splice(0.05 * sampleFrequency);
 
 	// Set the new fourier datas
 	for(let i = 0; i < bufferSize / sampleFrequency * 10000; i++){
-		rtFourierData[i] = {x: fourierData[i].x, y: fourierData[i].y * 2 /*Arbitrary*/};
+		rtFourierData[i] = {x: fourierData[i].x, y: fourierData[i].y};
 	}
 
-	rtWaveChart.data.datasets[0].data = rtWaveData;
+	rtWaveChart.data.datasets[0].data = trimedRtWaveData;
 	rtWaveChart.update();
 	rtFourierChart.data.datasets[0].data = rtFourierData;
 	rtFourierChart.update();
@@ -609,7 +611,7 @@ function recordDraw() {
 			recWaveData[0].y[i] = graphData[i];
 
 			// Change data format to be able to perform fft on it
-			fftInput[i] = {x: recWaveData[0].x[i], y: recWaveData[0].y[i]}
+			fftInput[i] = {x: recWaveData[0].x[i], y: recWaveData[0].y[i]};
 		}
 
 		// Ugly hack to force plotly to redraw
@@ -635,7 +637,31 @@ function recordDraw() {
 }
 
 function saveDraw() {
+	// Flush previous datas
+	savWaveData[0].x.length = 0;
+	savWaveData[0].y.length = 0;
+	savFourierData[0].x.length = 0;
+	savFourierData[0].y.length = 0;
+
+	// Set new datas
+	savWaveData[0].x = saves[activeTab-2].x.slice();
+	savWaveData[0].y = saves[activeTab-2].y.slice();
+
+	// Change data format to be able to perform fft on it
+	let fftInput = [];
+	for(let i = 0; i < savWaveData[0].x.length; i++){
+		fftInput[i] = {x: savWaveData[0].x[i], y: savWaveData[0].y[i]};
+	}
+
+	//Draw the wave
 	Plotly.react("savGraphContainer", savWaveData, savGraphConfig);
+
+	// Compute and plot the dft
+	let dftResult = fourier.computeNormalizedFft(fftInput, sampleFrequency, false)
+	for(let i = 0; i < dftResult.length / sampleFrequency * 2 * 10000; i++){
+		savFourierData[0].x[i] = dftResult[i].x;
+		savFourierData[0].y[i] = dftResult[i].y;
+	}
 	Plotly.react("savFourierContainer", savFourierData, savFourierConfig);
 }
 
@@ -649,7 +675,7 @@ function draw() {
 		recordDraw();
 		break;
 	default:
-		saveDraw();
+		//saveDraw();
 	}
 };
 
@@ -747,8 +773,16 @@ function onRtSaveButtonClick() {
 	rtSaveButton.classList.remove("w3-animate-opacity");
 	void rtSaveButton.offsetWidth; // Provoke a reflow to allow a new animation
 	rtSaveButton.classList.add("w3-animate-opacity");
-	
-	saves.push({name: "ermegerd", x: [0.1,0.2], y: [0.1,0.2]});
+
+	// Convert point format to plotly
+	let tmpx = [];
+	let tmpy = [];
+	for(let i = 0; i < rtWaveData.length; i++){
+		tmpx[i] = rtWaveData[i].x;
+		tmpy[i] = rtWaveData[i].y;
+	}
+
+	saves.push({name: "ermegerd", x: tmpx, y: tmpy});
 	populateTabs();
 }
 
@@ -773,7 +807,6 @@ function onTabButtonClick(_id) {
 	}
 	// Activate the clicked button
 	tabButtons[_id].classList.add("phy-tab-active");
-	console.log(tabButtons[_id].classList);
 
 	// Store the activeTab id
 	activeTab = _id;
@@ -786,9 +819,12 @@ function onTabButtonClick(_id) {
 	// Show the active tab
 	if(_id > 1){
 		tabs[2].style.display = "block";
+
+		// Draw the active sav tab
+		saveDraw();
 	}
 	else{
-		tabs[_id].style.display = "block";
+		tabs[_id].style.display = "block";	
 	}
 
 	// Draw the graphs if the record tab is active
