@@ -173,11 +173,11 @@
 		</div>		
 	</div>
 
-	<!-- Modal card -->
-	<div id="modal" class="w3-modal">
+	<!-- Info modal card -->
+	<div id="infoModal" class="w3-modal">
     <div class="w3-modal-content w3-animate-top w3-card-4">
       <header class="w3-container w3-theme2"> 
-        <span onclick="document.getElementById('modal').style.display='none'" class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
+        <span onclick="document.getElementById('infoModal').style.display='none'" class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
         <h2>À propos</h2>
       </header>
       <div class="w3-container">
@@ -204,7 +204,21 @@
 				</div>
 			</div>
     </div>
-  </div>
+	</div>
+	<!-- Info modal card -->
+	<div id="saveModal" class="w3-modal">
+		<div class="w3-modal-content w3-animate-top w3-card-4" style="width:400px;">
+			<header class="w3-container w3-theme2">
+				<h2>Sauvegarder</h2>
+			</header>
+			<div style="padding: 10px;">
+				<span class="w3-container w3-cell" style="width:100%; margin: 10px;">
+					<input type="text" class="w3-input w3-border-0" id="saveNameInput" placeholder="Nom de la sauvegarde">
+				</span>
+				<span id="validateSaveButton" class="w3-button w3-theme w3-hover-theme2 w3-cell" style="width:50px"><i class="fas fa-check"></i></span>
+			</div>
+		</div>
+	</div>
 
 <script>
 const $ = document.querySelector.bind(document);
@@ -302,6 +316,8 @@ rtAmplificationValue.addEventListener("dblclick", onRtAmplificationSliderDblClic
 const sampleLengthInput = $("#sampleLengthInput");
 sampleLengthInput.addEventListener("input", onSampleLengthInput);
 
+const saveNameInput = $("#saveNameInput");
+
 // Get the tab bar and tab buttons elements
 const tabBar = $("#tabBar");
 
@@ -328,6 +344,12 @@ sampleButton.addEventListener("click", onSampleButton);
 
 const recSaveButton = $("#recSaveButton");
 recSaveButton.addEventListener("click", onRecSaveButtonClick);
+
+const validateSaveButton = $("#validateSaveButton");
+validateSaveButton.addEventListener("click", onValidateSaveButtonClick);
+
+const infoButton = $("#infoButton");
+infoButton.addEventListener("click", onInfoButtonClick);
 
 
 /*----------------------------------------------------------------------------------------------
@@ -788,29 +810,51 @@ function onRtSaveButtonClick() {
 	// Click feedback animation
 	clickFeedback(rtSaveButton);
 
-	// Convert point format to plotly
-	let tmpx = [];
-	let tmpy = [];
-	for(let i = 0; i < rtWaveData.length; i++){
-		tmpx[i] = rtWaveData[i].x;
-		tmpy[i] = rtWaveData[i].y;
-	}
-
-	saves.push({name: "record", x: tmpx, y: tmpy});
-	populateTabs();
+	// Display save modal
+	$("#saveModal").style.display="block";
 }
 
 function onRecSaveButtonClick() {
 	// Click feedback animation
 	clickFeedback(recSaveButton);
 
-	// save the datas
-	let tmpx = JSON.parse(JSON.stringify(recWaveData[0].x))
-	let tmpy = JSON.parse(JSON.stringify(recWaveData[0].y))
-	saves.push({name: "record", x: tmpx, y: tmpy});
+	// Display save modal
+	$("#saveModal").style.display="block";
+}
+
+function onValidateSaveButtonClick() {
+	let text;
+	if(saveNameInput.value == ""){
+		text = "default";
+	}
+	else{
+		text = saveNameInput.value;
+	}
+	if(activeTab == 0){
+		// Convert point format to plotly
+		let tmpx = [];
+		let tmpy = [];
+		for(let i = 0; i < rtWaveData.length; i++){
+			tmpx[i] = rtWaveData[i].x;
+			tmpy[i] = rtWaveData[i].y;
+		}
+
+		saves.push({name: text, x: tmpx, y: tmpy});
+	}
+	else{
+		// save the datas
+		let tmpx = JSON.parse(JSON.stringify(recWaveData[0].x))
+		let tmpy = JSON.parse(JSON.stringify(recWaveData[0].y))
+
+		saves.push({name: text, x: tmpx, y: tmpy});
+	}
 
 	// Redraw tabs
 	populateTabs();
+
+	// Empty the input and hide the modal card
+	saveNameInput.value = "";
+	$("#saveModal").style.display="none";
 }
 
 function onSampleButton() {
@@ -894,6 +938,10 @@ function onRtAmplificationSliderDblClick() {
 	audio.setGain(1); // Default
 	rtAmplificationSlider.value = 10;
 	rtAmplificationValue.innerHTML = "x " + audio.gain;
+}
+
+function onInfoButtonClick() {
+	$("#infoModal").style.display="block";
 }
 
 window.onload = function() {
