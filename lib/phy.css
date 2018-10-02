@@ -72,6 +72,14 @@ button:focus {outline:0;}
   /*transition: visibility 0s 0.2s, opacity 0.2s linear;*/
 }
 
+/* Custom menu elements*/
+.phy-menu-element{
+	margin-top: 16px;
+	margin-bottom: 16px;
+	margin-left: 0px;
+	margin-right: 16px;
+}
+
 /* Custom menu items*/
 .phy-menu-label{
 	margin-top: 20px;

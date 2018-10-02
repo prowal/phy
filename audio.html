@@ -75,9 +75,10 @@
 	<!-------------------------------REALTIME TAB------------------------------->
 	<!-------------------------------------------------------------------------->
 	<div id="rtTab" class="w3-row">
-		<div class="w3-col w3-right" style="width: 320px">
-			<!-- First right card -->
-			<div class="w3-card-4 w3-margin">
+		<!-- Second column -->
+		<div class="w3-col w3-right" style="width:300px">
+			<!-- First element -->
+			<div class="w3-card-4 phy-menu-element">
 				<header class="w3-container w3-theme">
 					<h3>Paramètres</h3>
 				</header>
@@ -87,22 +88,25 @@
 					<span class="range-slider_value" id="rtAmplificationValue">x 1</span>
 				</div>
 			</div>
-			<!-- Second right card -->
-			<div class="w3-card-4 w3-margin w3-white">
+			<!-- Second element -->
+			<div class="w3-card-4 phy-menu-element w3-white" >
 				<button class="w3-button w3-block w3-hover-red" id="pauseButton"><h3 style="margin:0"><i class="fas fa-pause"></i> Pause</h3></button>
 				<button class="w3-button w3-block" id="rtSaveButton" style="display:none"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
 			</div>
 		</div>
-		<!-- Graph card -->
-		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div class="w3-container w3-margin" style="height: 40vh; padding:0">
-				<canvas class="rtWaveCanvas"></canvas>
+		<!-- First column -->
+		<div class="w3-rest">
+			<!-- First graph -->
+			<div class="w3-card-4 w3-margin w3-padding w3-white">
+				<div style="height: 41vh;">
+					<canvas class="rtWaveCanvas"></canvas>
+				</div>
 			</div>
-		</div>
-		<!-- Fourier card -->
-		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div class="w3-container w3-margin" style="height: 35vh; padding:0">
-				<canvas class="rtFourierCanvas"></canvas>
+			<!-- Second graph -->
+			<div class="w3-card-4 w3-margin w3-padding w3-white">
+				<div style="height: 36vh;">
+					<canvas class="rtFourierCanvas"></canvas>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -110,9 +114,10 @@
 	<!--------------------------------RECORD TAB-------------------------------->
 	<!-------------------------------------------------------------------------->
 	<div id="recTab" class="w3-row" style="display:none">
-		<div class="w3-col w3-right" style="width: 320px">
-			<!-- First right card -->
-			<div class="w3-card-4 w3-margin">
+		<!-- Second column -->
+		<div class="w3-col w3-right" style="width:300px">
+			<!-- First element -->
+			<div class="w3-card-4 phy-menu-element">
 				<header class="w3-container w3-theme">
 					<h3>Acquisition</h3>
 				</header>
@@ -130,23 +135,56 @@
 				</div>
 			</div>
 		</div>
-		<!-- Graph card -->
-		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div id="recGraphContainer"class="w3-container w3-margin" style="height: 40vh; padding:0">
+		<!-- First column -->
+		<div class="w3-rest">
+			<!-- First graph -->
+			<div class="w3-card-4 w3-margin w3-padding w3-white">
+				<div id="recGraphContainer" style="height: 41vh;"></div>
+			</div>
+			<!-- Second graph -->
+			<div class="w3-card-4 w3-margin w3-padding w3-white">
+				<div id="recFourierContainer" style="height: 36vh;"></div>
 			</div>
 		</div>
-		<!-- Fourier card -->
-		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div id="recFourierContainer" class="w3-container w3-margin" style="height: 35vh; padding:0">
-			</div>
-		</div>		
 	</div>
 	<!-------------------------------------------------------------------------->
 	<!---------------------------------SAVED TAB-------------------------------->
 	<!-------------------------------------------------------------------------->
 	<div id="savTab" class="w3-row" style="display:none">
+		<!-- Second column -->
+		<div class="w3-col w3-right" style="width:300px">
+			<!-- First element -->
+			<div class="w3-card-4 phy-menu-element">
+				<header class="w3-container w3-theme">
+					<h3>Traitement</h3>
+				</header>
+				<div class="w3-container w3-white">
+					<label class="w3-opacity phy-menu-label"><b>Fréquence d'échantillonage</b></label>
+					<select class="w3-select" name="option">
+						<option value="1">48 000 Hz</option>
+						<option value="2">24 000 Hz</option>
+						<option value="3">12 000 Hz</option>
+					</select> 
+				</div>
+			</div>
+		</div>
+		<!-- First column -->
+		<div class="w3-rest">
+			<!-- First graph -->
+			<div class="w3-card-4 w3-margin w3-padding w3-white">
+				<div id="savGraphContainer" style="height: 41vh;"></div>
+			</div>
+			<!-- Second graph -->
+			<div class="w3-card-4 w3-margin w3-padding w3-white">
+				<div id="savFourierContainer" style="height: 36vh;"></div>
+			</div>
+		</div>
+	</div>
+			
+
+	<!--<div id="savTab" class="w3-row" style="display:none">
 		<div class="w3-col w3-right" style="width: 320px">
-			<!-- First right card -->
+			
 			<div class="w3-card-4 w3-margin">
 				<header class="w3-container w3-theme">
 					<h3>Traitement</h3>
@@ -161,19 +199,21 @@
 				</div>
 			</div>
 		</div>
-		<!-- Graph card -->
+		
 		<div class="w3-card-4 w3-rest w3-margin w3-white">
 			<div id="savGraphContainer"class="w3-container w3-margin" style="height: 40vh; padding:0">
 			</div>
 		</div>
-		<!-- Fourier card -->
+		
 		<div class="w3-card-4 w3-rest w3-margin w3-white">
 			<div id="savFourierContainer" class="w3-container w3-margin" style="height: 35vh; padding:0">
 			</div>
 		</div>		
-	</div>
+	</div>-->
 
-	<!-- Info modal card -->
+	<!-------------------------------------------------------------------------->
+	<!--------------------------------- MODALS --------------------------------->
+	<!-------------------------------------------------------------------------->
 	<div id="infoModal" class="w3-modal">
     <div class="w3-modal-content w3-animate-top w3-card-4">
       <header class="w3-container w3-theme2"> 
@@ -205,7 +245,7 @@
 			</div>
     </div>
 	</div>
-	<!-- Info modal card -->
+	<!-- Save modal card -->
 	<div id="saveModal" class="w3-modal">
 		<div class="w3-modal-content w3-animate-top w3-card-4" style="width:400px;">
 			<header class="w3-container w3-theme2">
@@ -825,7 +865,7 @@ function onRecSaveButtonClick() {
 function onValidateSaveButtonClick() {
 	let text;
 	if(saveNameInput.value == ""){
-		text = "default";
+		text = "Enreg.";
 	}
 	else{
 		text = saveNameInput.value;
