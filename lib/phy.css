@@ -94,7 +94,7 @@ button:focus {outline:0;}
 a.w3-card-4{text-decoration: none;}
 
 /* Remove border focus*/
-textarea:focus, input:focus{
+textarea:focus, input:focus, select:focus{
 	outline: none;
 }
 

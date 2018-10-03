@@ -167,6 +167,15 @@
 					</select> 
 				</div>
 			</div>
+			<!-- Second element -->
+			<div class="w3-card-4 phy-menu-element">
+				<header class="w3-container w3-theme">
+					<h3>Analyse spectrale</h3>
+				</header>
+				<div class="w3-container w3-white">
+					<button class="w3-button w3-block w3-theme w3-hover-theme2" id="fourierReplotButton" style="margin-top: 15px; margin-bottom: 15px;"><label>Recalculer</label></button>
+				</div>
+			</div>
 		</div>
 		<!-- First column -->
 		<div class="w3-rest">
@@ -305,6 +314,8 @@ let recBufferSize = sampleLength * recSampleFrequency;
 // save vars
 let saves = [];
 
+const defaultRange = {xRange: [0, 0.04], yRange: [-1, 1]};
+
 // Create the fourier object
 let fourier = new Fourier(bufferSize);
 
@@ -314,6 +325,10 @@ let audio = new PhyAudio(bufferSize);
 // Get canvas contexts (rt)
 const rtWaveCanvasCtx = $("canvas.rtWaveCanvas").getContext("2d");
 const rtFourierCanvasCtx = $("canvas.rtFourierCanvas").getContext("2d");
+
+// Get div elements (sav)
+const savWaveGraph = $("#savGraphContainer");
+const savFourierGraph = $("#savFourierContainer");
 
 // Get sliders elements
 const rtAmplificationSlider = $("#rtAmplificationSlider");
@@ -357,6 +372,9 @@ recSaveButton.addEventListener("click", onRecSaveButtonClick);
 
 const validateSaveButton = $("#validateSaveButton");
 validateSaveButton.addEventListener("click", onValidateSaveButtonClick);
+
+const fourierReplotButton = $("#fourierReplotButton");
+fourierReplotButton.addEventListener("click", onFourierReplotButtonClick);
 
 const infoButton = $("#infoButton");
 infoButton.addEventListener("click", onInfoButtonClick);
@@ -676,6 +694,10 @@ function saveDraw() {
 	savWaveData[0].x = saves[activeTab-2].x.slice();
 	savWaveData[0].y = saves[activeTab-2].y.slice();
 
+	// Apply zoom
+	savWaveGraph.layout.xaxis.range = saves[activeTab-2].range.xRange;
+	savWaveGraph.layout.yaxis.range = saves[activeTab-2].range.yRange;
+
 	// Change data format to be able to perform fft on it
 	let fftInput = [];
 	for(let i = 0; i < savWaveData[0].x.length; i++){
@@ -849,14 +871,14 @@ function onValidateSaveButtonClick() {
 			tmpy[i] = rtWaveData[i].y;
 		}
 
-		saves.push({name: text, x: tmpx, y: tmpy});
+		saves.push({name: text, x: tmpx, y: tmpy, range: {xRange: [-1, 1], xRange: [0, tmpx[tmpx.length]]}});
 	}
 	else{
 		// save the datas
 		let tmpx = JSON.parse(JSON.stringify(recWaveData[0].x))
 		let tmpy = JSON.parse(JSON.stringify(recWaveData[0].y))
 
-		saves.push({name: text, x: tmpx, y: tmpy});
+		saves.push({name: text, x: tmpx, y: tmpy, range: {xRange: [-1, 1], xRange: [0, tmpx[tmpx.length]]}});
 	}
 
 	// Redraw tabs
@@ -865,6 +887,10 @@ function onValidateSaveButtonClick() {
 	// Empty the input and hide the modal card
 	saveNameInput.value = "";
 	$("#saveModal").style.display="none";
+}
+
+function onFourierReplotButtonClick() {
+	
 }
 
 function onSampleButton() {
@@ -912,7 +938,7 @@ function onTabButtonClick(_id) {
 		saveDraw();
 	}
 	else{
-		tabs[_id].style.display = "block";	
+		tabs[_id].style.display = "block";
 	}
 
 	// Draw the graphs if the record tab is active
