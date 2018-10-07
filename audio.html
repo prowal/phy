@@ -621,7 +621,8 @@ function realtimeDraw() {
 	let fourierData = fourier.computeNormalizedFft(rtWaveData, sampleFrequency, false);
 
 	// Trim unnecessary data
-	let trimedRtWaveData = JSON.parse(JSON.stringify(rtWaveData));
+	let trimedRtWaveData = arrayOfPointsCopy(rtWaveData);
+
 
 	if(stabilization == true){
 		stabilize(trimedRtWaveData);
@@ -695,8 +696,10 @@ function saveDraw() {
 	savWaveData[0].y = saves[activeTab-2].y.slice();
 
 	// Apply zoom
-	savWaveGraph.layout.xaxis.range = saves[activeTab-2].range.xRange;
-	savWaveGraph.layout.yaxis.range = saves[activeTab-2].range.yRange;
+	savWaveGraph.layout.xaxis.autorange ="false"; // In case  the autoscale button was pressed
+	savWaveGraph.layout.yaxis.autorange ="false";
+	savWaveGraph.layout.xaxis.range = arrayCopy(saves[activeTab-2].range.xRange);
+	savWaveGraph.layout.yaxis.range = arrayCopy(saves[activeTab-2].range.yRange);
 
 	// Change data format to be able to perform fft on it
 	let fftInput = [];
@@ -738,6 +741,25 @@ function draw() {
 		//saveDraw();
 	}
 };
+
+/*----------------------------------------------------------------------------------------------
+-------------------------------------DEEP COPY FUNCTIONS----------------------------------------
+----------------------------------------------------------------------------------------------*/
+function arrayCopy(_array){
+	let copy = [];
+	for(let i = 0; i < _array.length; i++){
+		copy[i] = _array[i];
+	}
+	return copy;
+}
+
+function arrayOfPointsCopy(_array){
+	let copy = [];
+	for(let i = 0; i < _array.length; i++){
+		copy[i] = {x: _array[i].x, y:_array[i].y};
+	}
+	return copy;
+}
 
 /*----------------------------------------------------------------------------------------------
 ------------------------------------POPULATE TABS FUNCTION--------------------------------------
@@ -855,6 +877,7 @@ function onRecSaveButtonClick() {
 }
 
 function onValidateSaveButtonClick() {
+	// Get the save name
 	let text;
 	if(saveNameInput.value == ""){
 		text = "Enreg.";
@@ -862,6 +885,7 @@ function onValidateSaveButtonClick() {
 	else{
 		text = saveNameInput.value;
 	}
+
 	if(activeTab == 0){
 		// Convert point format to plotly
 		let tmpx = [];
@@ -870,15 +894,14 @@ function onValidateSaveButtonClick() {
 			tmpx[i] = rtWaveData[i].x;
 			tmpy[i] = rtWaveData[i].y;
 		}
-
-		saves.push({name: text, x: tmpx, y: tmpy, range: {xRange: [-1, 1], xRange: [0, tmpx[tmpx.length]]}});
+		saves.push({name: text, x: tmpx, y: tmpy, range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]}});
 	}
 	else{
 		// save the datas
-		let tmpx = JSON.parse(JSON.stringify(recWaveData[0].x))
-		let tmpy = JSON.parse(JSON.stringify(recWaveData[0].y))
+		let tmpx = arrayCopy(recWaveData[0].x);
+		let tmpy = arrayCopy(recWaveData[0].y);
 
-		saves.push({name: text, x: tmpx, y: tmpy, range: {xRange: [-1, 1], xRange: [0, tmpx[tmpx.length]]}});
+		saves.push({name: text, x: tmpx, y: tmpy, range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]}});
 	}
 
 	// Redraw tabs
@@ -890,7 +913,7 @@ function onValidateSaveButtonClick() {
 }
 
 function onFourierReplotButtonClick() {
-	
+	// TODO
 }
 
 function onSampleButton() {
@@ -915,6 +938,12 @@ function onSampleLengthInput() {
 }
 
 function onTabButtonClick(_id) {
+	// Store the current zoom range if the current tab is a sav
+	if(activeTab > 1){
+		saves[activeTab-2].range.xRange = arrayCopy(savWaveGraph.layout.xaxis.range);
+		saves[activeTab-2].range.yRange = arrayCopy(savWaveGraph.layout.yaxis.range);
+	}
+
 	// UnActivate all buttons
 	for(let i = 0; i < tabButtons.length; i++){
 		tabButtons[i].classList.remove("phy-tab-active");
