@@ -417,7 +417,7 @@ let rtGraphConfig = {
 				},
 				ticks: {
 					min: 0,
-					max: 0.05,
+					max: 0.04,
 					//autoSkip: true,
 					//maxTicksLimit: 10,
 				}
@@ -627,12 +627,10 @@ function realtimeDraw() {
 	if(stabilization == true){
 		stabilize(trimedRtWaveData);
 	}
-	trimedRtWaveData.splice(0.05 * sampleFrequency);
+	trimedRtWaveData.splice(0.04 * sampleFrequency);
 
 	// Set the new fourier datas
-	for(let i = 0; i < bufferSize / sampleFrequency * 10000; i++){
-		rtFourierData[i] = {x: fourierData[i].x, y: fourierData[i].y};
-	}
+	rtFourierData = arrayOfPointsCopy(fourierData, bufferSize / sampleFrequency * 10000);
 
 	rtWaveChart.data.datasets[0].data = trimedRtWaveData;
 	rtWaveChart.update();
@@ -745,17 +743,17 @@ function draw() {
 /*----------------------------------------------------------------------------------------------
 -------------------------------------DEEP COPY FUNCTIONS----------------------------------------
 ----------------------------------------------------------------------------------------------*/
-function arrayCopy(_array){
+function arrayCopy(_array, _length = _array.length){
 	let copy = [];
-	for(let i = 0; i < _array.length; i++){
+	for(let i = 0; i < _length; i++){
 		copy[i] = _array[i];
 	}
 	return copy;
 }
 
-function arrayOfPointsCopy(_array){
+function arrayOfPointsCopy(_array, _length = _array.length){
 	let copy = [];
-	for(let i = 0; i < _array.length; i++){
+	for(let i = 0; i < _length; i++){
 		copy[i] = {x: _array[i].x, y:_array[i].y};
 	}
 	return copy;
