@@ -654,9 +654,6 @@ function recordDraw() {
 		for(let i = 0; i < recBufferSize; i++){
 			recWaveData[0].x[i] = i / recSampleFrequency;
 			recWaveData[0].y[i] = graphData[i];
-
-			// Change data format to be able to perform fft on it
-			fftInput[i] = {x: recWaveData[0].x[i], y: recWaveData[0].y[i]};
 		}
 
 		// Ugly hack to force plotly to redraw
@@ -672,11 +669,7 @@ function recordDraw() {
 		Plotly.react("recGraphContainer", recWaveData, recGraphConfig);
 
 		// Compute and plot the dft
-		let dftResult = fourier.computeNormalizedFft(fftInput, sampleFrequency, false)
-		for(let i = 0; i < dftResult.length / sampleFrequency * 2 * 10000; i++){
-			recFourierData[0].x[i] = dftResult[i].x;
-			recFourierData[0].y[i] = dftResult[i].y;
-		}
+		computePlotlyFourier(recWaveData[0], recFourierData[0], sampleFrequency);
 		Plotly.react("recFourierContainer", recFourierData, recFourierConfig);
 	}
 }
@@ -698,11 +691,6 @@ function saveDraw() {
 	savWaveGraph.layout.xaxis.range = arrayCopy(saves[activeTab-2].range.xRange);
 	savWaveGraph.layout.yaxis.range = arrayCopy(saves[activeTab-2].range.yRange);
 
-	// Change data format to be able to perform fft on it
-	let fftInput = [];
-	for(let i = 0; i < savWaveData[0].x.length; i++){
-		fftInput[i] = {x: savWaveData[0].x[i], y: savWaveData[0].y[i]};
-	}
 	// Ugly hack to force plotly to redraw
 	if(savGraphConfig.datarevision == 1){
 		savGraphConfig.datarevision = 0;
@@ -717,11 +705,7 @@ function saveDraw() {
 	Plotly.react("savGraphContainer", savWaveData, savGraphConfig);
 
 	// Compute and plot the dft
-	let dftResult = fourier.computeNormalizedFft(fftInput, sampleFrequency, false)
-	for(let i = 0; i < dftResult.length / sampleFrequency * 2 * 10000; i++){
-		savFourierData[0].x[i] = dftResult[i].x;
-		savFourierData[0].y[i] = dftResult[i].y;
-	}
+	computePlotlyFourier(savWaveData[0], savFourierData[0], sampleFrequency);
 	Plotly.react("savFourierContainer", savFourierData, savFourierConfig);
 }
 
@@ -756,6 +740,26 @@ function arrayOfPointsCopy(_array, _length = _array.length){
 		copy[i] = {x: _array[i].x, y:_array[i].y};
 	}
 	return copy;
+}
+
+/*----------------------------------------------------------------------------------------------
+-----------------------------------COMPUTE PLOTLY FOURIER---------------------------------------
+----------------------------------------------------------------------------------------------*/
+function computePlotlyFourier(_wave, _result, _sampleFrequency){
+	let fftData = {x:[], y:[]};
+	// Change data format to be able to perform fft on it
+	let fftInput = [];
+	let length = _wave.x.length;
+	for(let i = 0; i < length; i++){
+		fftInput[i] = {x: _wave.x[i], y: _wave.y[i]};
+	}
+	// Compute the dft
+	let dftResult = fourier.computeNormalizedFft(fftInput, _sampleFrequency, false)
+	for(let i = 0; i < dftResult.length / sampleFrequency * 2 * 10000; i++){
+		_result.x[i] = dftResult[i].x;
+		_result.y[i] = dftResult[i].y;
+	}
+	return fftData;
 }
 
 /*----------------------------------------------------------------------------------------------
@@ -891,14 +895,26 @@ function onValidateSaveButtonClick() {
 			tmpx[i] = rtWaveData[i].x;
 			tmpy[i] = rtWaveData[i].y;
 		}
-		saves.push({name: text, x: tmpx, y: tmpy, range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]}});
+		saves.push({
+			name: text,
+			x: tmpx,
+			y: tmpy,
+			range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]},
+			fourierRange: [0, tmpx[tmpx.length - 1]],
+		});
 	}
 	else{
 		// save the datas
 		let tmpx = arrayCopy(recWaveData[0].x);
 		let tmpy = arrayCopy(recWaveData[0].y);
 
-		saves.push({name: text, x: tmpx, y: tmpy, range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]}});
+		saves.push({
+			name: text,
+			x: tmpx,
+			y: tmpy,
+			range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]},
+			fourierRange: [0, tmpx[tmpx.length - 1]],
+		});
 	}
 
 	// Redraw tabs
@@ -910,7 +926,16 @@ function onValidateSaveButtonClick() {
 }
 
 function onFourierReplotButtonClick() {
-	// TODO
+	// Get the wave graph xrange
+	let xrange = savWaveGraph.layout.xaxis.range;
+
+	let wave;
+
+	let startIndex= Math.floor(sampleFrequency * xrange[0]);
+	let stopIndex = Math.floor(sampleFrequency * xrange[1]);
+	for(let i = startIndex; i < stopIndex; i++){
+		//wave = {}
+	}
 }
 
 function onSampleButton() {
