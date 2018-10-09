@@ -90,8 +90,8 @@
 			</div>
 			<!-- Second element -->
 			<div class="w3-card-4 phy-menu-element w3-white" >
-				<button class="w3-button w3-block w3-hover-red" id="pauseButton"><h3 style="margin:0"><i class="fas fa-pause"></i> Pause</h3></button>
-				<button class="w3-button w3-block" id="rtSaveButton" style="display:none"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
+				<button class="w3-button w3-block w3-hover-red ripple" id="pauseButton"><h3 style="margin:0"><i class="fas fa-pause"></i> Pause</h3></button>
+				<button class="w3-button w3-block ripple" id="rtSaveButton" style="display:none"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
 			</div>
 		</div>
 		<!-- First column -->
@@ -130,8 +130,8 @@
 						<option value="2">24 000 Hz</option>
 						<option value="3">12 000 Hz</option>
 					</select> 
-					<button class="w3-button w3-block w3-theme w3-hover-theme2" id="sampleButton" style="margin-top: 25px; margin-bottom: 15px;"><h3 style="margin:0"><i class="fas fa-microphone"></i> Acquisition</h3></button>
-					<button class="w3-button w3-block" id="recSaveButton" style="margin-bottom: 15px; display:none;"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
+					<button class="w3-button w3-block w3-theme w3-hover-theme2 ripple" id="sampleButton" style="margin-top: 25px; margin-bottom: 15px;"><h3 style="margin:0"><i class="fas fa-microphone"></i> Acquisition</h3></button>
+					<button class="w3-button w3-block ripple" id="recSaveButton" style="margin-bottom: 15px; display:none;"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
 				</div>
 			</div>
 		</div>
@@ -844,11 +844,11 @@ function stabilize(_data){
 ----------------------------------------MISC FUNCTIONS------------------------------------------
 ----------------------------------------------------------------------------------------------*/
 
-function clickFeedback(_element){
+/*function clickFeedback(_element){
 	_element.classList.remove("w3-animate-opacity");
 	void rtSaveButton.offsetWidth; // Provoke a reflow to allow a new animation
 	_element.classList.add("w3-animate-opacity");
-}
+}*/
 
 /*----------------------------------------------------------------------------------------------
 ---------------------------------------------EVENTS---------------------------------------------
@@ -872,7 +872,7 @@ function onPauseButtonClick() {
 
 function onRtSaveButtonClick() {
 	// Click feedback animation
-	clickFeedback(rtSaveButton);
+	//clickFeedback(rtSaveButton);
 
 	// Display save modal
 	$("#saveModal").style.display="block";
@@ -880,7 +880,7 @@ function onRtSaveButtonClick() {
 
 function onRecSaveButtonClick() {
 	// Click feedback animation
-	clickFeedback(recSaveButton);
+	//clickFeedback(recSaveButton);
 
 	// Display save modal
 	$("#saveModal").style.display="block";
@@ -911,7 +911,6 @@ function onValidateSaveButtonClick() {
 			range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]},
 			fourierRange: [0, tmpx[tmpx.length - 1]],
 		});
-		debugger;
 	}
 	else{
 		// save the datas
@@ -947,7 +946,7 @@ function onFourierReplotButtonClick() {
 
 function onSampleButton() {
 	// Click feedback animation
-	clickFeedback(sampleButton);
+	//clickFeedback(sampleButton);
 
 	// Record new datas
 	audio.startRecording(sampleLength);
@@ -1015,7 +1014,8 @@ function onTabCloseButtonClick(_id) {
 		populateTabs();
 		// Active the active tab (duh)
 		if(activeTab > _id + 1){
-			onTabButtonClick(activeTab - 1);
+			activeTab = activeTab - 1;
+			onTabButtonClick(activeTab);
 		}
 		else{
 			onTabButtonClick(activeTab);
