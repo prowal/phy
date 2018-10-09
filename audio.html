@@ -75,9 +75,10 @@
 	<!-------------------------------REALTIME TAB------------------------------->
 	<!-------------------------------------------------------------------------->
 	<div id="rtTab" class="w3-row">
-		<div class="w3-col w3-right" style="width: 320px">
-			<!-- First right card -->
-			<div class="w3-card-4 w3-margin">
+		<!-- Second column -->
+		<div class="w3-col w3-right" style="width:300px">
+			<!-- First element -->
+			<div class="w3-card-4 phy-menu-element">
 				<header class="w3-container w3-theme">
 					<h3>Paramètres</h3>
 				</header>
@@ -87,22 +88,25 @@
 					<span class="range-slider_value" id="rtAmplificationValue">x 1</span>
 				</div>
 			</div>
-			<!-- Second right card -->
-			<div class="w3-card-4 w3-margin w3-white">
+			<!-- Second element -->
+			<div class="w3-card-4 phy-menu-element w3-white" >
 				<button class="w3-button w3-block w3-hover-red" id="pauseButton"><h3 style="margin:0"><i class="fas fa-pause"></i> Pause</h3></button>
 				<button class="w3-button w3-block" id="rtSaveButton" style="display:none"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
 			</div>
 		</div>
-		<!-- Graph card -->
-		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div class="w3-container w3-margin" style="height: 40vh; padding:0">
-				<canvas class="rtWaveCanvas"></canvas>
+		<!-- First column -->
+		<div class="w3-rest">
+			<!-- First graph -->
+			<div class="w3-card-4 w3-margin w3-padding w3-white">
+				<div style="height: 41vh;">
+					<canvas class="rtWaveCanvas"></canvas>
+				</div>
 			</div>
-		</div>
-		<!-- Fourier card -->
-		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div class="w3-container w3-margin" style="height: 35vh; padding:0">
-				<canvas class="rtFourierCanvas"></canvas>
+			<!-- Second graph -->
+			<div class="w3-card-4 w3-margin w3-padding w3-white">
+				<div style="height: 36vh;">
+					<canvas class="rtFourierCanvas"></canvas>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -110,9 +114,10 @@
 	<!--------------------------------RECORD TAB-------------------------------->
 	<!-------------------------------------------------------------------------->
 	<div id="recTab" class="w3-row" style="display:none">
-		<div class="w3-col w3-right" style="width: 320px">
-			<!-- First right card -->
-			<div class="w3-card-4 w3-margin">
+		<!-- Second column -->
+		<div class="w3-col w3-right" style="width:300px">
+			<!-- First element -->
+			<div class="w3-card-4 phy-menu-element">
 				<header class="w3-container w3-theme">
 					<h3>Acquisition</h3>
 				</header>
@@ -130,24 +135,26 @@
 				</div>
 			</div>
 		</div>
-		<!-- Graph card -->
-		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div id="recGraphContainer"class="w3-container w3-margin" style="height: 40vh; padding:0">
+		<!-- First column -->
+		<div class="w3-rest">
+			<!-- First graph -->
+			<div class="w3-card-4 w3-margin w3-padding w3-white">
+				<div id="recGraphContainer" style="height: 41vh;"></div>
+			</div>
+			<!-- Second graph -->
+			<div class="w3-card-4 w3-margin w3-padding w3-white">
+				<div id="recFourierContainer" style="height: 36vh;"></div>
 			</div>
 		</div>
-		<!-- Fourier card -->
-		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div id="recFourierContainer" class="w3-container w3-margin" style="height: 35vh; padding:0">
-			</div>
-		</div>		
 	</div>
 	<!-------------------------------------------------------------------------->
 	<!---------------------------------SAVED TAB-------------------------------->
 	<!-------------------------------------------------------------------------->
 	<div id="savTab" class="w3-row" style="display:none">
-		<div class="w3-col w3-right" style="width: 320px">
-			<!-- First right card -->
-			<div class="w3-card-4 w3-margin">
+		<!-- Second column -->
+		<div class="w3-col w3-right" style="width:300px">
+			<!-- First element -->
+			<div class="w3-card-4 phy-menu-element">
 				<header class="w3-container w3-theme">
 					<h3>Traitement</h3>
 				</header>
@@ -160,24 +167,36 @@
 					</select> 
 				</div>
 			</div>
-		</div>
-		<!-- Graph card -->
-		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div id="savGraphContainer"class="w3-container w3-margin" style="height: 40vh; padding:0">
+			<!-- Second element -->
+			<div class="w3-card-4 phy-menu-element">
+				<header class="w3-container w3-theme">
+					<h3>Analyse spectrale</h3>
+				</header>
+				<div class="w3-container w3-white">
+					<button class="w3-button w3-block w3-theme w3-hover-theme2" id="fourierReplotButton" style="margin-top: 15px; margin-bottom: 15px;"><label>Recalculer</label></button>
+				</div>
 			</div>
 		</div>
-		<!-- Fourier card -->
-		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div id="savFourierContainer" class="w3-container w3-margin" style="height: 35vh; padding:0">
+		<!-- First column -->
+		<div class="w3-rest">
+			<!-- First graph -->
+			<div class="w3-card-4 w3-margin w3-padding w3-white">
+				<div id="savGraphContainer" style="height: 41vh;"></div>
 			</div>
-		</div>		
+			<!-- Second graph -->
+			<div class="w3-card-4 w3-margin w3-padding w3-white">
+				<div id="savFourierContainer" style="height: 36vh;"></div>
+			</div>
+		</div>
 	</div>
 
-	<!-- Modal card -->
-	<div id="modal" class="w3-modal">
+	<!-------------------------------------------------------------------------->
+	<!--------------------------------- MODALS --------------------------------->
+	<!-------------------------------------------------------------------------->
+	<div id="infoModal" class="w3-modal">
     <div class="w3-modal-content w3-animate-top w3-card-4">
       <header class="w3-container w3-theme2"> 
-        <span onclick="document.getElementById('modal').style.display='none'" class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
+        <span onclick="document.getElementById('infoModal').style.display='none'" class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
         <h2>À propos</h2>
       </header>
       <div class="w3-container">
@@ -204,7 +223,21 @@
 				</div>
 			</div>
     </div>
-  </div>
+	</div>
+	<!-- Save modal card -->
+	<div id="saveModal" class="w3-modal">
+		<div class="w3-modal-content w3-animate-top w3-card-4" style="width:400px;">
+			<header class="w3-container w3-theme2">
+				<h2>Sauvegarder</h2>
+			</header>
+			<div style="padding: 10px;">
+				<span class="w3-container w3-cell" style="width:100%; margin: 10px;">
+					<input type="text" class="w3-input w3-border-0" id="saveNameInput" placeholder="Nom de la sauvegarde">
+				</span>
+				<span id="validateSaveButton" class="w3-button w3-theme w3-hover-theme2 w3-cell" style="width:50px"><i class="fas fa-check"></i></span>
+			</div>
+		</div>
+	</div>
 
 <script>
 const $ = document.querySelector.bind(document);
@@ -265,7 +298,6 @@ let savFourierData = [{
 let activeTab;
 
 
-
 // realtime vars
 let bufferSize = 4096;
 let sampleFrequency = 48000; // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO (may vary!)
@@ -281,7 +313,9 @@ let recBufferSize = sampleLength * recSampleFrequency;
 // save vars
 let saves = [];
 
-// Create the fourier object
+const defaultRange = {xRange: [0, 0.04], yRange: [-1, 1]};
+
+// Create the Fourier object
 let fourier = new Fourier(bufferSize);
 
 // Create a PhyAudio object
@@ -290,6 +324,10 @@ let audio = new PhyAudio(bufferSize);
 // Get canvas contexts (rt)
 const rtWaveCanvasCtx = $("canvas.rtWaveCanvas").getContext("2d");
 const rtFourierCanvasCtx = $("canvas.rtFourierCanvas").getContext("2d");
+
+// Get div elements (sav)
+const savWaveGraph = $("#savGraphContainer");
+const savFourierGraph = $("#savFourierContainer");
 
 // Get sliders elements
 const rtAmplificationSlider = $("#rtAmplificationSlider");
@@ -301,6 +339,8 @@ rtAmplificationValue.addEventListener("dblclick", onRtAmplificationSliderDblClic
 // Get inputs elements
 const sampleLengthInput = $("#sampleLengthInput");
 sampleLengthInput.addEventListener("input", onSampleLengthInput);
+
+const saveNameInput = $("#saveNameInput");
 
 // Get the tab bar and tab buttons elements
 const tabBar = $("#tabBar");
@@ -328,6 +368,15 @@ sampleButton.addEventListener("click", onSampleButton);
 
 const recSaveButton = $("#recSaveButton");
 recSaveButton.addEventListener("click", onRecSaveButtonClick);
+
+const validateSaveButton = $("#validateSaveButton");
+validateSaveButton.addEventListener("click", onValidateSaveButtonClick);
+
+const fourierReplotButton = $("#fourierReplotButton");
+fourierReplotButton.addEventListener("click", onFourierReplotButtonClick);
+
+const infoButton = $("#infoButton");
+infoButton.addEventListener("click", onInfoButtonClick);
 
 
 /*----------------------------------------------------------------------------------------------
@@ -367,7 +416,7 @@ let rtGraphConfig = {
 				},
 				ticks: {
 					min: 0,
-					max: 0.05,
+					max: 0.04,
 					//autoSkip: true,
 					//maxTicksLimit: 10,
 				}
@@ -571,17 +620,16 @@ function realtimeDraw() {
 	let fourierData = fourier.computeNormalizedFft(rtWaveData, sampleFrequency, false);
 
 	// Trim unnecessary data
-	let trimedRtWaveData = JSON.parse(JSON.stringify(rtWaveData));
+	let trimedRtWaveData = arrayOfPointsCopy(rtWaveData);
+
 
 	if(stabilization == true){
 		stabilize(trimedRtWaveData);
 	}
-	trimedRtWaveData.splice(0.05 * sampleFrequency);
+	trimedRtWaveData.splice(0.04 * sampleFrequency);
 
 	// Set the new fourier datas
-	for(let i = 0; i < bufferSize / sampleFrequency * 10000; i++){
-		rtFourierData[i] = {x: fourierData[i].x, y: fourierData[i].y};
-	}
+	rtFourierData = arrayOfPointsCopy(fourierData, bufferSize / sampleFrequency * 10000);
 
 	rtWaveChart.data.datasets[0].data = trimedRtWaveData;
 	rtWaveChart.update();
@@ -606,9 +654,6 @@ function recordDraw() {
 		for(let i = 0; i < recBufferSize; i++){
 			recWaveData[0].x[i] = i / recSampleFrequency;
 			recWaveData[0].y[i] = graphData[i];
-
-			// Change data format to be able to perform fft on it
-			fftInput[i] = {x: recWaveData[0].x[i], y: recWaveData[0].y[i]};
 		}
 
 		// Ugly hack to force plotly to redraw
@@ -624,11 +669,7 @@ function recordDraw() {
 		Plotly.react("recGraphContainer", recWaveData, recGraphConfig);
 
 		// Compute and plot the dft
-		let dftResult = fourier.computeNormalizedFft(fftInput, sampleFrequency, false)
-		for(let i = 0; i < dftResult.length / sampleFrequency * 2 * 10000; i++){
-			recFourierData[0].x[i] = dftResult[i].x;
-			recFourierData[0].y[i] = dftResult[i].y;
-		}
+		computePlotlyFourier(recWaveData[0], recFourierData[0], sampleFrequency);
 		Plotly.react("recFourierContainer", recFourierData, recFourierConfig);
 	}
 }
@@ -644,11 +685,12 @@ function saveDraw() {
 	savWaveData[0].x = saves[activeTab-2].x.slice();
 	savWaveData[0].y = saves[activeTab-2].y.slice();
 
-	// Change data format to be able to perform fft on it
-	let fftInput = [];
-	for(let i = 0; i < savWaveData[0].x.length; i++){
-		fftInput[i] = {x: savWaveData[0].x[i], y: savWaveData[0].y[i]};
-	}
+	// Apply zoom
+	savWaveGraph.layout.xaxis.autorange ="false"; // In case  the autoscale button was pressed
+	savWaveGraph.layout.yaxis.autorange ="false";
+	savWaveGraph.layout.xaxis.range = arrayCopy(saves[activeTab-2].range.xRange);
+	savWaveGraph.layout.yaxis.range = arrayCopy(saves[activeTab-2].range.yRange);
+
 	// Ugly hack to force plotly to redraw
 	if(savGraphConfig.datarevision == 1){
 		savGraphConfig.datarevision = 0;
@@ -663,11 +705,7 @@ function saveDraw() {
 	Plotly.react("savGraphContainer", savWaveData, savGraphConfig);
 
 	// Compute and plot the dft
-	let dftResult = fourier.computeNormalizedFft(fftInput, sampleFrequency, false)
-	for(let i = 0; i < dftResult.length / sampleFrequency * 2 * 10000; i++){
-		savFourierData[0].x[i] = dftResult[i].x;
-		savFourierData[0].y[i] = dftResult[i].y;
-	}
+	computePlotlyFourier(savWaveData[0], savFourierData[0], sampleFrequency, saves[activeTab-2].fourierRange);
 	Plotly.react("savFourierContainer", savFourierData, savFourierConfig);
 }
 
@@ -684,6 +722,54 @@ function draw() {
 		//saveDraw();
 	}
 };
+
+/*----------------------------------------------------------------------------------------------
+-------------------------------------DEEP COPY FUNCTIONS----------------------------------------
+----------------------------------------------------------------------------------------------*/
+function arrayCopy(_array, _length = _array.length){
+	let copy = [];
+	for(let i = 0; i < _length; i++){
+		copy[i] = _array[i];
+	}
+	return copy;
+}
+
+function arrayOfPointsCopy(_array, _length = _array.length){
+	let copy = [];
+	for(let i = 0; i < _length; i++){
+		copy[i] = {x: _array[i].x, y:_array[i].y};
+	}
+	return copy;
+}
+
+/*----------------------------------------------------------------------------------------------
+-----------------------------------COMPUTE PLOTLY FOURIER---------------------------------------
+----------------------------------------------------------------------------------------------*/
+function computePlotlyFourier(_wave, _result, _sampleFrequency, _range){
+	let startIndex;
+	let stopIndex;
+	if(_range == undefined){
+		startIndex = 0;
+		stopIndex = _wave.x.length;
+	}
+	else{
+		startIndex = Math.floor(_range[0] * _sampleFrequency);
+		stopIndex = Math.floor(_range[1] * _sampleFrequency);
+	}
+	let fftData = {x:[], y:[]};
+	// Change data format to be able to perform fft on it
+	let fftInput = [];
+	for(let i = startIndex; i < stopIndex; i++){
+		fftInput[i - startIndex] = {x: _wave.x[i], y: _wave.y[i]};
+	}
+	// Compute the dft
+	let dftResult = fourier.computeNormalizedFft(fftInput, _sampleFrequency, false)
+	for(let i = 0; i < dftResult.length / sampleFrequency * 2 * 10000; i++){
+		_result.x[i] = dftResult[i].x;
+		_result.y[i] = dftResult[i].y;
+	}
+	return fftData;
+}
 
 /*----------------------------------------------------------------------------------------------
 ------------------------------------POPULATE TABS FUNCTION--------------------------------------
@@ -755,16 +841,6 @@ function stabilize(_data){
 }
 
 /*----------------------------------------------------------------------------------------------
-----------------------------------------MISC FUNCTIONS------------------------------------------
-----------------------------------------------------------------------------------------------*/
-
-function clickFeedback(_element){
-	_element.classList.remove("w3-animate-opacity");
-	void rtSaveButton.offsetWidth; // Provoke a reflow to allow a new animation
-	_element.classList.add("w3-animate-opacity");
-}
-
-/*----------------------------------------------------------------------------------------------
 ---------------------------------------------EVENTS---------------------------------------------
 ----------------------------------------------------------------------------------------------*/
 function onPauseButtonClick() {
@@ -785,37 +861,76 @@ function onPauseButtonClick() {
 }
 
 function onRtSaveButtonClick() {
-	// Click feedback animation
-	clickFeedback(rtSaveButton);
-
-	// Convert point format to plotly
-	let tmpx = [];
-	let tmpy = [];
-	for(let i = 0; i < rtWaveData.length; i++){
-		tmpx[i] = rtWaveData[i].x;
-		tmpy[i] = rtWaveData[i].y;
-	}
-
-	saves.push({name: "record", x: tmpx, y: tmpy});
-	populateTabs();
+	// Display save modal
+	$("#saveModal").style.display="block";
 }
 
 function onRecSaveButtonClick() {
-	// Click feedback animation
-	clickFeedback(recSaveButton);
+	// Display save modal
+	$("#saveModal").style.display="block";
+}
 
-	// save the datas
-	let tmpx = JSON.parse(JSON.stringify(recWaveData[0].x))
-	let tmpy = JSON.parse(JSON.stringify(recWaveData[0].y))
-	saves.push({name: "record", x: tmpx, y: tmpy});
+function onValidateSaveButtonClick() {
+	// Get the save name
+	let text;
+	if(saveNameInput.value == ""){
+		text = "Enreg.";
+	}
+	else{
+		text = saveNameInput.value;
+	}
+
+	if(activeTab == 0){
+		// Convert point format to plotly
+		let tmpx = [];
+		let tmpy = [];
+		for(let i = 0; i < rtWaveData.length; i++){
+			tmpx[i] = rtWaveData[i].x;
+			tmpy[i] = rtWaveData[i].y;
+		}
+		saves.push({
+			name: text,
+			x: tmpx,
+			y: tmpy,
+			range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]},
+			fourierRange: [0, tmpx[tmpx.length - 1]],
+		});
+	}
+	else{
+		// save the datas
+		let tmpx = arrayCopy(recWaveData[0].x);
+		let tmpy = arrayCopy(recWaveData[0].y);
+
+		saves.push({
+			name: text,
+			x: tmpx,
+			y: tmpy,
+			range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]},
+			fourierRange: [0, tmpx[tmpx.length - 1]],
+		});
+	}
 
 	// Redraw tabs
 	populateTabs();
+
+	// Empty the input and hide the modal card
+	saveNameInput.value = "";
+	$("#saveModal").style.display="none";
+}
+
+function onFourierReplotButtonClick() {
+	// Save the ranges
+	saves[activeTab-2].range.xRange = arrayCopy(savWaveGraph.layout.xaxis.range);
+	saves[activeTab-2].range.yRange = arrayCopy(savWaveGraph.layout.yaxis.range);
+
+	saves[activeTab-2].fourierRange = savWaveGraph.layout.xaxis.range;
+
+	saveDraw();
 }
 
 function onSampleButton() {
 	// Click feedback animation
-	clickFeedback(sampleButton);
+	//clickFeedback(sampleButton);
 
 	// Record new datas
 	audio.startRecording(sampleLength);
@@ -835,15 +950,21 @@ function onSampleLengthInput() {
 }
 
 function onTabButtonClick(_id) {
+	// Store the current zoom range if the current tab is a sav
+	if(activeTab > 1){
+		saves[activeTab-2].range.xRange = arrayCopy(savWaveGraph.layout.xaxis.range);
+		saves[activeTab-2].range.yRange = arrayCopy(savWaveGraph.layout.yaxis.range);
+	}
+
+	// Store the activeTab id
+	activeTab = _id;
+
 	// UnActivate all buttons
 	for(let i = 0; i < tabButtons.length; i++){
 		tabButtons[i].classList.remove("phy-tab-active");
 	}
 	// Activate the clicked button
 	tabButtons[_id].classList.add("phy-tab-active");
-
-	// Store the activeTab id
-	activeTab = _id;
 
 	// Hide all tabs
 	for(let i = 0; i < tabs.length; i++){
@@ -858,7 +979,7 @@ function onTabButtonClick(_id) {
 		saveDraw();
 	}
 	else{
-		tabs[_id].style.display = "block";	
+		tabs[_id].style.display = "block";
 	}
 
 	// Draw the graphs if the record tab is active
@@ -877,7 +998,8 @@ function onTabCloseButtonClick(_id) {
 		populateTabs();
 		// Active the active tab (duh)
 		if(activeTab > _id + 1){
-			onTabButtonClick(activeTab - 1);
+			activeTab = activeTab - 1;
+			onTabButtonClick(activeTab);
 		}
 		else{
 			onTabButtonClick(activeTab);
@@ -894,6 +1016,10 @@ function onRtAmplificationSliderDblClick() {
 	audio.setGain(1); // Default
 	rtAmplificationSlider.value = 10;
 	rtAmplificationValue.innerHTML = "x " + audio.gain;
+}
+
+function onInfoButtonClick() {
+	$("#infoModal").style.display="block";
 }
 
 window.onload = function() {
