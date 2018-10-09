@@ -196,7 +196,7 @@
 	<div id="infoModal" class="w3-modal">
     <div class="w3-modal-content w3-animate-top w3-card-4">
       <header class="w3-container w3-theme2"> 
-        <span onclick="document.getElementById('infoModal').style.display='none'" class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
+        <span id="closeInfoButton" class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
         <h2>À propos</h2>
       </header>
       <div class="w3-container">
@@ -297,6 +297,7 @@ let savFourierData = [{
 
 let activeTab;
 
+let isModeBarDisplayed = true;
 
 // realtime vars
 let bufferSize = 4096;
@@ -324,6 +325,10 @@ let audio = new PhyAudio(bufferSize);
 // Get canvas contexts (rt)
 const rtWaveCanvasCtx = $("canvas.rtWaveCanvas").getContext("2d");
 const rtFourierCanvasCtx = $("canvas.rtFourierCanvas").getContext("2d");
+
+// Get div elements (sav)
+const recWaveGraph = $("#recGraphContainer");
+const recFourierGraph = $("#recFourierContainer");
 
 // Get div elements (sav)
 const savWaveGraph = $("#savGraphContainer");
@@ -377,6 +382,9 @@ fourierReplotButton.addEventListener("click", onFourierReplotButtonClick);
 
 const infoButton = $("#infoButton");
 infoButton.addEventListener("click", onInfoButtonClick);
+
+const closeInfoButton = $("#closeInfoButton");
+closeInfoButton.addEventListener("click", onCloseInfoButtonClick);
 
 
 /*----------------------------------------------------------------------------------------------
@@ -480,7 +488,7 @@ let rtFourierConfig = {
 				},
 				ticks: {
 					suggestedMin: 0,
-					suggestedMax: 0.6,
+					suggestedMax: 0.5,
 				}
 			}]
 		}
@@ -511,7 +519,7 @@ let recGraphConfig = {
   },
 	margin: {
     l: 40,
-    r: 15,
+    r: 16,
     b: 35,
     t: 25,
     pad: 2
@@ -529,6 +537,7 @@ let recFourierConfig = {
   xaxis: {
 		title: "Fréquence (Hz)",
 		titlefont: {size: 12},
+		tickformat : "r",
 		range: [0, 10000]
   },
   yaxis: {
@@ -538,7 +547,7 @@ let recFourierConfig = {
   },
 	margin: {
     l: 40,
-    r: 15,
+    r: 16,
     b: 35,
     t: 25,
     pad: 2
@@ -569,7 +578,7 @@ let savGraphConfig = {
   },
 	margin: {
     l: 40,
-    r: 15,
+    r: 16,
     b: 35,
     t: 25,
     pad: 2
@@ -587,16 +596,17 @@ let savFourierConfig = {
   xaxis: {
 		title: "Fréquence (Hz)",
 		titlefont: {size: 12},
+		tickformat : "r",
 		range: [0, 10000]
   },
   yaxis: {
 		title: "Amplitude",
 		titlefont: {size: 12},
-		range: [0, 0.6]
+		range: [0, 0.5]
   },
 	margin: {
     l: 40,
-    r: 15,
+    r: 16,
     b: 35,
     t: 25,
     pad: 2
@@ -772,6 +782,34 @@ function computePlotlyFourier(_wave, _result, _sampleFrequency, _range){
 }
 
 /*----------------------------------------------------------------------------------------------
+-------------------------------TOGGLE MODEBAR (PLOTLY BUGFIX)-----------------------------------
+----------------------------------------------------------------------------------------------*/
+function toggleModeBar(){
+	if(isModeBarDisplayed == true){
+		if(activeTab == 1){
+			Plotly.react("recGraphContainer", recWaveData, recGraphConfig, {displayModeBar: false});
+			Plotly.react("recFourierContainer", recFourierData, recFourierConfig, {displayModeBar: false});
+		}
+		if(activeTab > 1){
+			Plotly.react("savGraphContainer", recWaveData, recGraphConfig, {displayModeBar: false});
+			Plotly.react("savFourierContainer", recFourierData, recFourierConfig, {displayModeBar: false});
+		}
+		isModeBarDisplayed = false;
+	}
+	else{
+		if(activeTab == 1){
+			Plotly.react("recGraphContainer", recWaveData, recGraphConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+			Plotly.react("recFourierContainer", recFourierData, recFourierConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+		}
+		if(activeTab > 1){
+			Plotly.react("savGraphContainer", recWaveData, recGraphConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+			Plotly.react("savFourierContainer", recFourierData, recFourierConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+		}
+		isModeBarDisplayed = true;
+	}
+}
+
+/*----------------------------------------------------------------------------------------------
 ------------------------------------POPULATE TABS FUNCTION--------------------------------------
 ----------------------------------------------------------------------------------------------*/
 function populateTabs(){
@@ -863,11 +901,17 @@ function onPauseButtonClick() {
 function onRtSaveButtonClick() {
 	// Display save modal
 	$("#saveModal").style.display="block";
+
+	// Hides the modebar while the modal is active (plotly bug)
+	toggleModeBar();
 }
 
 function onRecSaveButtonClick() {
 	// Display save modal
 	$("#saveModal").style.display="block";
+
+	// Hides the modebar while the modal is active (plotly bug)
+	toggleModeBar();
 }
 
 function onValidateSaveButtonClick() {
@@ -916,6 +960,9 @@ function onValidateSaveButtonClick() {
 	// Empty the input and hide the modal card
 	saveNameInput.value = "";
 	$("#saveModal").style.display="none";
+
+	// Show the modebar again (plotly bug)
+	toggleModeBar();
 }
 
 function onFourierReplotButtonClick() {
@@ -929,9 +976,6 @@ function onFourierReplotButtonClick() {
 }
 
 function onSampleButton() {
-	// Click feedback animation
-	//clickFeedback(sampleButton);
-
 	// Record new datas
 	audio.startRecording(sampleLength);
 
@@ -1020,6 +1064,16 @@ function onRtAmplificationSliderDblClick() {
 
 function onInfoButtonClick() {
 	$("#infoModal").style.display="block";
+
+	// Hides the modebar while the modal is active (plotly bug)
+	toggleModeBar();
+}
+
+function onCloseInfoButtonClick(){
+	$("#infoModal").style.display="none";
+
+	// Show the modebar (plotly bug)
+	toggleModeBar();
 }
 
 window.onload = function() {
