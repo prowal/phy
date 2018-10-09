@@ -705,7 +705,7 @@ function saveDraw() {
 	Plotly.react("savGraphContainer", savWaveData, savGraphConfig);
 
 	// Compute and plot the dft
-	computePlotlyFourier(savWaveData[0], savFourierData[0], sampleFrequency);
+	computePlotlyFourier(savWaveData[0], savFourierData[0], sampleFrequency, saves[activeTab-2].fourierRange);
 	Plotly.react("savFourierContainer", savFourierData, savFourierConfig);
 }
 
@@ -745,13 +745,22 @@ function arrayOfPointsCopy(_array, _length = _array.length){
 /*----------------------------------------------------------------------------------------------
 -----------------------------------COMPUTE PLOTLY FOURIER---------------------------------------
 ----------------------------------------------------------------------------------------------*/
-function computePlotlyFourier(_wave, _result, _sampleFrequency){
+function computePlotlyFourier(_wave, _result, _sampleFrequency, _range){
+	let startIndex;
+	let stopIndex;
+	if(_range == undefined){
+		startIndex = 0;
+		stopIndex = _wave.x.length;
+	}
+	else{
+		startIndex = Math.floor(_range[0] * _sampleFrequency);
+		stopIndex = Math.floor(_range[1] * _sampleFrequency);
+	}
 	let fftData = {x:[], y:[]};
 	// Change data format to be able to perform fft on it
 	let fftInput = [];
-	let length = _wave.x.length;
-	for(let i = 0; i < length; i++){
-		fftInput[i] = {x: _wave.x[i], y: _wave.y[i]};
+	for(let i = startIndex; i < stopIndex; i++){
+		fftInput[i - startIndex] = {x: _wave.x[i], y: _wave.y[i]};
 	}
 	// Compute the dft
 	let dftResult = fourier.computeNormalizedFft(fftInput, _sampleFrequency, false)
@@ -902,6 +911,7 @@ function onValidateSaveButtonClick() {
 			range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]},
 			fourierRange: [0, tmpx[tmpx.length - 1]],
 		});
+		debugger;
 	}
 	else{
 		// save the datas
@@ -926,16 +936,13 @@ function onValidateSaveButtonClick() {
 }
 
 function onFourierReplotButtonClick() {
-	// Get the wave graph xrange
-	let xrange = savWaveGraph.layout.xaxis.range;
+	// Save the ranges
+	saves[activeTab-2].range.xRange = arrayCopy(savWaveGraph.layout.xaxis.range);
+	saves[activeTab-2].range.yRange = arrayCopy(savWaveGraph.layout.yaxis.range);
 
-	let wave;
+	saves[activeTab-2].fourierRange = savWaveGraph.layout.xaxis.range;
 
-	let startIndex= Math.floor(sampleFrequency * xrange[0]);
-	let stopIndex = Math.floor(sampleFrequency * xrange[1]);
-	for(let i = startIndex; i < stopIndex; i++){
-		//wave = {}
-	}
+	saveDraw();
 }
 
 function onSampleButton() {
@@ -966,15 +973,15 @@ function onTabButtonClick(_id) {
 		saves[activeTab-2].range.yRange = arrayCopy(savWaveGraph.layout.yaxis.range);
 	}
 
+	// Store the activeTab id
+	activeTab = _id;
+
 	// UnActivate all buttons
 	for(let i = 0; i < tabButtons.length; i++){
 		tabButtons[i].classList.remove("phy-tab-active");
 	}
 	// Activate the clicked button
 	tabButtons[_id].classList.add("phy-tab-active");
-
-	// Store the activeTab id
-	activeTab = _id;
 
 	// Hide all tabs
 	for(let i = 0; i < tabs.length; i++){
