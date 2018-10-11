@@ -125,10 +125,10 @@
 					<label class="w3-opacity phy-menu-label"><b>Durée d'acquisition</b></label>
 					<input type="number" class="w3-input" id="sampleLengthInput" value="0.05" step="0.01" min="0.01" max="20">
 					<label class="w3-opacity phy-menu-label"><b>Fréquence d'échantillonage</b></label>
-					<select class="w3-select" name="option">
-						<option value="1">48 000 Hz</option>
-						<option value="2">24 000 Hz</option>
-						<option value="3">12 000 Hz</option>
+					<select id="recSampleRateSelect" class="w3-select" name="option">
+						<option value="48000">48 000 Hz</option>
+						<option value="24000">24 000 Hz</option>
+						<option value="12000">12 000 Hz</option>
 					</select> 
 					<button class="w3-button w3-block w3-theme w3-hover-theme2" id="sampleButton" style="margin-top: 25px; margin-bottom: 15px;"><h3 style="margin:0"><i class="fas fa-microphone"></i> Acquisition</h3></button>
 					<button class="w3-button w3-block" id="recSaveButton" style="margin-bottom: 15px; display:none;"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
@@ -160,10 +160,10 @@
 				</header>
 				<div class="w3-container w3-white">
 					<label class="w3-opacity phy-menu-label"><b>Fréquence d'échantillonage</b></label>
-					<select class="w3-select" name="option">
-						<option value="1">48 000 Hz</option>
-						<option value="2">24 000 Hz</option>
-						<option value="3">12 000 Hz</option>
+					<select id="savSampleRateSelect" class="w3-select" name="option">
+						<option value="48000">48 000 Hz</option>
+						<option value="24000">24 000 Hz</option>
+						<option value="12000">12 000 Hz</option>
 					</select> 
 				</div>
 			</div>
@@ -294,33 +294,33 @@ let savFourierData = [{
     width: 3
   }
 }];
-
-let activeTab;
-
-let isModeBarDisplayed = true;
-
-// realtime vars
 let bufferSize = 4096;
-let sampleFrequency = 48000; // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO (may vary!)
-
-let paused = false;
-let stabilization = true;
-
-// record vars
-let sampleLength = 0.05; // TODO TODO TODO TODO get the actual value from html
-let recSampleFrequency = sampleFrequency;
-let recBufferSize = sampleLength * recSampleFrequency;
-
-// save vars
-let saves = [];
-
-const defaultRange = {xRange: [0, 0.04], yRange: [-1, 1]};
 
 // Create the Fourier object
 let fourier = new Fourier(bufferSize);
 
 // Create a PhyAudio object
 let audio = new PhyAudio(bufferSize);
+
+let activeTab;
+
+let isModeBarDisplayed = true;
+
+// rt vars
+let baseSampleRate = audio.getSampleRate();;
+let sampleRate = baseSampleRate;
+
+let paused = false;
+let stabilization = true;
+
+// record vars
+let sampleLength = 0.05; // TODO TODO TODO TODO get the actual value from html
+let recSampleRate = baseSampleRate; // The sample will be recorded with this sampleRate
+let recordedSampleRate; // The sample was recorded with this sampleRate
+let recBufferSize = sampleLength * recSampleRate;
+
+// save vars
+let saves = [];
 
 // Get canvas contexts (rt)
 const rtWaveCanvasCtx = $("canvas.rtWaveCanvas").getContext("2d");
@@ -341,11 +341,14 @@ rtAmplificationSlider.addEventListener("input", onRtAmplificationSliderChange);
 rtAmplificationSlider.addEventListener("dblclick", onRtAmplificationSliderDblClick);
 rtAmplificationValue.addEventListener("dblclick", onRtAmplificationSliderDblClick);
 
-// Get inputs elements
+// Get inputs and selects elements
 const sampleLengthInput = $("#sampleLengthInput");
 sampleLengthInput.addEventListener("input", onSampleLengthInput);
 
 const saveNameInput = $("#saveNameInput");
+
+const recSampleRateSelect = $("#recSampleRateSelect");
+recSampleRateSelect.addEventListener("change", onrecSampleRateSelectChange);
 
 // Get the tab bar and tab buttons elements
 const tabBar = $("#tabBar");
@@ -386,6 +389,7 @@ infoButton.addEventListener("click", onInfoButtonClick);
 const closeInfoButton = $("#closeInfoButton");
 closeInfoButton.addEventListener("click", onCloseInfoButtonClick);
 
+populateSampleRateSelect(recSampleRateSelect, 2);
 
 /*----------------------------------------------------------------------------------------------
 -----------------------------------------GRAPH SETTINGS-----------------------------------------
@@ -497,7 +501,6 @@ let rtFourierConfig = {
 
 let recGraphConfig = {
 	autosize: true,
-	responsive: true,
 	font: { // Copy fron chart.js default
     family: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
     size: 12,
@@ -528,7 +531,6 @@ let recGraphConfig = {
 
 let recFourierConfig = {
 	autosize: true,
-	responsive: true,
 	font: { // Copy fron chart.js default
     family: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
     size: 12,
@@ -556,7 +558,6 @@ let recFourierConfig = {
 
 let savGraphConfig = {
 	autosize: true,
-	responsive: true,
 	font: { // Copy fron chart.js default
     family: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
     size: 12,
@@ -587,7 +588,6 @@ let savGraphConfig = {
 
 let savFourierConfig = {
 	autosize: true,
-	responsive: true,
 	font: { // Copy fron chart.js default
     family: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
     size: 12,
@@ -623,11 +623,11 @@ function realtimeDraw() {
 
 	// Set the new datas
 	for(let i = 0; i < bufferSize; i++){
-		rtWaveData[i] = {x: i / sampleFrequency, y: graphData[i] /*/ 128.0 - 1*/};
+		rtWaveData[i] = {x: i / sampleRate, y: graphData[i] /*/ 128.0 - 1*/};
 	}
 
 	// Compute the fourier
-	let fourierData = fourier.computeNormalizedFft(rtWaveData, sampleFrequency, false);
+	let fourierData = fourier.computeNormalizedFft(rtWaveData, sampleRate, false);
 
 	// Trim unnecessary data
 	let trimedRtWaveData = arrayOfPointsCopy(rtWaveData);
@@ -636,10 +636,10 @@ function realtimeDraw() {
 	if(stabilization == true){
 		stabilize(trimedRtWaveData);
 	}
-	trimedRtWaveData.splice(0.04 * sampleFrequency);
+	trimedRtWaveData.splice(0.04 * sampleRate);
 
 	// Set the new fourier datas
-	rtFourierData = arrayOfPointsCopy(fourierData, bufferSize / sampleFrequency * 10000);
+	rtFourierData = arrayOfPointsCopy(fourierData, bufferSize / sampleRate * 10000);
 
 	rtWaveChart.data.datasets[0].data = trimedRtWaveData;
 	rtWaveChart.update();
@@ -652,17 +652,22 @@ function recordDraw() {
 	// sample
 	if(audio.isDataAvailable() == true){
 		// Discard old datas
-		recWaveData[0].x.splice(0,recWaveData[0].x.length);
-		recWaveData[0].y.splice(0,recWaveData[0].y.length);
+		recWaveData[0].x.length = 0;
+		recWaveData[0].y.length = 0;
+		recFourierData[0].x.length = 0;
+		recFourierData[0].y.length = 0;
 
 		// Get the recorded datas
 		let graphData = audio.getRecord();
 
 		let fftInput = [];
-		
+
+		// Apply chosen sampleRate
+		modifySampleRate(graphData, baseSampleRate, recSampleRate);
+
 		// Set the new datas
 		for(let i = 0; i < recBufferSize; i++){
-			recWaveData[0].x[i] = i / recSampleFrequency;
+			recWaveData[0].x[i] = i / recSampleRate;
 			recWaveData[0].y[i] = graphData[i];
 		}
 
@@ -679,7 +684,7 @@ function recordDraw() {
 		Plotly.react("recGraphContainer", recWaveData, recGraphConfig);
 
 		// Compute and plot the dft
-		computePlotlyFourier(recWaveData[0], recFourierData[0], sampleFrequency);
+		computePlotlyFourier(recWaveData[0], recFourierData[0], recSampleRate);
 		Plotly.react("recFourierContainer", recFourierData, recFourierConfig);
 	}
 }
@@ -715,7 +720,7 @@ function saveDraw() {
 	Plotly.react("savGraphContainer", savWaveData, savGraphConfig);
 
 	// Compute and plot the dft
-	computePlotlyFourier(savWaveData[0], savFourierData[0], sampleFrequency, saves[activeTab-2].fourierRange);
+	computePlotlyFourier(savWaveData[0], savFourierData[0], saves[activeTab-2].recordedSampleRate, saves[activeTab-2].fourierRange);
 	Plotly.react("savFourierContainer", savFourierData, savFourierConfig);
 }
 
@@ -755,7 +760,7 @@ function arrayOfPointsCopy(_array, _length = _array.length){
 /*----------------------------------------------------------------------------------------------
 -----------------------------------COMPUTE PLOTLY FOURIER---------------------------------------
 ----------------------------------------------------------------------------------------------*/
-function computePlotlyFourier(_wave, _result, _sampleFrequency, _range){
+function computePlotlyFourier(_wave, _result, _sampleRate, _range){
 	let startIndex;
 	let stopIndex;
 	if(_range == undefined){
@@ -763,8 +768,8 @@ function computePlotlyFourier(_wave, _result, _sampleFrequency, _range){
 		stopIndex = _wave.x.length;
 	}
 	else{
-		startIndex = Math.floor(_range[0] * _sampleFrequency);
-		stopIndex = Math.floor(_range[1] * _sampleFrequency);
+		startIndex = Math.floor(_range[0] * _sampleRate);
+		stopIndex = Math.floor(_range[1] * _sampleRate);
 	}
 	let fftData = {x:[], y:[]};
 	// Change data format to be able to perform fft on it
@@ -773,12 +778,40 @@ function computePlotlyFourier(_wave, _result, _sampleFrequency, _range){
 		fftInput[i - startIndex] = {x: _wave.x[i], y: _wave.y[i]};
 	}
 	// Compute the dft
-	let dftResult = fourier.computeNormalizedFft(fftInput, _sampleFrequency, false)
-	for(let i = 0; i < dftResult.length / sampleFrequency * 2 * 10000; i++){
+	let dftResult = fourier.computeNormalizedFft(fftInput, _sampleRate, false)
+	for(let i = 0; i < dftResult.length / _sampleRate * 2 * 10000; i++){
 		_result.x[i] = dftResult[i].x;
 		_result.y[i] = dftResult[i].y;
 	}
 	return fftData;
+}
+
+/*----------------------------------------------------------------------------------------------
+-------------------------------------MODIFY SAMPLE RATE-----------------------------------------
+----------------------------------------------------------------------------------------------*/
+function modifySampleRate(_wave, _initialRate, _targetRate){
+	if (_targetRate == _initialRate / 2 || _targetRate == _initialRate / 4){
+		let l = _wave.length;
+		for(let i = l; i >= 0; i = i - 2){
+			_wave.splice(i,1);
+		}
+	}
+	if (_targetRate == _initialRate / 4){
+		let l = _wave.length;
+		for(let i = l; i >= 0; i = i - 2){
+			_wave.splice(i,1);
+		}
+	}
+}
+/*----------------------------------------------------------------------------------------------
+---------------------------------POPULATE SAMPLERATE SELECT-------------------------------------
+----------------------------------------------------------------------------------------------*/
+function populateSampleRateSelect(_select, _l){
+	// Populate sampleRate selects based on baseSampleRate
+	for (let i = 0; i <= _l; i++) {
+		_select.options[i].value = baseSampleRate /((1+0.5*i+0.5*i*i)*(4-2.5*_l+0.5*_l*_l)); // parabole*parabole :)
+		_select.options[i].text = (baseSampleRate /((1+0.5*i+0.5*i*i)*(4-2.5*_l+0.5*_l*_l))).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " Hz";
+	}
 }
 
 /*----------------------------------------------------------------------------------------------
@@ -798,12 +831,12 @@ function toggleModeBar(){
 	}
 	else{
 		if(activeTab == 1){
-			Plotly.react("recGraphContainer", recWaveData, recGraphConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-			Plotly.react("recFourierContainer", recFourierData, recFourierConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+			Plotly.react("recGraphContainer", recWaveData, recGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+			Plotly.react("recFourierContainer", recFourierData, recFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
 		}
 		if(activeTab > 1){
-			Plotly.react("savGraphContainer", recWaveData, recGraphConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-			Plotly.react("savFourierContainer", recFourierData, recFourierConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+			Plotly.react("savGraphContainer", recWaveData, recGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+			Plotly.react("savFourierContainer", recFourierData, recFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
 		}
 		isModeBarDisplayed = true;
 	}
@@ -872,7 +905,7 @@ function stabilize(_data){
 	}
 
 	for(let i = 0; i < bufferSize - maximumIndex; i++){
-		_data[i + maximumIndex].x = i / sampleFrequency;
+		_data[i + maximumIndex].x = i / sampleRate;
 	}
 
 	_data.splice(0,maximumIndex);
@@ -944,11 +977,12 @@ function onValidateSaveButtonClick() {
 		// save the datas
 		let tmpx = arrayCopy(recWaveData[0].x);
 		let tmpy = arrayCopy(recWaveData[0].y);
-
+		
 		saves.push({
 			name: text,
 			x: tmpx,
 			y: tmpy,
+			recordedSampleRate: recordedSampleRate,
 			range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]},
 			fourierRange: [0, tmpx[tmpx.length - 1]],
 		});
@@ -979,6 +1013,9 @@ function onSampleButton() {
 	// Record new datas
 	audio.startRecording(sampleLength);
 
+	// Save the sampleRate used
+	recordedSampleRate = recSampleRate;
+
 	// Display the save button
 	recSaveButton.style.display ="block";
 	sampleButton.style.marginBottom = "0px";
@@ -987,10 +1024,16 @@ function onSampleButton() {
 function onSampleLengthInput() {
 	// TODO Add checks!
 	sampleLength = sampleLengthInput.value;
-	recBufferSize = sampleLength * recSampleFrequency;
+	recBufferSize = sampleLength * recSampleRate;
 
 	// Set graph axes range
 	recGraphConfig.xaxis.range[1] = sampleLength;
+}
+
+
+function onrecSampleRateSelectChange() {
+	recSampleRate = recSampleRateSelect.value;
+	recBufferSize = sampleLength * recSampleRate;
 }
 
 function onTabButtonClick(_id) {
@@ -1085,11 +1128,11 @@ window.onload = function() {
 	onRtAmplificationSliderChange()
 
 	// Create the rec and sav graphs and link the datas
-	Plotly.react("recGraphContainer", recWaveData, recGraphConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-	Plotly.react("recFourierContainer", recFourierData, recFourierConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+	Plotly.react("recGraphContainer", recWaveData, recGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+	Plotly.react("recFourierContainer", recFourierData, recFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
 
-	Plotly.react("savGraphContainer", savWaveData, savGraphConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-	Plotly.react("savFourierContainer", savFourierData, savFourierConfig, {displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+	Plotly.react("savGraphContainer", savWaveData, savGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+	Plotly.react("savFourierContainer", savFourierData, savFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
 
 	// Activate a tab
 	onTabButtonClick(0);
