@@ -663,7 +663,7 @@ function recordDraw() {
 		let fftInput = [];
 
 		// Apply chosen sampleRate
-		modifySampleRate(graphData, baseSampleRate, recSampleRate);
+		modifySampleRate(graphData, baseSampleRate, baseSampleRate / recSampleRate);
 
 		// Set the new datas
 		for(let i = 0; i < recBufferSize; i++){
@@ -789,18 +789,10 @@ function computePlotlyFourier(_wave, _result, _sampleRate, _range){
 /*----------------------------------------------------------------------------------------------
 -------------------------------------MODIFY SAMPLE RATE-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
-function modifySampleRate(_wave, _initialRate, _targetRate){
-	if (_targetRate == _initialRate / 2 || _targetRate == _initialRate / 4){
-		let l = _wave.length;
-		for(let i = l; i >= 0; i = i - 2){
-			_wave.splice(i,1);
-		}
-	}
-	if (_targetRate == _initialRate / 4){
-		let l = _wave.length;
-		for(let i = l; i >= 0; i = i - 2){
-			_wave.splice(i,1);
-		}
+function modifySampleRate(_wave, _initialRate, _factor = 2){
+	let l = _wave.length;
+	for(let i = 0; i < l / _factor; i++){
+		_wave.splice(i, _factor - 1);
 	}
 }
 /*----------------------------------------------------------------------------------------------
