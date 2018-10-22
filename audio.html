@@ -126,9 +126,6 @@
 					<input type="number" class="w3-input" id="sampleLengthInput" value="0.05" step="0.01" min="0.01" max="20">
 					<label class="w3-opacity phy-menu-label"><b>Fréquence d'échantillonage</b></label>
 					<select id="recSampleRateSelect" class="w3-select" name="option">
-						<option value="48000">48 000 Hz</option>
-						<option value="24000">24 000 Hz</option>
-						<option value="12000">12 000 Hz</option>
 					</select> 
 					<button class="w3-button w3-block w3-theme w3-hover-theme2" id="sampleButton" style="margin-top: 25px; margin-bottom: 15px;"><h3 style="margin:0"><i class="fas fa-microphone"></i> Acquisition</h3></button>
 					<button class="w3-button w3-block" id="recSaveButton" style="margin-bottom: 15px; display:none;"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
@@ -161,9 +158,6 @@
 				<div class="w3-container w3-white">
 					<label class="w3-opacity phy-menu-label"><b>Fréquence d'échantillonage</b></label>
 					<select id="savSampleRateSelect" class="w3-select" name="option">
-						<option value="48000">48 000 Hz</option>
-						<option value="24000">24 000 Hz</option>
-						<option value="12000">12 000 Hz</option>
 					</select> 
 				</div>
 			</div>
@@ -331,8 +325,8 @@ const recWaveGraph = $("#recGraphContainer");
 const recFourierGraph = $("#recFourierContainer");
 
 // Get div elements (sav)
-const savWaveGraph = $("#savGraphContainer");
-const savFourierGraph = $("#savFourierContainer");
+let savWaveGraph = $("#savGraphContainer");
+let savFourierGraph = $("#savFourierContainer");
 
 // Get sliders elements
 const rtAmplificationSlider = $("#rtAmplificationSlider");
@@ -348,7 +342,10 @@ sampleLengthInput.addEventListener("input", onSampleLengthInput);
 const saveNameInput = $("#saveNameInput");
 
 const recSampleRateSelect = $("#recSampleRateSelect");
-recSampleRateSelect.addEventListener("change", onrecSampleRateSelectChange);
+recSampleRateSelect.addEventListener("change", onRecSampleRateSelectChange);
+
+const savSampleRateSelect = $("#savSampleRateSelect");
+savSampleRateSelect.addEventListener("change", onSavSampleRateSelectChange);
 
 // Get the tab bar and tab buttons elements
 const tabBar = $("#tabBar");
@@ -389,7 +386,9 @@ infoButton.addEventListener("click", onInfoButtonClick);
 const closeInfoButton = $("#closeInfoButton");
 closeInfoButton.addEventListener("click", onCloseInfoButtonClick);
 
-populateSampleRateSelect(recSampleRateSelect, 2);
+populateSampleRateSelect(recSampleRateSelect, 1, 16);
+//populateSampleRateSelect(savSampleRateSelect, 4);
+
 
 /*----------------------------------------------------------------------------------------------
 -----------------------------------------GRAPH SETTINGS-----------------------------------------
@@ -612,6 +611,14 @@ let savFourierConfig = {
     pad: 2
   }
 };
+/*----------------------------------------------------------------------------------------------
+------------------------Create the rec and sav graphs and link the datas------------------------
+----------------------------------------------------------------------------------------------*/
+Plotly.react(recWaveGraph, recWaveData, recGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+Plotly.react(recFourierGraph, recFourierData, recFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+
+Plotly.react(savWaveGraph, savWaveData, savGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+Plotly.react(savFourierGraph, savFourierData, savFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
 
 /*----------------------------------------------------------------------------------------------
 -----------------------------------------DRAW FUNCTIONS-----------------------------------------
@@ -663,7 +670,7 @@ function recordDraw() {
 		let fftInput = [];
 
 		// Apply chosen sampleRate
-		modifySampleRate(graphData, baseSampleRate, baseSampleRate / recSampleRate);
+		modifySampleRate(graphData, baseSampleRate, recSampleRate);
 
 		// Set the new datas
 		for(let i = 0; i < recBufferSize; i++){
@@ -681,11 +688,11 @@ function recordDraw() {
 			recFourierConfig.datarevision = 1;
 		}
 		//Draw the wave
-		Plotly.react("recGraphContainer", recWaveData, recGraphConfig);
+		Plotly.react(recWaveGraph, recWaveData, recGraphConfig);
 
 		// Compute and plot the dft
 		computePlotlyFourier(recWaveData[0], recFourierData[0], recSampleRate);
-		Plotly.react("recFourierContainer", recFourierData, recFourierConfig);
+		Plotly.react(recFourierGraph, recFourierData, recFourierConfig);
 	}
 }
 
@@ -699,6 +706,15 @@ function saveDraw() {
 	// Set new datas
 	savWaveData[0].x = saves[activeTab-2].x.slice();
 	savWaveData[0].y = saves[activeTab-2].y.slice();
+
+	// Populate the sample rate 
+	populateSampleRateSelect(savSampleRateSelect, saves[activeTab-2].recordedSampleRateLvl, 16);
+	// Select the righ option
+	savSampleRateSelect.selectedIndex = Math.log2(saves[activeTab-2].displaySampleRateLvl) - Math.log2(saves[activeTab-2].recordedSampleRateLvl);
+
+	// Apply the selected display sample rate
+	modifySampleRate(savWaveData[0].x, baseSampleRate / saves[activeTab-2].recordedSampleRateLvl, baseSampleRate / saves[activeTab-2].displaySampleRateLvl);
+	modifySampleRate(savWaveData[0].y, baseSampleRate / saves[activeTab-2].recordedSampleRateLvl, baseSampleRate / saves[activeTab-2].displaySampleRateLvl);
 
 	// Apply zoom
 	savWaveGraph.layout.xaxis.autorange ="false"; // In case  the autoscale button was pressed
@@ -717,11 +733,11 @@ function saveDraw() {
 	}
 
 	//Draw the wave
-	Plotly.react("savGraphContainer", savWaveData, savGraphConfig);
+	Plotly.react(savWaveGraph, savWaveData, savGraphConfig);
 
 	// Compute and plot the dft
-	computePlotlyFourier(savWaveData[0], savFourierData[0], saves[activeTab-2].recordedSampleRate, saves[activeTab-2].fourierRange);
-	Plotly.react("savFourierContainer", savFourierData, savFourierConfig);
+	computePlotlyFourier(savWaveData[0], savFourierData[0], baseSampleRate / saves[activeTab-2].displaySampleRateLvl, saves[activeTab-2].fourierRange);
+	Plotly.react(savFourierGraph, savFourierData, savFourierConfig);
 }
 
 function draw() {
@@ -779,7 +795,14 @@ function computePlotlyFourier(_wave, _result, _sampleRate, _range){
 	}
 	// Compute the dft
 	let dftResult = fourier.computeNormalizedFft(fftInput, _sampleRate, false)
-	for(let i = 0; i < dftResult.length / _sampleRate * 2 * 10000; i++){
+
+	// limit dft to 10 kHz  
+	let maxIndex = dftResult.length;
+	if(dftResult.length > 10000){
+		maxIndex = dftResult.length / _sampleRate * 2 * 10000;
+	}
+	// Construct the result
+	for(let i = 0; i < maxIndex; i++){
 		_result.x[i] = dftResult[i].x;
 		_result.y[i] = dftResult[i].y;
 	}
@@ -789,20 +812,27 @@ function computePlotlyFourier(_wave, _result, _sampleRate, _range){
 /*----------------------------------------------------------------------------------------------
 -------------------------------------MODIFY SAMPLE RATE-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
-function modifySampleRate(_wave, _initialRate, _factor = 2){
+function modifySampleRate(_wave, _initialSampleRate, _targetSampleRate){
+	let factor = _initialSampleRate / _targetSampleRate;
 	let l = _wave.length;
-	for(let i = 0; i < l / _factor; i++){
-		_wave.splice(i, _factor - 1);
+	for(let i = 0; i < l / factor; i++){
+		_wave.splice(i, factor - 1);
 	}
 }
 /*----------------------------------------------------------------------------------------------
 ---------------------------------POPULATE SAMPLERATE SELECT-------------------------------------
 ----------------------------------------------------------------------------------------------*/
-function populateSampleRateSelect(_select, _l){
+function populateSampleRateSelect(_select, _initLvl = 1, _l = 4){
+	// Remove all previous options
+	while (_select.firstChild) {
+    _select.removeChild(_select.firstChild);
+	}
 	// Populate sampleRate selects based on baseSampleRate
-	for (let i = 0; i <= _l; i++) {
-		_select.options[i].value = baseSampleRate /((1+0.5*i+0.5*i*i)*(4-2.5*_l+0.5*_l*_l)); // parabole*parabole :)
-		_select.options[i].text = (baseSampleRate /((1+0.5*i+0.5*i*i)*(4-2.5*_l+0.5*_l*_l))).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " Hz";
+	for (let i = _initLvl; i <= _l; i = i * 2) {
+		let option = document.createElement("option");
+		option.value = baseSampleRate / i;
+		option.text = (baseSampleRate / i).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " Hz";
+		_select.add(option);
 	}
 }
 
@@ -812,23 +842,23 @@ function populateSampleRateSelect(_select, _l){
 function toggleModeBar(){
 	if(isModeBarDisplayed == true){
 		if(activeTab == 1){
-			Plotly.react("recGraphContainer", recWaveData, recGraphConfig, {displayModeBar: false});
-			Plotly.react("recFourierContainer", recFourierData, recFourierConfig, {displayModeBar: false});
+			Plotly.react(recWaveGraph, recWaveData, recGraphConfig, {displayModeBar: false});
+			Plotly.react(recFourierGraph, recFourierData, recFourierConfig, {displayModeBar: false});
 		}
 		if(activeTab > 1){
-			Plotly.react("savGraphContainer", recWaveData, recGraphConfig, {displayModeBar: false});
-			Plotly.react("savFourierContainer", recFourierData, recFourierConfig, {displayModeBar: false});
+			Plotly.react(savWaveGraph, recWaveData, recGraphConfig, {displayModeBar: false});
+			Plotly.react(savFourierGraph, recFourierData, recFourierConfig, {displayModeBar: false});
 		}
 		isModeBarDisplayed = false;
 	}
 	else{
 		if(activeTab == 1){
-			Plotly.react("recGraphContainer", recWaveData, recGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-			Plotly.react("recFourierContainer", recFourierData, recFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+			Plotly.react(recWaveGraph, recWaveData, recGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+			Plotly.react(recFourierGraph, recFourierData, recFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
 		}
 		if(activeTab > 1){
-			Plotly.react("savGraphContainer", recWaveData, recGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-			Plotly.react("savFourierContainer", recFourierData, recFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+			Plotly.react(savWaveGraph, recWaveData, recGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+			Plotly.react(savFourierGraph, recFourierData, recFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
 		}
 		isModeBarDisplayed = true;
 	}
@@ -902,6 +932,18 @@ function stabilize(_data){
 
 	_data.splice(0,maximumIndex);
 }
+/*----------------------------------------------------------------------------------------------
+---------------------------------------PLOTLY ZOOM EVENTS---------------------------------------
+----------------------------------------------------------------------------------------------*/
+savWaveGraph.on("plotly_relayout",
+	function(eventdata){
+		// Store the current zoom range if the current tab is a sav
+		if(activeTab > 1){
+			saves[activeTab-2].range.xRange = arrayCopy(savWaveGraph.layout.xaxis.range);
+			saves[activeTab-2].range.yRange = arrayCopy(savWaveGraph.layout.yaxis.range);
+		}
+	}
+);
 
 /*----------------------------------------------------------------------------------------------
 ---------------------------------------------EVENTS---------------------------------------------
@@ -961,6 +1003,8 @@ function onValidateSaveButtonClick() {
 			name: text,
 			x: tmpx,
 			y: tmpy,
+			recordedSampleRateLvl: 1,
+			displaySampleRateLvl: 1,
 			range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]},
 			fourierRange: [0, tmpx[tmpx.length - 1]],
 		});
@@ -974,7 +1018,8 @@ function onValidateSaveButtonClick() {
 			name: text,
 			x: tmpx,
 			y: tmpy,
-			recordedSampleRate: recordedSampleRate,
+			recordedSampleRateLvl: baseSampleRate / recordedSampleRate,
+			displaySampleRateLvl: baseSampleRate / recordedSampleRate,
 			range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]},
 			fourierRange: [0, tmpx[tmpx.length - 1]],
 		});
@@ -1023,18 +1068,17 @@ function onSampleLengthInput() {
 }
 
 
-function onrecSampleRateSelectChange() {
+function onRecSampleRateSelectChange() {
 	recSampleRate = recSampleRateSelect.value;
 	recBufferSize = sampleLength * recSampleRate;
 }
 
-function onTabButtonClick(_id) {
-	// Store the current zoom range if the current tab is a sav
-	if(activeTab > 1){
-		saves[activeTab-2].range.xRange = arrayCopy(savWaveGraph.layout.xaxis.range);
-		saves[activeTab-2].range.yRange = arrayCopy(savWaveGraph.layout.yaxis.range);
-	}
+function onSavSampleRateSelectChange() {
+	saves[activeTab-2].displaySampleRateLvl = baseSampleRate / savSampleRateSelect.value;
+	saveDraw();
+}
 
+function onTabButtonClick(_id) {
 	// Store the activeTab id
 	activeTab = _id;
 
@@ -1063,8 +1107,8 @@ function onTabButtonClick(_id) {
 
 	// Draw the graphs if the record tab is active
 	if(activeTab == 1){
-		Plotly.react("recGraphContainer", recWaveData, recGraphConfig);
-		Plotly.react("recFourierContainer", recFourierData, recFourierConfig);
+		Plotly.react(recWaveGraph, recWaveData, recGraphConfig);
+		Plotly.react(recFourierGraph, recFourierData, recFourierConfig);
 	}
 }
 
@@ -1118,13 +1162,6 @@ window.onload = function() {
 
 	// Init the rt gain slider
 	onRtAmplificationSliderChange()
-
-	// Create the rec and sav graphs and link the datas
-	Plotly.react("recGraphContainer", recWaveData, recGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-	Plotly.react("recFourierContainer", recFourierData, recFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-
-	Plotly.react("savGraphContainer", savWaveData, savGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-	Plotly.react("savFourierContainer", savFourierData, savFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
 
 	// Activate a tab
 	onTabButtonClick(0);
