@@ -49,9 +49,9 @@
 
 	<script src="lib/fourier.js"></script>
 
-	<style>
+<style>
 
-	</style>
+</style>
 
 </head>
 <body class="w3-light-grey">
@@ -87,7 +87,7 @@
 					<input class="range-slider_range" id="rtAmplificationSlider" type="range" value="10" min="0" max="20">
 					<span class="range-slider_value" id="rtAmplificationValue">x 1</span>
 					<label class="w3-opacity phy-menu-label"><b>Fréquence d'échantillonage</b></label>
-					<select id="rtSampleRateSelect" class="w3-select" name="option">
+					<select id="rtSampleRateSelect" class="w3-select">
 					</select> 
 				</div>
 			</div>
@@ -101,13 +101,13 @@
 		<div class="w3-rest">
 			<!-- First graph -->
 			<div class="w3-card-4 w3-margin w3-padding w3-white">
-				<div style="height: 41vh;">
+				<div style="height: calc(55vh - 88px)">
 					<canvas class="rtWaveCanvas"></canvas>
 				</div>
 			</div>
 			<!-- Second graph -->
 			<div class="w3-card-4 w3-margin w3-padding w3-white">
-				<div style="height: 36vh;">
+				<div style="height: calc(45vh - 88px)">
 					<canvas class="rtFourierCanvas"></canvas>
 				</div>
 			</div>
@@ -128,7 +128,7 @@
 					<label class="w3-opacity phy-menu-label"><b>Durée d'acquisition</b></label>
 					<input type="number" class="w3-input" id="sampleLengthInput" value="0.05" step="0.01" min="0.01" max="20">
 					<label class="w3-opacity phy-menu-label"><b>Fréquence d'échantillonage</b></label>
-					<select id="recSampleRateSelect" class="w3-select" name="option">
+					<select id="recSampleRateSelect" class="w3-select">
 					</select> 
 					<button class="w3-button w3-block w3-theme w3-hover-theme2" id="sampleButton" style="margin-top: 25px; margin-bottom: 15px;"><h3 style="margin:0"><i class="fas fa-microphone"></i> Acquisition</h3></button>
 					<button class="w3-button w3-block" id="recSaveButton" style="margin-bottom: 15px; display:none;"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
@@ -139,11 +139,11 @@
 		<div class="w3-rest">
 			<!-- First graph -->
 			<div class="w3-card-4 w3-margin w3-padding w3-white">
-				<div id="recGraphContainer" style="height: 41vh;"></div>
+				<div id="recGraphContainer" style="height: calc(55vh - 88px)"></div>
 			</div>
 			<!-- Second graph -->
 			<div class="w3-card-4 w3-margin w3-padding w3-white">
-				<div id="recFourierContainer" style="height: 36vh;"></div>
+				<div id="recFourierContainer" style="height: calc(45vh - 88px)"></div>
 			</div>
 		</div>
 	</div>
@@ -160,7 +160,7 @@
 				</header>
 				<div class="w3-container w3-white">
 					<label class="w3-opacity phy-menu-label"><b>Fréquence d'échantillonage</b></label>
-					<select id="savSampleRateSelect" class="w3-select" name="option">
+					<select id="savSampleRateSelect" class="w3-select">
 					</select> 
 				</div>
 			</div>
@@ -178,11 +178,11 @@
 		<div class="w3-rest">
 			<!-- First graph -->
 			<div class="w3-card-4 w3-margin w3-padding w3-white">
-				<div id="savGraphContainer" style="height: 41vh;"></div>
+				<div id="savGraphContainer" style="height: calc(55vh - 88px)"></div>
 			</div>
 			<!-- Second graph -->
 			<div class="w3-card-4 w3-margin w3-padding w3-white">
-				<div id="savFourierContainer" style="height: 36vh;"></div>
+				<div id="savFourierContainer" style="height: calc(45vh - 88px)"></div>
 			</div>
 		</div>
 	</div>
@@ -344,6 +344,7 @@ rtAmplificationValue.addEventListener("dblclick", onRtAmplificationSliderDblClic
 // Get inputs and selects elements
 const sampleLengthInput = $("#sampleLengthInput");
 sampleLengthInput.addEventListener("input", onSampleLengthInput);
+sampleLengthInput.addEventListener("keyup", function(event){onSampleLengthInputKeyup(event)});
 
 const saveNameInput = $("#saveNameInput");
 saveNameInput.addEventListener("keyup", function(event){onSaveNameInputKeyup(event)});
@@ -1101,6 +1102,16 @@ function onSaveNameInputKeyup(event){
 	if (event.keyCode === 13) {
 	// Click on validate
 	onValidateSaveButtonClick();
+  }
+}
+
+function onSampleLengthInputKeyup(event){
+	// Cancel the default action, if needed
+	event.preventDefault();
+	// Number 13 is the "Enter" key on the keyboard
+	if (event.keyCode === 13) {
+	// "Unfocus" the input
+	sampleLengthInput.blur();
   }
 }
 
