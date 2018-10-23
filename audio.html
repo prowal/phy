@@ -274,7 +274,6 @@ let recFourierData = [{
 let savWaveData = [{
   x: [],
 	y: [],
-	/*type: "scattergl",*/
   mode: "line",
   name: "TODO",
 	line: {
@@ -833,10 +832,15 @@ function computePlotlyFourier(_wave, _result, _sampleRate, _range){
 -------------------------------------MODIFY SAMPLE RATE-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
 function modifySampleRate(_wave, _initialSampleRate, _targetSampleRate){
+	// End function if target = initial
+	if(_initialSampleRate === _targetSampleRate){
+		return;
+	}
+
 	let factor = _initialSampleRate / _targetSampleRate;
 	let l = _wave.length;
-	
-	for(let i = 0; i < l / factor; i++){
+	let a = l / factor;
+	for(let i = 0; i < a; i++){
 		_wave[i] = _wave[i * factor];
 	}
 	_wave.splice(l / factor, l * (factor - 1) / factor);
