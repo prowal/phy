@@ -1004,6 +1004,9 @@ function onRtSaveButtonClick() {
 	// Display save modal
 	$("#saveModal").style.display="block";
 
+	// Focus the input
+	saveNameInput.focus();
+
 	// Hides the modebar while the modal is active (plotly bug)
 	toggleModeBar();
 }
@@ -1012,8 +1015,13 @@ function onRecSaveButtonClick() {
 	// Display save modal
 	$("#saveModal").style.display="block";
 
+	// Focus the input
+	saveNameInput.focus();
+
 	// Hides the modebar while the modal is active (plotly bug)
 	toggleModeBar();
+
+	// TODO Merge with onRtSaveButtonClick ?
 }
 
 function onValidateSaveButtonClick() {
