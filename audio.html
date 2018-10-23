@@ -83,9 +83,12 @@
 					<h3>Paramètres</h3>
 				</header>
 				<div class="w3-container w3-white">
-					<p class="w3-opacity"><b>Amplification :</b></p>
+					<label class="w3-opacity phy-menu-label"><b>Amplification :</b></label>
 					<input class="range-slider_range" id="rtAmplificationSlider" type="range" value="10" min="0" max="20">
 					<span class="range-slider_value" id="rtAmplificationValue">x 1</span>
+					<label class="w3-opacity phy-menu-label"><b>Fréquence d'échantillonage</b></label>
+					<select id="rtSampleRateSelect" class="w3-select" name="option">
+					</select> 
 				</div>
 			</div>
 			<!-- Second element -->
@@ -289,6 +292,7 @@ let savFourierData = [{
   }
 }];
 let bufferSize = 4096;
+let rtLength = 0.04;
 
 // Create the Fourier object
 let fourier = new Fourier(bufferSize);
@@ -300,9 +304,12 @@ let activeTab;
 
 let isModeBarDisplayed = true;
 
+// Get the default max sample rate from the audio context
+let baseSampleRate = audio.getSampleRate();
+
 // rt vars
-let baseSampleRate = audio.getSampleRate();;
-let sampleRate = baseSampleRate;
+let rtSampleRate = baseSampleRate;
+let rtRecordedSampleRate = baseSampleRate; // The sample was recorded with this sampleRate
 
 let paused = false;
 let stabilization = true;
@@ -340,6 +347,9 @@ const sampleLengthInput = $("#sampleLengthInput");
 sampleLengthInput.addEventListener("input", onSampleLengthInput);
 
 const saveNameInput = $("#saveNameInput");
+
+const rtSampleRateSelect = $("#rtSampleRateSelect");
+rtSampleRateSelect.addEventListener("change", onRtSampleRateSelectChange);
 
 const recSampleRateSelect = $("#recSampleRateSelect");
 recSampleRateSelect.addEventListener("change", onRecSampleRateSelectChange);
@@ -387,7 +397,7 @@ const closeInfoButton = $("#closeInfoButton");
 closeInfoButton.addEventListener("click", onCloseInfoButtonClick);
 
 populateSampleRateSelect(recSampleRateSelect, 1, 16);
-//populateSampleRateSelect(savSampleRateSelect, 4);
+populateSampleRateSelect(rtSampleRateSelect, 1, 2);
 
 
 /*----------------------------------------------------------------------------------------------
@@ -427,7 +437,7 @@ let rtGraphConfig = {
 				},
 				ticks: {
 					min: 0,
-					max: 0.04,
+					max: rtLength,
 					//autoSkip: true,
 					//maxTicksLimit: 10,
 				}
@@ -625,28 +635,34 @@ Plotly.react(savFourierGraph, savFourierData, savFourierConfig, {responsive: tru
 ----------------------------------------------------------------------------------------------*/
 function realtimeDraw() {
 	if(paused == false){
+	rtWaveData.length = 0;
+
 	// sample
 	let graphData = audio.getGraph();
 
+	// Get the chosen sample rate
+	rtSampleRate = rtSampleRateSelect.value;
+
 	// Set the new datas
-	for(let i = 0; i < bufferSize; i++){
-		rtWaveData[i] = {x: i / sampleRate, y: graphData[i] /*/ 128.0 - 1*/};
+	for(let i = 0; i < graphData.length; i++){
+		rtWaveData[i] = {x: i / rtSampleRate, y: graphData[i] /*/ 128.0 - 1*/};
 	}
 
+	// Apply chosen sampleRate
+	modifySampleRate(rtWaveData, baseSampleRate, rtSampleRate);
+
 	// Compute the fourier
-	let fourierData = fourier.computeNormalizedFft(rtWaveData, sampleRate, false);
+	let fourierData = fourier.computeNormalizedFft(rtWaveData, rtSampleRate, false);
 
 	// Trim unnecessary data
 	let trimedRtWaveData = arrayOfPointsCopy(rtWaveData);
 
-
 	if(stabilization == true){
 		stabilize(trimedRtWaveData);
 	}
-	trimedRtWaveData.splice(0.04 * sampleRate);
-
+	trimedRtWaveData.splice(rtLength * rtSampleRate);
 	// Set the new fourier datas
-	rtFourierData = arrayOfPointsCopy(fourierData, bufferSize / sampleRate * 10000);
+	rtFourierData = arrayOfPointsCopy(fourierData, rtWaveData.length / rtSampleRate * 10000);
 
 	rtWaveChart.data.datasets[0].data = trimedRtWaveData;
 	rtWaveChart.update();
@@ -708,8 +724,8 @@ function saveDraw() {
 	savWaveData[0].y = saves[activeTab-2].y.slice();
 
 	// Populate the sample rate 
-	populateSampleRateSelect(savSampleRateSelect, saves[activeTab-2].recordedSampleRateLvl, 16);
-	// Select the righ option
+	populateSampleRateSelect(savSampleRateSelect, saves[activeTab-2].recordedSampleRateLvl, 32);
+	// Select the right option
 	savSampleRateSelect.selectedIndex = Math.log2(saves[activeTab-2].displaySampleRateLvl) - Math.log2(saves[activeTab-2].recordedSampleRateLvl);
 
 	// Apply the selected display sample rate
@@ -798,7 +814,7 @@ function computePlotlyFourier(_wave, _result, _sampleRate, _range){
 
 	// limit dft to 10 kHz  
 	let maxIndex = dftResult.length;
-	if(dftResult.length > 10000){
+	if(_sampleRate / 2 > 10000){
 		maxIndex = dftResult.length / _sampleRate * 2 * 10000;
 	}
 	// Construct the result
@@ -815,9 +831,11 @@ function computePlotlyFourier(_wave, _result, _sampleRate, _range){
 function modifySampleRate(_wave, _initialSampleRate, _targetSampleRate){
 	let factor = _initialSampleRate / _targetSampleRate;
 	let l = _wave.length;
+	
 	for(let i = 0; i < l / factor; i++){
-		_wave.splice(i, factor - 1);
+		_wave[i] = _wave[i * factor];
 	}
+	_wave.splice(l / factor, l * (factor - 1) / factor);
 }
 /*----------------------------------------------------------------------------------------------
 ---------------------------------POPULATE SAMPLERATE SELECT-------------------------------------
@@ -915,23 +933,22 @@ function populateTabs(){
 /*----------------------------------------------------------------------------------------------
 --------------------------------------STABILIZE FUNCTION----------------------------------------
 ----------------------------------------------------------------------------------------------*/
-
 function stabilize(_data){
 	let maximum = 0;
 	let maximumIndex = 0;
-	for(let i = 0; i < bufferSize / 10; i++){
+	for(let i = 0; i < _data.length / 10; i++){
 		if(_data[i].y > maximum){
 			maximum = _data[i].y;
 			maximumIndex = i;
 		}
 	}
 
-	for(let i = 0; i < bufferSize - maximumIndex; i++){
-		_data[i + maximumIndex].x = i / sampleRate;
+	for(let i = 0; i < _data.length - maximumIndex; i++){
+		_data[i + maximumIndex].x = i / rtSampleRate;
 	}
-
 	_data.splice(0,maximumIndex);
 }
+
 /*----------------------------------------------------------------------------------------------
 ---------------------------------------PLOTLY ZOOM EVENTS---------------------------------------
 ----------------------------------------------------------------------------------------------*/
@@ -1003,8 +1020,8 @@ function onValidateSaveButtonClick() {
 			name: text,
 			x: tmpx,
 			y: tmpy,
-			recordedSampleRateLvl: 1,
-			displaySampleRateLvl: 1,
+			recordedSampleRateLvl: baseSampleRate / rtSampleRate,
+			displaySampleRateLvl: baseSampleRate / rtSampleRate,
 			range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]},
 			fourierRange: [0, tmpx[tmpx.length - 1]],
 		});
@@ -1067,6 +1084,9 @@ function onSampleLengthInput() {
 	recGraphConfig.xaxis.range[1] = sampleLength;
 }
 
+function onRtSampleRateSelectChange() {
+	
+}
 
 function onRecSampleRateSelectChange() {
 	recSampleRate = recSampleRateSelect.value;
