@@ -587,7 +587,7 @@ let savGraphConfig = {
 		range: [-1, 1]
   },
 	margin: {
-    l: 40,
+    l: 45,
     r: 16,
     b: 35,
     t: 25,
@@ -614,7 +614,7 @@ let savFourierConfig = {
 		range: [0, 0.5]
   },
 	margin: {
-    l: 40,
+    l: 45,
     r: 16,
     b: 35,
     t: 25,
@@ -737,6 +737,10 @@ function saveDraw() {
 	savWaveGraph.layout.yaxis.autorange ="false";
 	savWaveGraph.layout.xaxis.range = arrayCopy(saves[activeTab-2].range.xRange);
 	savWaveGraph.layout.yaxis.range = arrayCopy(saves[activeTab-2].range.yRange);
+	savFourierGraph.layout.xaxis.autorange ="false"; // In case  the autoscale button was pressed
+	savFourierGraph.layout.yaxis.autorange ="false";
+	savFourierGraph.layout.xaxis.range = arrayCopy(saves[activeTab-2].fourierRange.xRange);
+	savFourierGraph.layout.yaxis.range = arrayCopy(saves[activeTab-2].fourierRange.yRange);
 
 	// Ugly hack to force plotly to redraw
 	if(savGraphConfig.datarevision == 1){
@@ -752,7 +756,7 @@ function saveDraw() {
 	Plotly.react(savWaveGraph, savWaveData, savGraphConfig);
 
 	// Compute and plot the dft
-	computePlotlyFourier(savWaveData[0], savFourierData[0], baseSampleRate / saves[activeTab-2].displaySampleRateLvl, saves[activeTab-2].fourierRange);
+	computePlotlyFourier(savWaveData[0], savFourierData[0], baseSampleRate / saves[activeTab-2].displaySampleRateLvl, saves[activeTab-2].fourierPlottingRange);
 	Plotly.react(savFourierGraph, savFourierData, savFourierConfig);
 }
 
@@ -962,6 +966,16 @@ savWaveGraph.on("plotly_relayout",
 	}
 );
 
+savFourierGraph.on("plotly_relayout",
+	function(eventdata){
+		// Store the current zoom range if the current tab is a sav
+		if(activeTab > 1){
+			saves[activeTab-2].fourierRange.xRange = arrayCopy(savFourierGraph.layout.xaxis.range);
+			saves[activeTab-2].fourierRange.yRange = arrayCopy(savFourierGraph.layout.yaxis.range);
+		}
+	}
+);
+
 /*----------------------------------------------------------------------------------------------
 ---------------------------------------------EVENTS---------------------------------------------
 ----------------------------------------------------------------------------------------------*/
@@ -1023,7 +1037,8 @@ function onValidateSaveButtonClick() {
 			recordedSampleRateLvl: baseSampleRate / rtSampleRate,
 			displaySampleRateLvl: baseSampleRate / rtSampleRate,
 			range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]},
-			fourierRange: [0, tmpx[tmpx.length - 1]],
+			fourierRange: {xRange: [0, 10000], yRange: [0, 0.5]},
+			fourierPlottingRange: [0, tmpx[tmpx.length - 1]],
 		});
 	}
 	else{
@@ -1038,7 +1053,8 @@ function onValidateSaveButtonClick() {
 			recordedSampleRateLvl: baseSampleRate / recordedSampleRate,
 			displaySampleRateLvl: baseSampleRate / recordedSampleRate,
 			range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]},
-			fourierRange: [0, tmpx[tmpx.length - 1]],
+			fourierRange: {xRange: [0, 10000], yRange: [0, 0.5]},
+			fourierPlottingRange: [0, tmpx[tmpx.length - 1]],
 		});
 	}
 
@@ -1058,7 +1074,7 @@ function onFourierReplotButtonClick() {
 	saves[activeTab-2].range.xRange = arrayCopy(savWaveGraph.layout.xaxis.range);
 	saves[activeTab-2].range.yRange = arrayCopy(savWaveGraph.layout.yaxis.range);
 
-	saves[activeTab-2].fourierRange = savWaveGraph.layout.xaxis.range;
+	saves[activeTab-2].fourierPlottingRange = savWaveGraph.layout.xaxis.range;
 
 	saveDraw();
 }
@@ -1085,7 +1101,7 @@ function onSampleLengthInput() {
 }
 
 function onRtSampleRateSelectChange() {
-	
+	// Empty TODO
 }
 
 function onRecSampleRateSelectChange() {
