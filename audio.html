@@ -273,7 +273,8 @@ let recFourierData = [{
 
 let savWaveData = [{
   x: [],
-  y: [],
+	y: [],
+	/*type: "scattergl",*/
   mode: "line",
   name: "TODO",
 	line: {
@@ -318,7 +319,6 @@ let stabilization = true;
 let sampleLength = 0.05; // TODO TODO TODO TODO get the actual value from html
 let recSampleRate = baseSampleRate; // The sample will be recorded with this sampleRate
 let recordedSampleRate; // The sample was recorded with this sampleRate
-let recBufferSize = sampleLength * recSampleRate;
 
 // save vars
 let saves = [];
@@ -347,6 +347,7 @@ const sampleLengthInput = $("#sampleLengthInput");
 sampleLengthInput.addEventListener("input", onSampleLengthInput);
 
 const saveNameInput = $("#saveNameInput");
+saveNameInput.addEventListener("keyup", function(event){onSaveNameInputKeyup(event)});
 
 const rtSampleRateSelect = $("#rtSampleRateSelect");
 rtSampleRateSelect.addEventListener("change", onRtSampleRateSelectChange);
@@ -689,7 +690,7 @@ function recordDraw() {
 		modifySampleRate(graphData, baseSampleRate, recSampleRate);
 
 		// Set the new datas
-		for(let i = 0; i < recBufferSize; i++){
+		for(let i = 0; i < sampleLength * recSampleRate; i++){
 			recWaveData[0].x[i] = i / recSampleRate;
 			recWaveData[0].y[i] = graphData[i];
 		}
@@ -722,6 +723,8 @@ function saveDraw() {
 	// Set new datas
 	savWaveData[0].x = saves[activeTab-2].x.slice();
 	savWaveData[0].y = saves[activeTab-2].y.slice();
+	savFourierData[0].x = saves[activeTab-2].fx.slice();
+	savFourierData[0].y = saves[activeTab-2].fy.slice();
 
 	// Populate the sample rate 
 	populateSampleRateSelect(savSampleRateSelect, saves[activeTab-2].recordedSampleRateLvl, 32);
@@ -752,11 +755,8 @@ function saveDraw() {
 		savFourierConfig.datarevision = 1;
 	}
 
-	//Draw the wave
+	// Draw the wave
 	Plotly.react(savWaveGraph, savWaveData, savGraphConfig);
-
-	// Compute and plot the dft
-	computePlotlyFourier(savWaveData[0], savFourierData[0], baseSampleRate / saves[activeTab-2].displaySampleRateLvl, saves[activeTab-2].fourierPlottingRange);
 	Plotly.react(savFourierGraph, savFourierData, savFourierConfig);
 }
 
@@ -1026,14 +1026,22 @@ function onValidateSaveButtonClick() {
 		// Convert point format to plotly
 		let tmpx = [];
 		let tmpy = [];
+		let tmpfx = [];
+		let tmpfy = [];
 		for(let i = 0; i < rtWaveData.length; i++){
 			tmpx[i] = rtWaveData[i].x;
 			tmpy[i] = rtWaveData[i].y;
+		}
+		for(let i = 0; i < rtFourierData.length; i++){
+			tmpfx[i] = rtFourierData[i].x;
+			tmpfy[i] = rtFourierData[i].y;
 		}
 		saves.push({
 			name: text,
 			x: tmpx,
 			y: tmpy,
+			fx: tmpfx,
+			fy: tmpfy,
 			recordedSampleRateLvl: baseSampleRate / rtSampleRate,
 			displaySampleRateLvl: baseSampleRate / rtSampleRate,
 			range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]},
@@ -1045,11 +1053,16 @@ function onValidateSaveButtonClick() {
 		// save the datas
 		let tmpx = arrayCopy(recWaveData[0].x);
 		let tmpy = arrayCopy(recWaveData[0].y);
+
+		let tmpfx = arrayCopy(recFourierData[0].x);
+		let tmpfy = arrayCopy(recFourierData[0].y);
 		
 		saves.push({
 			name: text,
 			x: tmpx,
 			y: tmpy,
+			fx: tmpfx,
+			fy: tmpfy,
 			recordedSampleRateLvl: baseSampleRate / recordedSampleRate,
 			displaySampleRateLvl: baseSampleRate / recordedSampleRate,
 			range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]},
@@ -1069,17 +1082,43 @@ function onValidateSaveButtonClick() {
 	toggleModeBar();
 }
 
+function onSaveNameInputKeyup(event){
+	// Cancel the default action, if needed
+	event.preventDefault();
+	// Number 13 is the "Enter" key on the keyboard
+	if (event.keyCode === 13) {
+	// Click on validate
+	onValidateSaveButtonClick();
+  }
+}
+
 function onFourierReplotButtonClick() {
 	// Save the ranges
 	saves[activeTab-2].range.xRange = arrayCopy(savWaveGraph.layout.xaxis.range);
 	saves[activeTab-2].range.yRange = arrayCopy(savWaveGraph.layout.yaxis.range);
 
 	saves[activeTab-2].fourierPlottingRange = savWaveGraph.layout.xaxis.range;
-
+	let dftResult = {x:[], y:[]};
+	computePlotlyFourier(savWaveData[0], dftResult, baseSampleRate / saves[activeTab-2].displaySampleRateLvl, saves[activeTab-2].fourierPlottingRange);
+	saves[activeTab-2].fx = dftResult.x;
+	saves[activeTab-2].fy = dftResult.y;
 	saveDraw();
 }
 
 function onSampleButton() {
+	// SampleLength value verifications
+	if(sampleLengthInput.value === ""){
+		alert("La durée d'enregistrement n'est pas un nombre valide.");
+		return;
+	}
+	if(sampleLengthInput.value < 0.01){
+		alert("La durée d'enregistrement minimale est de 0,01 s.");
+		return;
+	}
+	if(sampleLengthInput.value > 30){
+		alert("La durée d'enregistrement maximale est de 30 s.");
+		return;
+	}
 	// Record new datas
 	audio.startRecording(sampleLength);
 
@@ -1094,8 +1133,6 @@ function onSampleButton() {
 function onSampleLengthInput() {
 	// TODO Add checks!
 	sampleLength = sampleLengthInput.value;
-	recBufferSize = sampleLength * recSampleRate;
-
 	// Set graph axes range
 	recGraphConfig.xaxis.range[1] = sampleLength;
 }
@@ -1106,7 +1143,6 @@ function onRtSampleRateSelectChange() {
 
 function onRecSampleRateSelectChange() {
 	recSampleRate = recSampleRateSelect.value;
-	recBufferSize = sampleLength * recSampleRate;
 }
 
 function onSavSampleRateSelectChange() {
