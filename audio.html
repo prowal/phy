@@ -66,9 +66,6 @@
 			<button id ="rtTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">TEMPS REEL</button>
 			<button id ="recTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">ENREGISTRER</button>
 			<span class="w3-bar-item w3-opacity"><i class="fas fa-minus fa-rotate-90"></i></span>
-			<!--<span class="w3-bar-item" style="padding:0px;"><span class="w3-button w3-hover-none phy-tab"><i class="fas fa-file-audio"></i> Test</span><span class="w3-button w3-hover-none phy-tab-close-button"><i class="fas fa-times"></i></span></span>
-			<span class="w3-bar-item" style="padding:0px;"><span class="w3-button w3-hover-none phy-tab"><i class="fas fa-file-audio"></i> Test</span><span class="w3-button w3-hover-none phy-tab-close-button"><i class="fas fa-times"></i></span></span>
-			-->
 		</div>
 	</div>
 	<!-------------------------------------------------------------------------->
@@ -126,13 +123,22 @@
 				</header>
 				<div class="w3-container w3-white">
 					<label class="w3-opacity phy-menu-label"><b>Durée d'acquisition</b></label>
-					<input type="number" class="w3-input" id="sampleLengthInput" value="0.05" step="0.01" min="0.01" max="20">
+					<input type="number" class="w3-input" id="sampleLengthInput" value="0.05" step="0.01" min="0.01" max="30">
 					<label class="w3-opacity phy-menu-label"><b>Fréquence d'échantillonage</b></label>
 					<select id="recSampleRateSelect" class="w3-select">
 					</select> 
-					<button class="w3-button w3-block w3-theme w3-hover-theme2" id="sampleButton" style="margin-top: 25px; margin-bottom: 15px;"><h3 style="margin:0"><i class="fas fa-microphone"></i> Acquisition</h3></button>
-					<button class="w3-button w3-block" id="recSaveButton" style="margin-bottom: 15px; display:none;"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
+					<button class="w3-button w3-block w3-theme w3-hover-theme2" id="sampleButton" style="margin-top: 25px; margin-bottom: 15px; padding:0px;">
+						<h3 style="margin:8"><i class="fas fa-microphone"></i> Acquisition</h3>
+					</button>
+					<div id="recProgressBarContainer" class="w3-display-container w3-theme" id="sampleButton" style="display: none; margin-top: 25px; margin-bottom: 15px; padding:0px;">
+						<div id="recProgressBarLabel" class="w3-display-middle" style="display: none;"><h3 style="margin:8">00:00</h3></div>
+						<div id="recProgressBar" class="w3-theme2 w3-center" style="height:56px; width:20%; margin:0px;"></div>
+					</div>
 				</div>
+			</div>
+			<!-- Second element -->
+			<div class="w3-card-4 phy-menu-element w3-white" >
+				<button class="w3-button w3-block" id="recSaveButton" style="margin-bottom: 15px; display:none;"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
 			</div>
 		</div>
 		<!-- First column -->
@@ -319,6 +325,8 @@ let sampleLength = 0.05; // TODO TODO TODO TODO get the actual value from html
 let recSampleRate = baseSampleRate; // The sample will be recorded with this sampleRate
 let recordedSampleRate; // The sample was recorded with this sampleRate
 
+let samplingStartTime;
+
 // save vars
 let saves = [];
 
@@ -333,6 +341,10 @@ const recFourierGraph = $("#recFourierContainer");
 // Get div elements (sav)
 let savWaveGraph = $("#savGraphContainer");
 let savFourierGraph = $("#savFourierContainer");
+
+const recProgressBar = $("#recProgressBar");
+const recProgressBarContainer = $("#recProgressBarContainer");
+const recProgressBarLabel = $("#recProgressBarLabel");
 
 // Get sliders elements
 const rtAmplificationSlider = $("#rtAmplificationSlider");
@@ -673,8 +685,22 @@ function realtimeDraw() {
 }
 
 function recordDraw() {
+	// Update the progressBar
+	if(recProgressBarContainer.style.display === "block"){
+		recProgressBar.style.width = Math.min((performance.now() - samplingStartTime) / (sampleLength * 10), 100) + '%';
+		let remainingTime = Math.max(0, sampleLength - (performance.now() - samplingStartTime) / 1000)
+		recProgressBarLabel.firstChild.innerHTML = Math.floor(remainingTime/1) + ":" + Math.floor((remainingTime % 1) * 100);
+	}
+
 	// sample
 	if(audio.isDataAvailable() == true){
+			// Display the save button
+		recSaveButton.style.display ="block";
+			// Hide the progress bar
+		recProgressBarContainer.style.display = "none";
+		recProgressBarLabel.style.display = "none";
+		sampleButton.style.display = "block";
+
 		// Discard old datas
 		recWaveData[0].x.length = 0;
 		recWaveData[0].y.length = 0;
@@ -1148,9 +1174,20 @@ function onSampleButton() {
 	// Save the sampleRate used
 	recordedSampleRate = recSampleRate;
 
-	// Display the save button
-	recSaveButton.style.display ="block";
-	sampleButton.style.marginBottom = "0px";
+	// Hide the save button while recording
+	recSaveButton.style.display = "none";
+
+	// Save the sampling start time
+	samplingStartTime = performance.now();
+
+	// Display the progress bar
+	recProgressBarContainer.style.display = "block";
+	sampleButton.style.display = "none";
+
+	// Display the remaining time if sampleLength > 1 s
+	if(sampleLength >= 1){
+		recProgressBarLabel.style.display = "block";
+	}
 }
 
 function onSampleLengthInput() {
