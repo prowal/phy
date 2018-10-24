@@ -137,8 +137,13 @@
 				</div>
 			</div>
 			<!-- Second element -->
-			<div class="w3-card-4 phy-menu-element w3-white" >
-				<button class="w3-button w3-block" id="recSaveButton" style="margin-bottom: 15px; display:none;"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
+			<div id="recSampleContainer" class="w3-card-4 phy-menu-element w3-white" style="display:none;">
+				<header class="w3-container w3-theme">
+					<h3>Enregistrement</h3>
+				</header>
+				<button class="w3-button w3-block w3-hover-theme2" id="recPlayButton" ><h3 style="margin:0"><i class="fas fa-play"></i> Lire</h3></button>
+				<button class="w3-button w3-block w3-hover-theme2" id="recStopButton" style="display:none;"><h3 style="margin:0"><i class="fas fa-stop"></i> Stop</h3></button>
+				<button class="w3-button w3-block w3-hover-theme2" id="recSaveButton" style="margin-bottom: 15px;"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
 			</div>
 		</div>
 		<!-- First column -->
@@ -245,10 +250,6 @@
 <script>
 const $ = document.querySelector.bind(document);
 
-let p1 = 0;
-let p2 = 0;
-let p3 = 0;
-
 // Declare vars
 let rtWaveData = [];
 let rtFourierData = [];
@@ -342,6 +343,7 @@ const recFourierGraph = $("#recFourierContainer");
 let savWaveGraph = $("#savGraphContainer");
 let savFourierGraph = $("#savFourierContainer");
 
+const recSampleContainer = $("#recSampleContainer");
 const recProgressBar = $("#recProgressBar");
 const recProgressBarContainer = $("#recProgressBarContainer");
 const recProgressBarLabel = $("#recProgressBarLabel");
@@ -393,6 +395,12 @@ rtSaveButton.addEventListener("click", onRtSaveButtonClick);
 
 const sampleButton = $("#sampleButton");
 sampleButton.addEventListener("click", onSampleButton);
+
+const recPlayButton = $("#recPlayButton");
+recPlayButton.addEventListener("click", onRecPlayButtonClick);
+
+const recStopButton = $("#recStopButton");
+recStopButton.addEventListener("click", onRecStopButtonClick);
 
 const recSaveButton = $("#recSaveButton");
 recSaveButton.addEventListener("click", onRecSaveButtonClick);
@@ -694,8 +702,10 @@ function recordDraw() {
 
 	// sample
 	if(audio.isDataAvailable() == true){
-			// Display the save button
+			// Display the save and playback buttons
+		recSampleContainer.style.display = "block";
 		recSaveButton.style.display ="block";
+		recPlayButton.style.display = "block";
 			// Hide the progress bar
 		recProgressBarContainer.style.display = "none";
 		recProgressBarLabel.style.display = "none";
@@ -1038,6 +1048,45 @@ function onRtSaveButtonClick() {
 	toggleModeBar();
 }
 
+function onRecPlayButtonClick() {
+	//switch play/stop buttons
+	recPlayButton.style.display = "none";
+	recStopButton.style.display = "block";
+
+	// Prepare the datas if the samplerate is not default
+	if(recordedSampleRate != baseSampleRate){
+		let factor = baseSampleRate / recordedSampleRate;
+		let prepData = [];
+		console.log("mis sr");
+		for(let i = 0; i < recWaveData[0].y.length; i++){
+			for(let j = i * factor; j < i * factor + factor; j++){
+				prepData[j] = recWaveData[0].y[i];
+			}
+		}
+		// Play the recorded sound
+		audio.play(prepData);
+	}
+	else{
+		// Play the recorded sound
+		audio.play(recWaveData[0].y);
+	}
+
+
+
+	// New source created everytime = reset event functions
+	audio.playbackSource.onended = function(){onPlaybackEnded()};
+}
+
+function onRecStopButtonClick() {
+	audio.stop();
+	onPlaybackEnded();
+}
+
+function onPlaybackEnded(){
+	recStopButton.style.display = "none";
+	recPlayButton.style.display = "block";
+}
+
 function onRecSaveButtonClick() {
 	// Display save modal
 	$("#saveModal").style.display="block";
@@ -1174,8 +1223,8 @@ function onSampleButton() {
 	// Save the sampleRate used
 	recordedSampleRate = recSampleRate;
 
-	// Hide the save button while recording
-	recSaveButton.style.display = "none";
+	// Hide the playback controls
+	recSampleContainer.style.display = "none";
 
 	// Save the sampling start time
 	samplingStartTime = performance.now();
