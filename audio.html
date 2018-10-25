@@ -138,9 +138,12 @@
 			</div>
 			<!-- Second element -->
 			<div id="recSampleContainer" class="w3-card-4 phy-menu-element w3-white" style="display:none;">
-				<header class="w3-container w3-theme">
-					<h3>Enregistrement</h3>
+				<header class="w3-bar w3-container w3-theme">
+					<h3 class="w3-bar-item" style="padding: 0px;">Enregistrement </h3>
+					<h3 id="sampleLengthLabel" class="w3-bar-item w3-right" style="padding: 0px;"></h3>
 				</header>
+				<div class="w3-container w3-white">
+				</div>
 				<button class="w3-button w3-block w3-hover-theme2" id="recPlayButton" ><h3 style="margin:0"><i class="fas fa-play"></i> Lire</h3></button>
 				<button class="w3-button w3-block w3-hover-theme2" id="recStopButton" style="display:none;"><h3 style="margin:0"><i class="fas fa-stop"></i> Stop</h3></button>
 				<button class="w3-button w3-block w3-hover-theme2" id="recSaveButton" style="margin-bottom: 15px;"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
@@ -335,18 +338,22 @@ let saves = [];
 const rtWaveCanvasCtx = $("canvas.rtWaveCanvas").getContext("2d");
 const rtFourierCanvasCtx = $("canvas.rtFourierCanvas").getContext("2d");
 
-// Get div elements (sav)
+// Get plotly div elements (rec)
 const recWaveGraph = $("#recGraphContainer");
 const recFourierGraph = $("#recFourierContainer");
 
-// Get div elements (sav)
+// Get plotly div elements (sav)
 let savWaveGraph = $("#savGraphContainer");
 let savFourierGraph = $("#savFourierContainer");
 
+// Get progress bar element
 const recSampleContainer = $("#recSampleContainer");
 const recProgressBar = $("#recProgressBar");
 const recProgressBarContainer = $("#recProgressBarContainer");
 const recProgressBarLabel = $("#recProgressBarLabel");
+
+// Get label elements
+const sampleLengthLabel = $("#sampleLengthLabel");
 
 // Get sliders elements
 const rtAmplificationSlider = $("#rtAmplificationSlider");
@@ -695,21 +702,27 @@ function realtimeDraw() {
 function recordDraw() {
 	// Update the progressBar
 	if(recProgressBarContainer.style.display === "block"){
-		recProgressBar.style.width = Math.min((performance.now() - samplingStartTime) / (sampleLength * 10), 100) + '%';
-		let remainingTime = Math.max(0, sampleLength - (performance.now() - samplingStartTime) / 1000)
-		recProgressBarLabel.firstChild.innerHTML = Math.floor(remainingTime/1) + ":" + Math.floor((remainingTime % 1) * 100);
+		
+		let elapsedTime = Date.now() - samplingStartTime;
+		recProgressBar.style.width = Math.min((elapsedTime) / (sampleLength * 10), 100) + '%';
+		let remainingTime = new Date(Math.max(0, sampleLength - (Date.now() - samplingStartTime)));
+		console.log();
+		recProgressBarLabel.firstChild.innerHTML = formatDate(Math.max(0,sampleLength * 1000 - (Date.now() - samplingStartTime)));
+		//recProgressBarLabel.firstChild.innerHTML = Math.floor(remainingTime/1) + ":" + Math.floor((remainingTime % 1) * 100);
 	}
 
 	// sample
 	if(audio.isDataAvailable() == true){
-			// Display the save and playback buttons
+		// Display the save and playback buttons
 		recSampleContainer.style.display = "block";
 		recSaveButton.style.display ="block";
 		recPlayButton.style.display = "block";
-			// Hide the progress bar
+		// Hide the progress bar
 		recProgressBarContainer.style.display = "none";
 		recProgressBarLabel.style.display = "none";
 		sampleButton.style.display = "block";
+		// Display the sample length
+		sampleLengthLabel.innerHTML = formatDate(sampleLength * 1000);
 
 		// Discard old datas
 		recWaveData[0].x.length = 0;
@@ -1217,6 +1230,11 @@ function onSampleButton() {
 		alert("La durée d'enregistrement maximale est de 30 s.");
 		return;
 	}
+	// Get the sampleLength
+	sampleLength = sampleLengthInput.value;
+	// Set graph axes range
+	recGraphConfig.xaxis.range[1] = sampleLength;
+
 	// Record new datas
 	audio.startRecording(sampleLength);
 
@@ -1227,7 +1245,7 @@ function onSampleButton() {
 	recSampleContainer.style.display = "none";
 
 	// Save the sampling start time
-	samplingStartTime = performance.now();
+	samplingStartTime = Date.now();
 
 	// Display the progress bar
 	recProgressBarContainer.style.display = "block";
@@ -1240,10 +1258,7 @@ function onSampleButton() {
 }
 
 function onSampleLengthInput() {
-	// TODO Add checks!
-	sampleLength = sampleLengthInput.value;
-	// Set graph axes range
-	recGraphConfig.xaxis.range[1] = sampleLength;
+	// Empty TODO
 }
 
 function onRtSampleRateSelectChange() {
