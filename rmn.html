@@ -46,6 +46,7 @@
 	<script src="lib/rmn.js"></script>
 
 	<script src="lib/phy.js"></script>
+	<script src="lib/infomodal.js"></script>
 
 	<style>
 		/* Give inputs width*/
@@ -185,37 +186,7 @@
 	</div>
 
 	<!-- Modal card -->
-	<div id="modal" class="w3-modal">
-    <div class="w3-modal-content w3-animate-top w3-card-4">
-      <header class="w3-container w3-theme2"> 
-        <span onclick="document.getElementById('modal').style.display='none'" class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
-        <h2>À propos</h2>
-      </header>
-      <div class="w3-container">
-				<div class="w3-container w3-cell"><p><i class="fas fa-info-circle fa-2x"></i></p></div>
-				<div class="w3-container w3-cell"><p>Application permettant de générer des spectres RMN (simplistes) suffisamment lisibles pour être intégrés dans des activités, exercices, DS...</p>
-					<p>Le site <a href="http://www.nmrdb.org/new_predictor">nmrdb</a> permet d'obtenir le spectre qui vous interesse juste en tracant la molécule.</p>
-				</div>
-			</div>
-			<div class="w3-container">
-				<div class="w3-container w3-cell"><p><i class="fab fa-firefox fa-2x"></i></p></div>
-				<div class="w3-container w3-cell"><p>Les applications utilisent des technologies modernes pour fonctionner (HTLM5, CSS et JS). Il est indispensable d'utiliser un navigateur internet récent pour les faire fonctionner. Les applications ont été testés sur Mozilla Firefox et Google Chrome.</p></div>
-			</div>
-			<div class="w3-container">
-				<div class="w3-container w3-cell"><p><i class="fas fa-envelope fa-2x"></i></p></div>
-				<div class="w3-container w3-cell"><p>pro.wal@protonmail.com</p></div>
-			</div>
-			<div class="w3-light-grey w3-section">
-				<button onclick="accordion('licenceAccordion')" class="w3-button w3-block">
-					<div class="w3-container w3-cell"><p><i class="fas fa-copyright fa-2x"></i></p></div>
-					<div class="w3-container w3-cell"><p>MIT Licence</p></div>
-				</button>
-				<div id="licenceAccordion" class="w3-hide w3-container">
-					<p><script src="lib/licence.js"></script></p>
-				</div>
-			</div>
-    </div>
-  </div>
+	<script>modalWrite("rmn");</script>
 
 <script>
 const $ = document.querySelector.bind(document);
@@ -226,6 +197,8 @@ const canvasCtx = $("canvas.canvas").getContext("2d");
 // Get buttons contexts
 const infoButton = $("#infoButton");
 infoButton.addEventListener("click", onInfoButtonClick);
+const closeInfoButton = $("#closeInfoButton");
+closeInfoButton.addEventListener("click", onCloseInfoButtonClick);
 
 const removePeakButton = []
 removePeakButton[0] = $("#removePeakButton1");
@@ -401,7 +374,6 @@ function draw() {
 	chart.data.datasets[0].data = data2;
 	chart.data.datasets[1].data = data1;
 	chart.update();
-	debugger;
 }
 
 /*----------------------------------------------------------------------------------------------
@@ -454,8 +426,11 @@ window.onload = function() {
 };
 
 function onInfoButtonClick() {
-	$("#modal").style.display = "block";
+	$("#infoModal").style.display = "block";
 };
+function onCloseInfoButtonClick(){
+	$("#infoModal").style.display="none";
+}
 
 function onPpmInput(_peak) {
 	// Max ppm input value
