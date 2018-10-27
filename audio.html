@@ -138,15 +138,15 @@
 			</div>
 			<!-- Second element -->
 			<div id="recSampleContainer" class="w3-card-4 phy-menu-element w3-white" style="display:none;">
-				<header class="w3-bar w3-container w3-theme">
+				<header class="w3-bar w3-container w3-theme2">
 					<h3 class="w3-bar-item" style="padding: 0px;">Enregistrement </h3>
-					<h3 id="sampleLengthLabel" class="w3-bar-item w3-right" style="padding: 0px;"></h3>
+					<h3 id="recSampleLengthLabel" class="w3-bar-item w3-right" style="padding: 0px;"></h3>
 				</header>
 				<div class="w3-container w3-white">
 				</div>
-				<button class="w3-button w3-block w3-hover-theme2" id="recPlayButton" ><h3 style="margin:0"><i class="fas fa-play"></i> Lire</h3></button>
-				<button class="w3-button w3-block w3-hover-theme2" id="recStopButton" style="display:none;"><h3 style="margin:0"><i class="fas fa-stop"></i> Stop</h3></button>
-				<button class="w3-button w3-block w3-hover-theme2" id="recSaveButton" style="margin-bottom: 15px;"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
+				<button class="w3-button w3-block" id="recPlayButton" ><h3 style="margin:0"><i class="fas fa-play"></i> Lire</h3></button>
+				<button class="w3-button w3-block" id="recStopButton" style="display:none;"><h3 style="margin:0"><i class="fas fa-stop"></i> Stop</h3></button>
+				<button class="w3-button w3-block" id="recSaveButton" style="margin-bottom: 15px;"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
 			</div>
 		</div>
 		<!-- First column -->
@@ -186,6 +186,17 @@
 				<div class="w3-container w3-white">
 					<button class="w3-button w3-block w3-theme w3-hover-theme2" id="fourierReplotButton" style="margin-top: 15px; margin-bottom: 15px;"><label>Recalculer</label></button>
 				</div>
+			</div>
+			<!-- Third element -->
+			<div class="w3-card-4 phy-menu-element w3-white">
+				<header class="w3-bar w3-container w3-theme2">
+					<h3 class="w3-bar-item" style="padding: 0px;">Enregistrement </h3>
+					<h3 id="savSampleLengthLabel" class="w3-bar-item w3-right" style="padding: 0px;"></h3>
+				</header>
+				<div class="w3-container w3-white">
+				</div>
+				<button class="w3-button w3-block" id="savPlayButton" ><h3 style="margin:0"><i class="fas fa-play"></i> Lire</h3></button>
+				<button class="w3-button w3-block" id="savStopButton" style="display:none;"><h3 style="margin:0"><i class="fas fa-stop"></i> Stop</h3></button>
 			</div>
 		</div>
 		<!-- First column -->
@@ -353,7 +364,8 @@ const recProgressBarContainer = $("#recProgressBarContainer");
 const recProgressBarLabel = $("#recProgressBarLabel");
 
 // Get label elements
-const sampleLengthLabel = $("#sampleLengthLabel");
+const recSampleLengthLabel = $("#recSampleLengthLabel");
+const savSampleLengthLabel = $("#savSampleLengthLabel");
 
 // Get sliders elements
 const rtAmplificationSlider = $("#rtAmplificationSlider");
@@ -405,9 +417,12 @@ sampleButton.addEventListener("click", onSampleButton);
 
 const recPlayButton = $("#recPlayButton");
 recPlayButton.addEventListener("click", onRecPlayButtonClick);
-
 const recStopButton = $("#recStopButton");
 recStopButton.addEventListener("click", onRecStopButtonClick);
+const savPlayButton = $("#savPlayButton");
+savPlayButton.addEventListener("click", onSavPlayButtonClick);
+const savStopButton = $("#savStopButton");
+savStopButton.addEventListener("click", onSavStopButtonClick);
 
 const recSaveButton = $("#recSaveButton");
 recSaveButton.addEventListener("click", onRecSaveButtonClick);
@@ -722,7 +737,7 @@ function recordDraw() {
 		recProgressBarLabel.style.display = "none";
 		sampleButton.style.display = "block";
 		// Display the sample length
-		sampleLengthLabel.innerHTML = formatDate(sampleLength * 1000);
+		recSampleLengthLabel.innerHTML = formatDate(sampleLength * 1000);
 
 		// Discard old datas
 		recWaveData[0].x.length = 0;
@@ -779,6 +794,8 @@ function saveDraw() {
 	populateSampleRateSelect(savSampleRateSelect, saves[activeTab-2].recordedSampleRateLvl, 32);
 	// Select the right option
 	savSampleRateSelect.selectedIndex = Math.log2(saves[activeTab-2].displaySampleRateLvl) - Math.log2(saves[activeTab-2].recordedSampleRateLvl);
+	// Display the sample length
+	savSampleLengthLabel.innerHTML = formatDate(saves[activeTab-2].x[saves[activeTab-2].x.length-1] * 1000);
 
 	// Apply the selected display sample rate
 	modifySampleRate(savWaveData[0].x, baseSampleRate / saves[activeTab-2].recordedSampleRateLvl, baseSampleRate / saves[activeTab-2].displaySampleRateLvl);
@@ -1070,7 +1087,6 @@ function onRecPlayButtonClick() {
 	if(recordedSampleRate != baseSampleRate){
 		let factor = baseSampleRate / recordedSampleRate;
 		let prepData = [];
-		console.log("mis sr");
 		for(let i = 0; i < recWaveData[0].y.length; i++){
 			for(let j = i * factor; j < i * factor + factor; j++){
 				prepData[j] = recWaveData[0].y[i];
@@ -1084,20 +1100,55 @@ function onRecPlayButtonClick() {
 		audio.play(recWaveData[0].y);
 	}
 
-
-
 	// New source created everytime = reset event functions
-	audio.playbackSource.onended = function(){onPlaybackEnded()};
+	audio.playbackSource.onended = function(){onRecPlaybackEnded()};
 }
 
 function onRecStopButtonClick() {
 	audio.stop();
-	onPlaybackEnded();
+	onRecPlaybackEnded();
 }
 
-function onPlaybackEnded(){
+function onRecPlaybackEnded(){
 	recStopButton.style.display = "none";
 	recPlayButton.style.display = "block";
+}
+
+function onSavPlayButtonClick() {
+	//switch play/stop buttons
+	savPlayButton.style.display = "none";
+	savStopButton.style.display = "block";
+
+	// Prepare the datas if the samplerate is not default
+	let sr = baseSampleRate / saves[activeTab-2].displaySampleRateLvl;
+	if(sr != baseSampleRate){
+		let factor = baseSampleRate / sr;
+		let prepData = [];
+		for(let i = 0; i < savWaveData[0].y.length; i++){
+			for(let j = i * factor; j < i * factor + factor; j++){
+				prepData[j] = savWaveData[0].y[i];
+			}
+		}
+		// Play the recorded sound
+		audio.play(prepData);
+	}
+	else{
+		// Play the recorded sound
+		audio.play(savWaveData[0].y);
+	}
+
+	// New source created everytime = reset event functions
+	audio.playbackSource.onended = function(){onSavPlaybackEnded()};
+}
+
+function onSavStopButtonClick() {
+	audio.stop();
+	onSavPlaybackEnded();
+}
+
+function onSavPlaybackEnded(){
+	savStopButton.style.display = "none";
+	savPlayButton.style.display = "block";
 }
 
 function onRecSaveButtonClick() {
