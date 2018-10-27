@@ -301,14 +301,14 @@ let savFourierData = [{
     width: 3
   }
 }];
-let bufferSize = 4096;
+const rtBasebufferSize = 4096;
 let rtLength = 0.04;
 
 // Create the Fourier object
-let fourier = new Fourier(bufferSize);
+let fourier = new Fourier(rtBasebufferSize);
 
 // Create a PhyAudio object
-let audio = new PhyAudio(bufferSize);
+let audio = new PhyAudio(rtBasebufferSize);
 
 let activeTab;
 
@@ -665,15 +665,15 @@ function realtimeDraw() {
 	if(paused == false){
 	rtWaveData.length = 0;
 
-	// sample
-	let graphData = audio.getGraph();
-
 	// Get the chosen sample rate
 	rtSampleRate = rtSampleRateSelect.value;
 
+	// sample
+	let graphData = audio.getGraph();
+
 	// Set the new datas
 	for(let i = 0; i < graphData.length; i++){
-		rtWaveData[i] = {x: i / rtSampleRate, y: graphData[i] /*/ 128.0 - 1*/};
+		rtWaveData[i] = {x: i / baseSampleRate, y: graphData[i] /*/ 128.0 - 1*/};
 	}
 
 	// Apply chosen sampleRate
@@ -883,7 +883,7 @@ function computePlotlyFourier(_wave, _result, _sampleRate, _range){
 ----------------------------------------------------------------------------------------------*/
 function modifySampleRate(_wave, _initialSampleRate, _targetSampleRate){
 	// End function if target = initial
-	if(_initialSampleRate === _targetSampleRate){
+	if(_initialSampleRate == _targetSampleRate){
 		return;
 	}
 
