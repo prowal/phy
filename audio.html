@@ -1283,11 +1283,12 @@ function onSampleButton() {
 	}
 	// Get the sampleLength
 	sampleLength = sampleLengthInput.value;
-	// Set graph axes range
-	recGraphConfig.xaxis.range[1] = sampleLength;
 
 	// Record new datas
 	audio.startRecording(sampleLength);
+
+	// Set graph axes range
+	recGraphConfig.xaxis.range[1] = sampleLength;
 
 	// Save the sampleRate used
 	recordedSampleRate = recSampleRate;
