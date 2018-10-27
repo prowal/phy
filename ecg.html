@@ -45,6 +45,7 @@
 	<script src="lib/ecg.js"></script>
 
 	<script src="lib/phy.js"></script>
+	<script src="lib/infomodal.js"></script>
 
 </head>
 <body class="w3-light-grey">
@@ -97,38 +98,7 @@
 	</div>
 
 	<!-- Modal card -->
-	<div id="modal" class="w3-modal">
-    <div class="w3-modal-content w3-animate-top w3-card-4">
-      <header class="w3-container w3-theme2"> 
-        <span onclick="document.getElementById('modal').style.display='none'" class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
-        <h2>À propos</h2>
-      </header>
-      <div class="w3-container">
-				<div class="w3-container w3-cell"><p><i class="fas fa-info-circle fa-2x"></i></p></div>
-				<div class="w3-container w3-cell"><p>Application permettant de visualiser les électrocardiogrammes de 5 sportifs différents, au repos, après l’effort (1 minute de flexions) et après une minute de récupération.</p>
-					<p>Ces électrocardiogrammes permettent de mesurer l’adaptation à l’effort de ces sportifs.</p>
-					<p>Deux des sportifs ont une maladie cardiaque visible à l’électrocardiogramme.</p>
-				</div>
-			</div>
-			<div class="w3-container">
-				<div class="w3-container w3-cell"><p><i class="fab fa-firefox fa-2x"></i></p></div>
-				<div class="w3-container w3-cell"><p>Les applications utilisent des technologies modernes pour fonctionner (HTLM5, CSS et JS). Il est indispensable d'utiliser un navigateur internet récent pour les faire fonctionner. Les applications ont été testés sur Mozilla Firefox et Google Chrome.</p></div>
-			</div>
-			<div class="w3-container">
-				<div class="w3-container w3-cell"><p><i class="fas fa-envelope fa-2x"></i></p></div>
-				<div class="w3-container w3-cell"><p>pro.wal@protonmail.com</p></div>
-			</div>
-			<div class="w3-light-grey w3-section">
-				<button onclick="accordion('licenceAccordion')" class="w3-button w3-block">
-					<div class="w3-container w3-cell"><p><i class="fas fa-copyright fa-2x"></i></p></div>
-					<div class="w3-container w3-cell"><p>MIT Licence</p></div>
-				</button>
-				<div id="licenceAccordion" class="w3-hide w3-container">
-					<p><script src="lib/licence.js"></script></p>
-				</div>
-			</div>
-    </div>
-  </div>
+	<script>modalWrite("ecg");</script>
 
 <script>
 const $ = document.querySelector.bind(document);
@@ -211,6 +181,8 @@ pauseButton.addEventListener("click", onPauseButtonClick);
 
 const infoButton = $("#infoButton");
 infoButton.addEventListener("click", onInfoButtonClick);
+const closeInfoButton = $("#closeInfoButton");
+closeInfoButton.addEventListener("click", onCloseInfoButtonClick);
 
 /*----------------------------------------------------------------------------------------------
 -----------------------------------------GRAPH SETTINGS-----------------------------------------
@@ -515,7 +487,10 @@ function onPauseButtonClick() {
 }
 
 function onInfoButtonClick() {
-	$("#modal").style.display="block";
+	$("#infoModal").style.display = "block";
+};
+function onCloseInfoButtonClick(){
+	$("#infoModal").style.display="none";
 }
 
 /*----------------------------------------------------------------------------------------------
@@ -545,10 +520,8 @@ function draw() {
 	else{
 		drawRegularECG();
 	}
-	var t0 = performance.now();
+
 	chart.update();
-	var t1 = performance.now();
-	console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.");
 	
 }
 </script>

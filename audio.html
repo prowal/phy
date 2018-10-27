@@ -44,6 +44,7 @@
 	<script src="lib/Chart.min.js"></script>
 
 	<script src="lib/phy.js"></script>
+	<script src="lib/infomodal.js"></script>
 
 	<script src="lib/audio.js"></script>
 
@@ -211,37 +212,7 @@
 	<!-------------------------------------------------------------------------->
 	<!--------------------------------- MODALS --------------------------------->
 	<!-------------------------------------------------------------------------->
-	<div id="infoModal" class="w3-modal">
-    <div class="w3-modal-content w3-animate-top w3-card-4">
-      <header class="w3-container w3-theme2"> 
-        <span id="closeInfoButton" class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
-        <h2>À propos</h2>
-      </header>
-      <div class="w3-container">
-				<div class="w3-container w3-cell"><p><i class="fas fa-info-circle fa-2x"></i></p></div>
-				<div class="w3-container w3-cell"><p>Application permettant de générer des spectres RMN (simplistes) suffisamment lisibles pour être intégrés dans des activités, exercices, DS...</p>
-					<p>Le site <a href="http://www.nmrdb.org/new_predictor">nmrdb</a> permet d'obtenir le spectre qui vous interesse juste en tracant la molécule.</p>
-				</div>
-			</div>
-			<div class="w3-container">
-				<div class="w3-container w3-cell"><p><i class="fab fa-firefox fa-2x"></i></p></div>
-				<div class="w3-container w3-cell"><p>Les applications utilisent des technologies modernes pour fonctionner (HTLM5, CSS et JS). Il est indispensable d'utiliser un navigateur internet récent pour les faire fonctionner. Les applications ont été testés sur Mozilla Firefox et Google Chrome.</p></div>
-			</div>
-			<div class="w3-container">
-				<div class="w3-container w3-cell"><p><i class="fas fa-envelope fa-2x"></i></p></div>
-				<div class="w3-container w3-cell"><p>pro.wal@protonmail.com</p></div>
-			</div>
-			<div class="w3-light-grey w3-section">
-				<button onclick="accordion('licenceAccordion')" class="w3-button w3-block">
-					<div class="w3-container w3-cell"><p><i class="fas fa-copyright fa-2x"></i></p></div>
-					<div class="w3-container w3-cell"><p>MIT Licence</p></div>
-				</button>
-				<div id="licenceAccordion" class="w3-hide w3-container">
-					<p><script src="lib/licence.js"></script></p>
-				</div>
-			</div>
-    </div>
-	</div>
+	<script>modalWrite("audio");</script>
 	<!-- Save modal card -->
 	<div id="saveModal" class="w3-modal">
 		<div class="w3-modal-content w3-animate-top w3-card-4" style="width:400px;">
@@ -431,7 +402,6 @@ fourierReplotButton.addEventListener("click", onFourierReplotButtonClick);
 
 const infoButton = $("#infoButton");
 infoButton.addEventListener("click", onInfoButtonClick);
-
 const closeInfoButton = $("#closeInfoButton");
 closeInfoButton.addEventListener("click", onCloseInfoButtonClick);
 

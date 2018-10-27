@@ -45,6 +45,7 @@
 	<script src="lib/fourier.js"></script>
 
 	<script src="lib/phy.js"></script>
+	<script src="lib/infomodal.js"></script>
 
 </head>
 <body class="w3-light-grey">
@@ -122,47 +123,19 @@
 			</div>
 			<!-- Canvas card 1-->
 			<div class="w3-card-4 w3-rest w3-margin w3-white">
-				<div class="w3-container w3-margin" style="height: calc(70vh - 82px)">
+				<div class="w3-container w3-margin" style="height: calc(65vh - 82px)">
 					<canvas class="canvas1"></canvas>
 				</div>
 			</div>
 			<!-- Canvas card 2-->
 			<div class="w3-card-4 w3-rest w3-margin w3-white canvas2" style="display: none">
-				<div class="w3-container w3-margin canvas" style="height: calc(30vh - 82px)">
+				<div class="w3-container w3-margin canvas" style="height: calc(35vh - 82px)">
 					<canvas class="canvas2"></canvas>
 				</div>
 			</div>
 		</div>
 	<!-- Modal card -->
-	<div id="modal" class="w3-modal">
-			<div class="w3-modal-content w3-animate-top w3-card-4">
-				<header class="w3-container w3-theme2"> 
-					<span onclick="document.getElementById('modal').style.display='none'" class="w3-button w3-display-topright"><i class="fas fa-times"></i></span>
-					<h2>À propos</h2>
-				</header>
-				<div class="w3-container">
-					<div class="w3-container w3-cell"><p><i class="fas fa-info-circle fa-2x"></i></p></div>
-					<div class="w3-container w3-cell"><p>Application permettant de visualiser l'addition de deux ondes périodiques sinusoidales et de réaliser une analyse spectrale (Analyse de Fourier). </p></div>
-				</div>
-				<div class="w3-container">
-					<div class="w3-container w3-cell"><p><i class="fab fa-firefox fa-2x"></i></p></div>
-					<div class="w3-container w3-cell"><p>Les applications utilisent des technologies modernes pour fonctionner (HTLM5, CSS et JS). Il est indispensable d'utiliser un navigateur internet récent pour les faire fonctionner. Les applications ont été testés sur Mozilla Firefox et Google Chrome.</p></div>
-				</div>
-				<div class="w3-container">
-					<div class="w3-container w3-cell"><p><i class="fas fa-envelope fa-2x"></i></p></div>
-					<div class="w3-container w3-cell"><p>pro.wal@protonmail.com</p></div>
-				</div>
-				<div class="w3-light-grey w3-section">
-					<button onclick="accordion('licenceAccordion')" class="w3-button w3-block">
-						<div class="w3-container w3-cell"><p><i class="fas fa-copyright fa-2x"></i></p></div>
-						<div class="w3-container w3-cell"><p>MIT Licence</p></div>
-					</button>
-					<div id="licenceAccordion" class="w3-hide w3-container">
-						<p><script src="lib/licence.js"></script></p>
-					</div>
-				</div>
-			</div>
-		</div>
+	<script>modalWrite("addition");</script>
 
 <script>
 const $ = document.querySelector.bind(document);
@@ -217,6 +190,8 @@ fftCheckBoxElt.addEventListener("click", onFftCheckBoxChange);
 
 const infoButton = $("#infoButton");
 infoButton.addEventListener("click", onInfoButtonClick);
+const closeInfoButton = $("#closeInfoButton");
+closeInfoButton.addEventListener("click", onCloseInfoButtonClick);
 
 /*----------------------------------------------------------------------------------------------
 -------------------------------------GENERATE WAVE FUNCTION-------------------------------------
@@ -458,7 +433,10 @@ function onFftCheckBoxChange() {
 }
 
 function onInfoButtonClick() {
-	$("#modal").style.display="block";
+	$("#infoModal").style.display = "block";
+};
+function onCloseInfoButtonClick(){
+	$("#infoModal").style.display="none";
 }
 
 /*----------------------------------------------------------------------------------------------
