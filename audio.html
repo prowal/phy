@@ -238,47 +238,11 @@ let rtFourierData = [];
 let rtWaveChart;
 let rtFourierChart;
 
-let recWaveData = [{
-  x: [],
-  y: [],
-  mode: "line",
-  name: "TODO",
-	line: {
-    color: phyColors.theme2,
-    width: 3
-  }
-}];
-let recFourierData = [{
-  x: [],
-  y: [],
-  mode: "line",
-  name: "TODO",
-	line: {
-    color: phyColors.theme2,
-    width: 3
-  }
-}];
+let recWaveData = [new PlotlyData("TODO")];
+let recFourierData = [new PlotlyData("TODO")];
+let savWaveData = [new PlotlyData("TODO")];
+let savFourierData = [new PlotlyData("TODO")];
 
-let savWaveData = [{
-  x: [],
-	y: [],
-  mode: "line",
-  name: "TODO",
-	line: {
-    color: phyColors.theme2,
-    width: 3
-  }
-}];
-let savFourierData = [{
-  x: [],
-  y: [],
-  mode: "line",
-  name: "TODO",
-	line: {
-    color: phyColors.theme2,
-    width: 3
-  }
-}];
 const rtBasebufferSize = 4096;
 let rtLength = 0.04;
 
@@ -823,6 +787,20 @@ function arrayOfPointsCopy(_array, _length = _array.length){
 		copy[i] = {x: _array[i].x, y:_array[i].y};
 	}
 	return copy;
+}
+
+/*----------------------------------------------------------------------------------------------
+-------------------------------------PLOTLY DATA OBJECT-----------------------------------------
+----------------------------------------------------------------------------------------------*/
+function PlotlyData(_name) {
+	this.x = [];
+	this.y = [];
+	this.mode = "line";
+	this.name = _name;
+	this.line = {
+		color: phyColors.theme2,
+		width: 3
+	};
 }
 
 /*----------------------------------------------------------------------------------------------
