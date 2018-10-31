@@ -145,8 +145,7 @@
 				</header>
 				<div class="w3-container w3-white">
 				</div>
-				<button class="w3-button w3-block" id="recPlayButton" ><h3 style="margin:0"><i class="fas fa-play"></i> Lire</h3></button>
-				<button class="w3-button w3-block" id="recStopButton" style="display:none;"><h3 style="margin:0"><i class="fas fa-stop"></i> Stop</h3></button>
+				<button class="w3-button w3-block" id="recPlayButton" ></button>
 				<button class="w3-button w3-block" id="recSaveButton" style="margin-bottom: 15px;"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
 			</div>
 		</div>
@@ -192,8 +191,7 @@
 					<h3 class="w3-bar-item" style="padding: 0px;">Enregistrement </h3>
 					<h3 id="savSampleLengthLabel" class="w3-bar-item w3-right" style="padding: 0px;"></h3>
 				</header>
-				<button class="w3-button w3-block" id="savPlayButton"><h3 style="margin:0"><i class="fas fa-play"></i> Lire</h3></button>
-				<button class="w3-button w3-block" id="savStopButton" style="display:none;"><h3 style="margin:0"><i class="fas fa-stop"></i> Stop</h3></button>
+				<button class="w3-button w3-block" id="savPlayButton"></button>
 			</div>
 		</div>
 		<!-- First column -->
@@ -346,14 +344,8 @@ rtSaveButton.addEventListener("click", onRtSaveButtonClick);
 const sampleButton = $("#sampleButton");
 sampleButton.addEventListener("click", onSampleButton);
 
-const recPlayButton = $("#recPlayButton");
-recPlayButton.addEventListener("click", onRecPlayButtonClick);
-const recStopButton = $("#recStopButton");
-recStopButton.addEventListener("click", onRecStopButtonClick);
-const savPlayButton = $("#savPlayButton");
-savPlayButton.addEventListener("click", onSavPlayButtonClick);
-const savStopButton = $("#savStopButton");
-savStopButton.addEventListener("click", onSavStopButtonClick);
+let recPlayToggleButton = new ToggleButton($("#recPlayButton"),"<h3 style='margin:0'><i class='fas fa-play'></i> Lire</h3>","<h3 style='margin:0'><i class='fas fa-stop'></i> Stop</h3>",onRecPlayButtonClick,onRecStopButtonClick);
+let savPlayToggleButton = new ToggleButton($("#savPlayButton"),"<h3 style='margin:0'><i class='fas fa-play'></i> Lire</h3>","<h3 style='margin:0'><i class='fas fa-stop'></i> Stop</h3>",onSavPlayButtonClick,onSavStopButtonClick);
 
 const recSaveButton = $("#recSaveButton");
 recSaveButton.addEventListener("click", onRecSaveButtonClick);
@@ -651,7 +643,7 @@ function recordDraw() {
 		let elapsedTime = Date.now() - samplingStartTime;
 		recProgressBar.style.width = Math.min((elapsedTime) / (sampleLength * 10), 100) + '%';
 		let remainingTime = new Date(Math.max(0, sampleLength - (Date.now() - samplingStartTime)));
-		console.log();
+
 		recProgressBarLabel.firstChild.innerHTML = formatDate(Math.max(0,sampleLength * 1000 - (Date.now() - samplingStartTime)));
 		//recProgressBarLabel.firstChild.innerHTML = Math.floor(remainingTime/1) + ":" + Math.floor((remainingTime % 1) * 100);
 	}
@@ -661,7 +653,6 @@ function recordDraw() {
 		// Display the save and playback buttons
 		recSampleContainer.style.display = "block";
 		recSaveButton.style.display ="block";
-		recPlayButton.style.display = "block";
 		// Hide the progress bar
 		recProgressBarContainer.style.display = "none";
 		recProgressBarLabel.style.display = "none";
@@ -1023,10 +1014,6 @@ function onRtSaveButtonClick() {
 }
 
 function onRecPlayButtonClick() {
-	//switch play/stop buttons
-	recPlayButton.style.display = "none";
-	recStopButton.style.display = "block";
-
 	// Prepare the datas if the samplerate is not default
 	if(recordedSampleRate != baseSampleRate){
 		let factor = baseSampleRate / recordedSampleRate;
@@ -1050,19 +1037,13 @@ function onRecPlayButtonClick() {
 
 function onRecStopButtonClick() {
 	audio.stop();
-	onRecPlaybackEnded();
 }
 
 function onRecPlaybackEnded(){
-	recStopButton.style.display = "none";
-	recPlayButton.style.display = "block";
+	recPlayToggleButton.setState(true);
 }
 
 function onSavPlayButtonClick() {
-	//switch play/stop buttons
-	savPlayButton.style.display = "none";
-	savStopButton.style.display = "block";
-
 	// Prepare the datas if the samplerate is not default
 	let sr = baseSampleRate / saves[activeTab-2].displaySampleRateLvl;
 	if(sr != baseSampleRate){
@@ -1087,12 +1068,10 @@ function onSavPlayButtonClick() {
 
 function onSavStopButtonClick() {
 	audio.stop();
-	onSavPlaybackEnded();
 }
 
 function onSavPlaybackEnded(){
-	savStopButton.style.display = "none";
-	savPlayButton.style.display = "block";
+	savPlayToggleButton.setState(true);
 }
 
 function onRecSaveButtonClick() {
