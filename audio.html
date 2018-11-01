@@ -452,15 +452,13 @@ function recordDraw() {
 		recSampleLengthLabel.innerHTML = formatDate(sampleLength * 1000);
 
 		// Discard old datas
-		recWaveData[0].x.length = 0;
-		recWaveData[0].y.length = 0;
-		recFourierData[0].x.length = 0;
-		recFourierData[0].y.length = 0;
+		recWaveData[0].x = [];
+		recWaveData[0].y = [];
+		recFourierData[0].x = [];
+		recFourierData[0].y =[];
 
 		// Get the recorded datas
 		let graphData = audio.getRecord();
-
-		let fftInput = [];
 
 		// Apply chosen sampleRate
 		modifySampleRate(graphData, baseSampleRate, recSampleRate);
@@ -471,15 +469,6 @@ function recordDraw() {
 			recWaveData[0].y[i] = graphData[i];
 		}
 
-		// Ugly hack to force plotly to redraw
-		if(recGraphConfig.datarevision == 1){
-			recGraphConfig.datarevision = 0;
-			recFourierConfig.datarevision = 0;
-		}
-		else{
-			recGraphConfig.datarevision = 1;
-			recFourierConfig.datarevision = 1;
-		}
 		//Draw the wave
 		Plotly.react(recWaveGraph, recWaveData, recGraphConfig);
 
@@ -491,10 +480,10 @@ function recordDraw() {
 
 function saveDraw() {
 	// Flush previous datas
-	savWaveData[0].x.length = 0;
-	savWaveData[0].y.length = 0;
-	savFourierData[0].x.length = 0;
-	savFourierData[0].y.length = 0;
+	savWaveData[0].x = [];
+	savWaveData[0].y = [];
+	savFourierData[0].x =[];
+	savFourierData[0].y = [];
 
 	// Set new datas
 	savWaveData[0].x = saves[activeTab-2].x.slice();
@@ -523,16 +512,6 @@ function saveDraw() {
 	savFourierGraph.layout.xaxis.range = arrayCopy(saves[activeTab-2].fourierRange.xRange);
 	savFourierGraph.layout.yaxis.range = arrayCopy(saves[activeTab-2].fourierRange.yRange);
 
-	// Ugly hack to force plotly to redraw
-	if(savGraphConfig.datarevision == 1){
-		savGraphConfig.datarevision = 0;
-		savFourierConfig.datarevision = 0;
-	}
-	else{
-		savGraphConfig.datarevision = 1;
-		savFourierConfig.datarevision = 1;
-	}
-
 	// Draw the wave
 	Plotly.react(savWaveGraph, savWaveData, savGraphConfig);
 	Plotly.react(savFourierGraph, savFourierData, savFourierConfig);
@@ -547,8 +526,6 @@ function draw() {
 	case 1:
 		recordDraw();
 		break;
-	default:
-		//saveDraw();
 	}
 };
 
@@ -625,7 +602,7 @@ function computePlotlyFourier(_wave, _result, _sampleRate, _range){
 -------------------------------------MODIFY SAMPLE RATE-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
 function modifySampleRate(_wave, _initialSampleRate, _targetSampleRate){
-	// End function if target = initial
+	// End function if target == initial
 	if(_initialSampleRate == _targetSampleRate){
 		return;
 	}
@@ -658,29 +635,27 @@ function populateSampleRateSelect(_select, _initLvl = 1, _l = 4){
 /*----------------------------------------------------------------------------------------------
 -------------------------------TOGGLE MODEBAR (PLOTLY BUGFIX)-----------------------------------
 ----------------------------------------------------------------------------------------------*/
-function toggleModeBar(){
-	if(isModeBarDisplayed == true){
-		if(activeTab == 1){
-			Plotly.react(recWaveGraph, recWaveData, recGraphConfig, {displayModeBar: false});
-			Plotly.react(recFourierGraph, recFourierData, recFourierConfig, {displayModeBar: false});
-		}
-		if(activeTab > 1){
-			Plotly.react(savWaveGraph, recWaveData, recGraphConfig, {displayModeBar: false});
-			Plotly.react(savFourierGraph, recFourierData, recFourierConfig, {displayModeBar: false});
-		}
-		isModeBarDisplayed = false;
+function showModeBar(){
+	if(activeTab == 1){
+		Plotly.react(recWaveGraph, recWaveData, recGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+		Plotly.react(recFourierGraph, recFourierData, recFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
 	}
-	else{
-		if(activeTab == 1){
-			Plotly.react(recWaveGraph, recWaveData, recGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-			Plotly.react(recFourierGraph, recFourierData, recFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-		}
-		if(activeTab > 1){
-			Plotly.react(savWaveGraph, recWaveData, recGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-			Plotly.react(savFourierGraph, recFourierData, recFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-		}
-		isModeBarDisplayed = true;
+	if(activeTab > 1){
+		Plotly.react(savWaveGraph, recWaveData, recGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+		Plotly.react(savFourierGraph, recFourierData, recFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
 	}
+	isModeBarDisplayed = true;
+}
+function hideModeBar(){
+	if(activeTab == 1){
+		Plotly.react(recWaveGraph, recWaveData, recGraphConfig, {displayModeBar: false});
+		Plotly.react(recFourierGraph, recFourierData, recFourierConfig, {displayModeBar: false});
+	}
+	if(activeTab > 1){
+		Plotly.react(savWaveGraph, recWaveData, recGraphConfig, {displayModeBar: false});
+		Plotly.react(savFourierGraph, recFourierData, recFourierConfig, {displayModeBar: false});
+	}
+	isModeBarDisplayed = false;
 }
 
 /*----------------------------------------------------------------------------------------------
@@ -692,7 +667,7 @@ function populateTabs(){
 	while(tabElements.length > 0){
 		tabElements[0].parentNode.removeChild(tabElements[0]);
 	}
-	tabButtons.splice(2,tabButtons.length - 2);
+	tabButtons.length = 2;
 	// Populate the tabBar
 	for(let i = 0; i < saves.length; i++){
 	// Add a tab button in the tabBar
@@ -751,6 +726,31 @@ function stabilize(_data){
 }
 
 /*----------------------------------------------------------------------------------------------
+-----------------------------------AUDIO PLAYBACK FUNCTION--------------------------------------
+----------------------------------------------------------------------------------------------*/
+function audioPlayback(_data, _sr, _callback){
+	// Prepare the datas if the samplerate is not default
+	if(_sr != baseSampleRate){
+		let factor = baseSampleRate / _sr;
+		let prepData = [];
+		for(let i = 0; i < _data.y.length; i++){
+			for(let j = i * factor; j < i * factor + factor; j++){
+				prepData[j] = _data.y[i];
+			}
+		}
+		// Play the recorded sound
+		audio.play(prepData);
+	}
+	else{
+		// Play the recorded sound
+		audio.play(_data.y);
+	}
+
+	// New source created everytime = reset event functions
+	audio.playbackSource.onended = function(){_callback()};
+}
+
+/*----------------------------------------------------------------------------------------------
 ---------------------------------------PLOTLY ZOOM EVENTS---------------------------------------
 ----------------------------------------------------------------------------------------------*/
 savWaveGraph.on("plotly_relayout",
@@ -799,31 +799,10 @@ function onRtSaveButtonClick() {
 
 	// Focus the input
 	saveNameInput.focus();
-
-	// Hides the modebar while the modal is active (plotly bug)
-	toggleModeBar();
 }
 
 function onRecPlayButtonClick() {
-	// Prepare the datas if the samplerate is not default
-	if(recordedSampleRate != baseSampleRate){
-		let factor = baseSampleRate / recordedSampleRate;
-		let prepData = [];
-		for(let i = 0; i < recWaveData[0].y.length; i++){
-			for(let j = i * factor; j < i * factor + factor; j++){
-				prepData[j] = recWaveData[0].y[i];
-			}
-		}
-		// Play the recorded sound
-		audio.play(prepData);
-	}
-	else{
-		// Play the recorded sound
-		audio.play(recWaveData[0].y);
-	}
-
-	// New source created everytime = reset event functions
-	audio.playbackSource.onended = function(){onRecPlaybackEnded()};
+	audioPlayback(recWaveData[0], recordedSampleRate, onRecPlaybackEnded);
 }
 
 function onRecStopButtonClick() {
@@ -837,24 +816,7 @@ function onRecPlaybackEnded(){
 function onSavPlayButtonClick() {
 	// Prepare the datas if the samplerate is not default
 	let sr = baseSampleRate / saves[activeTab-2].displaySampleRateLvl;
-	if(sr != baseSampleRate){
-		let factor = baseSampleRate / sr;
-		let prepData = [];
-		for(let i = 0; i < savWaveData[0].y.length; i++){
-			for(let j = i * factor; j < i * factor + factor; j++){
-				prepData[j] = savWaveData[0].y[i];
-			}
-		}
-		// Play the recorded sound
-		audio.play(prepData);
-	}
-	else{
-		// Play the recorded sound
-		audio.play(savWaveData[0].y);
-	}
-
-	// New source created everytime = reset event functions
-	audio.playbackSource.onended = function(){onSavPlaybackEnded()};
+	audioPlayback(savWaveData[0], sr, onSavPlaybackEnded);
 }
 
 function onSavStopButtonClick() {
@@ -873,7 +835,7 @@ function onRecSaveButtonClick() {
 	saveNameInput.focus();
 
 	// Hides the modebar while the modal is active (plotly bug)
-	toggleModeBar();
+	hideModeBar();
 
 	// TODO Merge with onRtSaveButtonClick ?
 }
@@ -945,7 +907,7 @@ function onValidateSaveButtonClick() {
 	$("#saveModal").style.display="none";
 
 	// Show the modebar again (plotly bug)
-	toggleModeBar();
+	showModeBar();
 }
 
 function onSaveNameInputKeyup(event){
@@ -1107,14 +1069,14 @@ function onInfoButtonClick() {
 	$("#infoModal").style.display="block";
 
 	// Hides the modebar while the modal is active (plotly bug)
-	toggleModeBar();
+	hideModeBar();
 }
 
 function onCloseInfoButtonClick(){
 	$("#infoModal").style.display="none";
 
 	// Show the modebar (plotly bug)
-	toggleModeBar();
+	showModeBar();
 }
 
 window.onload = function() {
