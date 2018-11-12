@@ -230,11 +230,14 @@
 const $ = document.querySelector.bind(document);
 
 // Declare vars
-let rtWaveData = [];
-let rtFourierData = [];
-
 let rtWaveChart;
 let rtFourierChart;
+
+let rtWavePoints;
+let rtFourierPoints;
+
+let recWavePoints;
+let recFourierPoints;
 
 let recWaveData = [new PlotlyData("TODO")];
 let recFourierData = [new PlotlyData("TODO")];
@@ -368,14 +371,14 @@ populateSampleRateSelect(rtSampleRateSelect, 1, 2);
 /*----------------------------------------------------------------------------------------------
 -----------------------------------------GRAPH SETTINGS-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
-let rtGraphConfig = new GraphJSConfig("", "Fréquence (Hz)", "Amplitude", 0, 0.04, -1, 1);
-let rtFourierConfig = new GraphJSConfig("", "Temps (s)", "Amplitude", 0, 10000, 0, 0.5);
+let rtGraphConfig = new GraphJSConfig("", "Temps (s)", "Amplitude", 0, 0.04, -32768, 32768);
+let rtFourierConfig = new GraphJSConfig("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768);
 
-let recGraphConfig = new PlotlyConfig("", "Temps (s)", "Amplitude", 0, 0.05, -1, 1);
-let recFourierConfig = new PlotlyConfig("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 0.5, "r");
+let recGraphConfig = new PlotlyConfig("", "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768);
+let recFourierConfig = new PlotlyConfig("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, "r");
 
-let savGraphConfig = new PlotlyConfig("", "Temps (s)", "Amplitude", 0, 0.05, -1, 1);
-let savFourierConfig = new PlotlyConfig("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 0.5, "r");
+let savGraphConfig = new PlotlyConfig("", "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768);
+let savFourierConfig = new PlotlyConfig("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, "r");
 
 /*----------------------------------------------------------------------------------------------
 ------------------------Create the rec and sav graphs and link the datas------------------------
@@ -391,38 +394,31 @@ Plotly.react(savFourierGraph, savFourierData, savFourierConfig, {responsive: tru
 ----------------------------------------------------------------------------------------------*/
 function realtimeDraw() {
 	if(paused == false){
-	rtWaveData.length = 0;
-
 	// Get the chosen sample rate
 	rtSampleRate = rtSampleRateSelect.value;
 
 	// sample
 	let graphData = audio.getGraph();
 
+	rtWavePoints = new Points(graphData.length); // TODO TEN ES LA BANANE
 	// Set the new datas
 	for(let i = 0; i < graphData.length; i++){
-		rtWaveData[i] = {x: i / baseSampleRate, y: graphData[i] /*/ 128.0 - 1*/};
+		rtWavePoints.x[i] = i / baseSampleRate;
 	}
 
 	// Apply chosen sampleRate
-	modifySampleRate(rtWaveData, baseSampleRate, rtSampleRate);
+	rtWavePoints.x = modifySampleRate(rtWavePoints.x, baseSampleRate, rtSampleRate);
+	rtWavePoints.y = modifySampleRate(graphData, baseSampleRate, rtSampleRate);
 
 	// Compute the fourier
-	let fourierData = fourier.computeNormalizedFft(rtWaveData, rtSampleRate, false);
+	rtFourierPoints  = computeFourier(rtWavePoints, rtSampleRate)
 
-	// Trim unnecessary data
-	let trimedRtWaveData = arrayOfPointsCopy(rtWaveData);
+	// Stabilize and trim the  datas
+	let trimedPoints = stabilize(rtWavePoints, rtLength * rtSampleRate);
 
-	if(stabilization == true){
-		stabilize(trimedRtWaveData);
-	}
-	trimedRtWaveData.splice(rtLength * rtSampleRate);
-	// Set the new fourier datas
-	rtFourierData = arrayOfPointsCopy(fourierData, rtWaveData.length / rtSampleRate * 10000);
-
-	rtWaveChart.data.datasets[0].data = trimedRtWaveData;
+	rtWaveChart.data.datasets[0].data = trimedPoints.toGJS();
 	rtWaveChart.update();
-	rtFourierChart.data.datasets[0].data = rtFourierData;
+	rtFourierChart.data.datasets[0].data = rtFourierPoints.toGJS();
 	rtFourierChart.update();
 	};
 }
@@ -452,10 +448,7 @@ function recordDraw() {
 		recSampleLengthLabel.innerHTML = formatDate(sampleLength * 1000);
 
 		// Discard old datas
-		recWaveData[0].x = [];
-		recWaveData[0].y = [];
-		recFourierData[0].x = [];
-		recFourierData[0].y =[];
+		recWavePoints = new Points(sampleLength * recSampleRate);
 
 		// Get the recorded datas
 		let graphData = audio.getRecord();
@@ -465,42 +458,36 @@ function recordDraw() {
 
 		// Set the new datas
 		for(let i = 0; i < sampleLength * recSampleRate; i++){
-			recWaveData[0].x[i] = i / recSampleRate;
-			recWaveData[0].y[i] = graphData[i];
+			recWavePoints.x[i] = i / recSampleRate;
 		}
+		recWavePoints.setY(graphData);
 
 		//Draw the wave
+		recWaveData[0].x = recWavePoints.x;
+		recWaveData[0].y = recWavePoints.y;
 		Plotly.react(recWaveGraph, recWaveData, recGraphConfig);
 
 		// Compute and plot the dft
-		computePlotlyFourier(recWaveData[0], recFourierData[0], recSampleRate);
+		recFourierPoints = computeFourier(recWaveData[0], recSampleRate);
+		recFourierData[0].x = recFourierPoints.x;
+		recFourierData[0].y = recFourierPoints.y;
 		Plotly.react(recFourierGraph, recFourierData, recFourierConfig);
 	}
 }
 
 function saveDraw() {
-	// Flush previous datas
-	savWaveData[0].x = [];
-	savWaveData[0].y = [];
-	savFourierData[0].x =[];
-	savFourierData[0].y = [];
-
-	// Set new datas
-	savWaveData[0].x = saves[activeTab-2].x.slice();
-	savWaveData[0].y = saves[activeTab-2].y.slice();
-	savFourierData[0].x = saves[activeTab-2].fx.slice();
-	savFourierData[0].y = saves[activeTab-2].fy.slice();
-
 	// Populate the sample rate 
 	populateSampleRateSelect(savSampleRateSelect, saves[activeTab-2].recordedSampleRateLvl, 32);
 	// Select the right option
 	savSampleRateSelect.selectedIndex = Math.log2(saves[activeTab-2].displaySampleRateLvl) - Math.log2(saves[activeTab-2].recordedSampleRateLvl);
 	// Display the sample length
-	savSampleLengthLabel.innerHTML = formatDate(saves[activeTab-2].x[saves[activeTab-2].x.length-1] * 1000);
+	savSampleLengthLabel.innerHTML = formatDate(saves[activeTab-2].points.x[saves[activeTab-2].points.x.length-1] * 1000);
 
-	// Apply the selected display sample rate
-	modifySampleRate(savWaveData[0].x, baseSampleRate / saves[activeTab-2].recordedSampleRateLvl, baseSampleRate / saves[activeTab-2].displaySampleRateLvl);
-	modifySampleRate(savWaveData[0].y, baseSampleRate / saves[activeTab-2].recordedSampleRateLvl, baseSampleRate / saves[activeTab-2].displaySampleRateLvl);
+	// Apply the selected display sample rate and set the datas
+	savWaveData[0].x = modifySampleRate(saves[activeTab-2].points.x.slice(), baseSampleRate / saves[activeTab-2].recordedSampleRateLvl, baseSampleRate / saves[activeTab-2].displaySampleRateLvl);
+	savWaveData[0].y = modifySampleRate(saves[activeTab-2].points.y.slice(), baseSampleRate / saves[activeTab-2].recordedSampleRateLvl, baseSampleRate / saves[activeTab-2].displaySampleRateLvl);
+	savFourierData[0].x = saves[activeTab-2].fpoints.x.slice();
+	savFourierData[0].y = saves[activeTab-2].fpoints.y.slice();
 
 	// Apply zoom
 	savWaveGraph.layout.xaxis.autorange ="false"; // In case  the autoscale button was pressed
@@ -565,7 +552,7 @@ function PlotlyData(_name) {
 /*----------------------------------------------------------------------------------------------
 -----------------------------------COMPUTE PLOTLY FOURIER---------------------------------------
 ----------------------------------------------------------------------------------------------*/
-function computePlotlyFourier(_wave, _result, _sampleRate, _range){
+function computeFourier(_wave, _sampleRate, _range){
 	let startIndex;
 	let stopIndex;
 	if(_range == undefined){
@@ -576,26 +563,22 @@ function computePlotlyFourier(_wave, _result, _sampleRate, _range){
 		startIndex = Math.floor(_range[0] * _sampleRate);
 		stopIndex = Math.floor(_range[1] * _sampleRate);
 	}
-	let fftData = {x:[], y:[]};
-	// Change data format to be able to perform fft on it
-	let fftInput = [];
-	for(let i = startIndex; i < stopIndex; i++){
-		fftInput[i - startIndex] = {x: _wave.x[i], y: _wave.y[i]};
-	}
-	// Compute the dft
-	let dftResult = fourier.computeNormalizedFft(fftInput, _sampleRate, false)
 
-	// limit dft to 10 kHz  
-	let maxIndex = dftResult.length;
+	// Select the needed datas
+	let fftInput = new Points(stopIndex-startIndex);
+	fftInput.x = _wave.x.slice(startIndex, stopIndex);
+	fftInput.y = _wave.y.slice(startIndex, stopIndex);
+
+	// limit dft to 10 kHz
+	let maxIndex = fftInput.y.length / 2;
 	if(_sampleRate / 2 > 10000){
-		maxIndex = dftResult.length / _sampleRate * 2 * 10000;
+		maxIndex = fftInput.y.length / _sampleRate * 10000 + 1;
 	}
-	// Construct the result
-	for(let i = 0; i < maxIndex; i++){
-		_result.x[i] = dftResult[i].x;
-		_result.y[i] = dftResult[i].y;
-	}
-	return fftData;
+	// Plot the dft
+	let result = new Points(maxIndex);
+	fourier.computeNormalizedFft(fftInput, result, _sampleRate, false);
+	return result;
+
 }
 
 /*----------------------------------------------------------------------------------------------
@@ -604,16 +587,25 @@ function computePlotlyFourier(_wave, _result, _sampleRate, _range){
 function modifySampleRate(_wave, _initialSampleRate, _targetSampleRate){
 	// End function if target == initial
 	if(_initialSampleRate == _targetSampleRate){
-		return;
+		return _wave;
 	}
 
 	let factor = _initialSampleRate / _targetSampleRate;
 	let l = _wave.length;
 	let a = l / factor;
-	for(let i = 0; i < a; i++){
-		_wave[i] = _wave[i * factor];
+	let result;
+
+	if(_wave instanceof Int16Array){
+		result = new Int16Array(a);
 	}
-	_wave.splice(l / factor, l * (factor - 1) / factor);
+	else{
+		result = new Float32Array(a);
+	}
+
+	for(let i = 0; i < a; i++){
+		result[i] = _wave[i * factor];
+	}
+	return result;
 }
 /*----------------------------------------------------------------------------------------------
 ---------------------------------POPULATE SAMPLERATE SELECT-------------------------------------
@@ -709,20 +701,22 @@ function populateTabs(){
 /*----------------------------------------------------------------------------------------------
 --------------------------------------STABILIZE FUNCTION----------------------------------------
 ----------------------------------------------------------------------------------------------*/
-function stabilize(_data){
+function stabilize(_points, _length){
 	let maximum = 0;
 	let maximumIndex = 0;
-	for(let i = 0; i < _data.length / 10; i++){
-		if(_data[i].y > maximum){
-			maximum = _data[i].y;
+	for(let i = 0; i < _points.x.length / 10; i++){
+		if(_points.y[i] > maximum){
+			maximum = _points.y[i];
 			maximumIndex = i;
 		}
 	}
 
-	for(let i = 0; i < _data.length - maximumIndex; i++){
-		_data[i + maximumIndex].x = i / rtSampleRate;
-	}
-	_data.splice(0,maximumIndex);
+	let p = new Points(_length);
+
+	p.x.set(_points.x.slice(0, _length));
+	p.y.set(_points.y.slice(maximumIndex, maximumIndex + _length));
+
+	return p;
 }
 
 /*----------------------------------------------------------------------------------------------
@@ -731,7 +725,7 @@ function stabilize(_data){
 function audioPlayback(_data, _sr, _callback){
 	// Prepare the datas if the samplerate is not default
 	if(_sr != baseSampleRate){
-		let factor = baseSampleRate / _sr;
+		let factor = baseSampleRate / _sr; // TODO use the dedicated  function to convert
 		let prepData = [];
 		for(let i = 0; i < _data.y.length; i++){
 			for(let j = i * factor; j < i * factor + factor; j++){
@@ -836,8 +830,6 @@ function onRecSaveButtonClick() {
 
 	// Hides the modebar while the modal is active (plotly bug)
 	hideModeBar();
-
-	// TODO Merge with onRtSaveButtonClick ?
 }
 
 function onValidateSaveButtonClick() {
@@ -851,51 +843,27 @@ function onValidateSaveButtonClick() {
 	}
 
 	if(activeTab == 0){
-		// Convert point format to plotly
-		let tmpx = [];
-		let tmpy = [];
-		let tmpfx = [];
-		let tmpfy = [];
-		for(let i = 0; i < rtWaveData.length; i++){
-			tmpx[i] = rtWaveData[i].x;
-			tmpy[i] = rtWaveData[i].y;
-		}
-		for(let i = 0; i < rtFourierData.length; i++){
-			tmpfx[i] = rtFourierData[i].x;
-			tmpfy[i] = rtFourierData[i].y;
-		}
 		saves.push({
 			name: text,
-			x: tmpx,
-			y: tmpy,
-			fx: tmpfx,
-			fy: tmpfy,
+			points: rtWavePoints,
+			fpoints: rtFourierPoints,
 			recordedSampleRateLvl: baseSampleRate / rtSampleRate,
 			displaySampleRateLvl: baseSampleRate / rtSampleRate,
-			range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]},
-			fourierRange: {xRange: [0, 10000], yRange: [0, 0.5]},
-			fourierPlottingRange: [0, tmpx[tmpx.length - 1]],
+			range: {xRange: [0, rtWavePoints.x[rtWavePoints.x.length - 1]], yRange: [-32768, 32768]},
+			fourierRange: {xRange: [0, 10000], yRange: [0, 32768]},
+			fourierPlottingRange: [0, rtWavePoints.x[rtWavePoints.x.length - 1]],
 		});
 	}
 	else{
-		// save the datas
-		let tmpx = arrayCopy(recWaveData[0].x);
-		let tmpy = arrayCopy(recWaveData[0].y);
-
-		let tmpfx = arrayCopy(recFourierData[0].x);
-		let tmpfy = arrayCopy(recFourierData[0].y);
-		
 		saves.push({
 			name: text,
-			x: tmpx,
-			y: tmpy,
-			fx: tmpfx,
-			fy: tmpfy,
+			points: recWavePoints,
+			fpoints: recFourierPoints,
 			recordedSampleRateLvl: baseSampleRate / recordedSampleRate,
 			displaySampleRateLvl: baseSampleRate / recordedSampleRate,
-			range: {xRange: [0, tmpx[tmpx.length - 1]], yRange: [-1, 1]},
-			fourierRange: {xRange: [0, 10000], yRange: [0, 0.5]},
-			fourierPlottingRange: [0, tmpx[tmpx.length - 1]],
+			range: {xRange: [0, recWavePoints.x[recWavePoints.x.length - 1]], yRange: [-32768, 32768]},
+			fourierRange: {xRange: [0, 10000], yRange: [0, 32768]},
+			fourierPlottingRange: [0, recWavePoints.x[recWavePoints.x.length - 1]],
 		});
 	}
 
@@ -936,10 +904,9 @@ function onFourierReplotButtonClick() {
 	saves[activeTab-2].range.yRange = arrayCopy(savWaveGraph.layout.yaxis.range);
 
 	saves[activeTab-2].fourierPlottingRange = savWaveGraph.layout.xaxis.range;
-	let dftResult = {x:[], y:[]};
-	computePlotlyFourier(savWaveData[0], dftResult, baseSampleRate / saves[activeTab-2].displaySampleRateLvl, saves[activeTab-2].fourierPlottingRange);
-	saves[activeTab-2].fx = dftResult.x;
-	saves[activeTab-2].fy = dftResult.y;
+	let dftResult = computeFourier(savWaveData[0], baseSampleRate / saves[activeTab-2].displaySampleRateLvl, saves[activeTab-2].fourierPlottingRange);
+	saves[activeTab-2].fpoints.x = dftResult.x;
+	saves[activeTab-2].fpoints.y = dftResult.y;
 	saveDraw();
 }
 
