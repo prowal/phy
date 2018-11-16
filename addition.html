@@ -144,15 +144,18 @@ const $ = document.querySelector.bind(document);
 let wave1= {a: 0, f: 0};
 let wave2 = {a: 0, f: 0};
 
-let samplingFrequency = 4096;
-let numSample = 8192;
+const samplingFrequency = 4096;
+const numSample = 8192;
 
 let chart1;
 let chart2;
 
-let data1;
-let data2;
-let dataSum = [];
+//let data1;
+let data1 = new Points(numSample,"float32");
+//let data2;
+let data2 = new Points(numSample,"float32");
+//let dataSum = [];
+let dataSum = new Points(numSample,"float32");
 
 // Create the fft object
 var fft = new Fourier(numSample * 2);
@@ -196,20 +199,19 @@ closeInfoButton.addEventListener("click", onCloseInfoButtonClick);
 /*----------------------------------------------------------------------------------------------
 -------------------------------------GENERATE WAVE FUNCTION-------------------------------------
 ----------------------------------------------------------------------------------------------*/
-function generateWave(_frequency, _amplitude){
-	var wave = [];
+function generateWave(_points, _frequency, _amplitude){
 	for (let i = 0; i < numSample; i++){
-		wave[i] = {x: i / samplingFrequency, y:_amplitude * Math.sin(2*Math.PI * (i / samplingFrequency) * _frequency)};
+		_points.x[i] = i / samplingFrequency;
+		_points.y[i] = _amplitude * Math.sin(2*Math.PI * (i / samplingFrequency) * _frequency);
 	}
-	return wave;
 }
 
 /*----------------------------------------------------------------------------------------------
 -------------------------------------------FFT FUNCTION-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
-function computeFFT(_wave){
-	let spectrum = fft.computeCustomFft(_wave, samplingFrequency, true, 6.2);
-	spectrum.splice(900);
+function computeFFT(_points){
+	let spectrum = new Points(840, "float32");
+	fft.computeNormalizedFft(_points, spectrum, samplingFrequency, false);
 	return spectrum;
 }
 
@@ -354,8 +356,8 @@ window.onload = function() {
 	wave2.a = amplitudeSliderElt2.value;
 	wave2.f = frequencySliderElt2.value;
 
-	data1 = generateWave(wave1.f,wave1.a);
-	data2 = generateWave(wave2.f,wave2.a);	
+	generateWave(data1, wave1.f,wave1.a);
+	generateWave(data2, wave2.f,wave2.a);
 
 	// Create the charts
 	chart1 = new Chart(canvasCtx1, config1);
@@ -367,28 +369,28 @@ window.onload = function() {
 function onAmplitudeSliderChange1() {
 	wave1.a = amplitudeSliderElt1.value;
 	$("#amplitudeValue1").innerHTML = wave1.a;
-	data1 = generateWave(wave1.f,wave1.a);
+	generateWave(data1, wave1.f,wave1.a);
 	draw();
 }
 
 function onfrequencySliderChange1() {
 	wave1.f = frequencySliderElt1.value;
 	$("#frequencyValue1").innerHTML = wave1.f + " Hz";
-	data1 = generateWave(wave1.f,wave1.a);
+	generateWave(data1, wave1.f,wave1.a);
 	draw();
 }
 
 function onAmplitudeSliderChange2() {
 	wave2.a = amplitudeSliderElt2.value;
 	$("#amplitudeValue2").innerHTML = wave2.a;
-	data2 = generateWave(wave2.f,wave2.a);
+	generateWave(data2, wave2.f,wave2.a);
 	draw();
 }
 
 function onfrequencySliderChange2() {
 	wave2.f = frequencySliderElt2.value;
 	$("#frequencyValue2").innerHTML = wave2.f + " Hz";
-	data2 = generateWave(wave2.f,wave2.a);
+	generateWave(data2, wave2.f,wave2.a);
 	draw();
 }
 
@@ -445,7 +447,8 @@ function onCloseInfoButtonClick(){
 function draw() {
 	// Compute the sum and build the FFT's arrays
 	for(let i = 0; i < numSample; i++){
-		dataSum[i] = {x: data1[i].x, y: data1[i].y + data2[i].y};
+		dataSum.x[i] = data1.x[i];
+		dataSum.y[i] = data1.y[i] + data2.y[i];
 	}
 
 	if(fftCheckBoxElt.checked){
@@ -453,15 +456,15 @@ function draw() {
 		let spectrum = computeFFT(dataSum);
 
 		// Update the fft chart
-		chart2.data.datasets[0].data = spectrum;
+		chart2.data.datasets[0].data = spectrum.toGJS();
 		chart2.update();
 	}
 
 	// Update the first chart
 	// Only draw the visible part
-	chart1.data.datasets[0].data = data1.slice(0,0.1 * samplingFrequency);
-	chart1.data.datasets[1].data = data2.slice(0,0.1 * samplingFrequency);
-	chart1.data.datasets[2].data = dataSum.slice(0,0.1 * samplingFrequency);
+	chart1.data.datasets[0].data = data1.toGJS().slice(0,Math.ceil(0.1 * samplingFrequency));
+	chart1.data.datasets[1].data = data2.toGJS().slice(0,Math.ceil(0.1 * samplingFrequency));
+	chart1.data.datasets[2].data = dataSum.toGJS().slice(0,Math.ceil(0.1 * samplingFrequency));
 	chart1.update();
 }
 </script>
