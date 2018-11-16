@@ -454,13 +454,12 @@ function recordDraw() {
 		let graphData = audio.getRecord();
 
 		// Apply chosen sampleRate
-		modifySampleRate(graphData, baseSampleRate, recSampleRate);
-
+		recWavePoints.setY(modifySampleRate(graphData, baseSampleRate, recSampleRate));
+		
 		// Set the new datas
 		for(let i = 0; i < sampleLength * recSampleRate; i++){
 			recWavePoints.x[i] = i / recSampleRate;
 		}
-		recWavePoints.setY(graphData);
 
 		//Draw the wave
 		recWaveData[0].x = recWavePoints.x;
@@ -589,7 +588,7 @@ function modifySampleRate(_wave, _initialSampleRate, _targetSampleRate){
 	if(_initialSampleRate == _targetSampleRate){
 		return _wave;
 	}
-
+	
 	let factor = _initialSampleRate / _targetSampleRate;
 	let l = _wave.length;
 	let a = l / factor;
@@ -601,7 +600,6 @@ function modifySampleRate(_wave, _initialSampleRate, _targetSampleRate){
 	else{
 		result = new Float32Array(a);
 	}
-
 	for(let i = 0; i < a; i++){
 		result[i] = _wave[i * factor];
 	}
@@ -725,7 +723,7 @@ function stabilize(_points, _length){
 function audioPlayback(_data, _sr, _callback){
 	// Prepare the datas if the samplerate is not default
 	if(_sr != baseSampleRate){
-		let factor = baseSampleRate / _sr; // TODO use the dedicated  function to convert
+		let factor = baseSampleRate / _sr; 
 		let prepData = [];
 		for(let i = 0; i < _data.y.length; i++){
 			for(let j = i * factor; j < i * factor + factor; j++){
