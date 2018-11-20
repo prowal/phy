@@ -41,6 +41,8 @@
 	<link rel="stylesheet" href="lib/phy.css">
 
 	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+	<script src="https://cdn.plot.ly/plotly-locale-fr-latest.js"></script>
+	<script>Plotly.setPlotConfig({locale: 'fr-FR'})</script>
 
 	<script src="lib/Chart.min.js"></script>
 
@@ -58,8 +60,8 @@
 </head>
 <body class="w3-light-grey">
 	<!-- Header bar -->
-	<div class="w3-card-4 w3-theme">
-		<div class="w3-bar w3-center">
+	<div class="w3-card-4 w3-white">
+		<div class="w3-bar w3-center w3-theme">
 			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>Analyseur audio</b></span>
 			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle fa-lg"></i></b></button>
 			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><b><i class="fas fa-home fa-lg"></i></b></a>
@@ -123,7 +125,12 @@
 				<header class="w3-container w3-theme">
 					<h3>Acquisition</h3>
 				</header>
-				<div class="w3-container w3-white">
+				<div id="tabBar" class="w3-bar w3-white">
+					<button id ="sampleTabButton" class="w3-half w3-button w3-hover-none phy-tab">Micro</button>
+					<button id ="fileTabButton" class="w3-half w3-button w3-hover-none phy-tab">Fichier</button>
+				</div>
+				<!-- Sample tab -->
+				<div id="sampleTab" class="w3-container w3-white">
 					<label class="w3-opacity phy-menu-label"><b>Durée d'acquisition</b></label>
 					<input type="number" class="w3-input" id="sampleLengthInput" value="0.05" step="0.01" min="0.01" max="30">
 					<label class="w3-opacity phy-menu-label"><b>Fréquence d'échantillonage</b></label>
@@ -136,6 +143,11 @@
 						<div id="recProgressBarLabel" class="w3-display-middle" style="display: none;"><h3 style="margin:8">00:00</h3></div>
 						<div id="recProgressBar" class="w3-theme2 w3-center" style="height:56px; width:20%; margin:0px;"></div>
 					</div>
+				</div>
+				<!-- File tab -->
+				<div id="fileTab" class="w3-container w3-white" style="display:none">
+					TODO
+					<!-- <input type="file" id="myFile">-->
 				</div>
 			</div>
 			<!-- Second element -->
@@ -338,6 +350,14 @@ tabs[0] = $("#rtTab");
 tabs[1] = $("#recTab");
 tabs[2] = $("#savTab");
 
+const sampleTabButton = $("#sampleTabButton");
+const fileTabButton = $("#fileTabButton");
+sampleTabButton.addEventListener("click", function(){onRecTabButtonClick(0)});
+fileTabButton.addEventListener("click", function(){onRecTabButtonClick(1)});
+
+const sampleTab = $("#sampleTab");
+const fileTab = $("#fileTab");
+
 // Get buttons elements
 const pauseButton = $("#pauseButton");
 pauseButton.addEventListener("click", onPauseButtonClick);
@@ -375,20 +395,22 @@ populateSampleRateSelect(rtSampleRateSelect, 1, 2);
 let rtGraphConfig = new GraphJSConfig("", "Temps (s)", "Amplitude", 0, 0.04, -32768, 32768);
 let rtFourierConfig = new GraphJSConfig("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768);
 
-let recGraphConfig = new PlotlyConfig("", "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768);
-let recFourierConfig = new PlotlyConfig("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, "r");
+let recGraphLayout = new PlotlyLayout("", "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768);
+let recFourierLayout = new PlotlyLayout("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, "r");
 
-let savGraphConfig = new PlotlyConfig("", "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768);
-let savFourierConfig = new PlotlyConfig("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, "r");
+let savGraphLayout = new PlotlyLayout("", "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768);
+let savFourierLayout = new PlotlyLayout("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, "r");
+
+let plotlyConfig = {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]};
 
 /*----------------------------------------------------------------------------------------------
 ------------------------Create the rec and sav graphs and link the datas------------------------
 ----------------------------------------------------------------------------------------------*/
-Plotly.react(recWaveGraph, recWaveData, recGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-Plotly.react(recFourierGraph, recFourierData, recFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+Plotly.react(recWaveGraph, recWaveData, recGraphLayout, plotlyConfig);
+Plotly.react(recFourierGraph, recFourierData, recFourierLayout, plotlyConfig);
 
-Plotly.react(savWaveGraph, savWaveData, savGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-Plotly.react(savFourierGraph, savFourierData, savFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+Plotly.react(savWaveGraph, savWaveData, savGraphLayout, plotlyConfig);
+Plotly.react(savFourierGraph, savFourierData, savFourierLayout, plotlyConfig);
 
 /*----------------------------------------------------------------------------------------------
 -----------------------------------------DRAW FUNCTIONS-----------------------------------------
@@ -465,13 +487,13 @@ function recordDraw() {
 		//Draw the wave
 		recWaveData[0].x = recWavePoints.x;
 		recWaveData[0].y = recWavePoints.y;
-		Plotly.react(recWaveGraph, recWaveData, recGraphConfig);
+		Plotly.react(recWaveGraph, recWaveData, recGraphLayout);
 
 		// Compute and plot the dft
 		recFourierPoints = computeFourier(recWaveData[0], recSampleRate);
 		recFourierData[0].x = recFourierPoints.x;
 		recFourierData[0].y = recFourierPoints.y;
-		Plotly.react(recFourierGraph, recFourierData, recFourierConfig);
+		Plotly.react(recFourierGraph, recFourierData, recFourierLayout);
 	}
 }
 
@@ -500,8 +522,8 @@ function saveDraw() {
 	savFourierGraph.layout.yaxis.range = arrayCopy(saves[activeTab-2].fourierRange.yRange);
 
 	// Draw the wave
-	Plotly.react(savWaveGraph, savWaveData, savGraphConfig);
-	Plotly.react(savFourierGraph, savFourierData, savFourierConfig);
+	Plotly.react(savWaveGraph, savWaveData, savGraphLayout);
+	Plotly.react(savFourierGraph, savFourierData, savFourierLayout);
 }
 
 function draw() {
@@ -627,24 +649,26 @@ function populateSampleRateSelect(_select, _initLvl = 1, _l = 4){
 -------------------------------TOGGLE MODEBAR (PLOTLY BUGFIX)-----------------------------------
 ----------------------------------------------------------------------------------------------*/
 function showModeBar(){
+	plotlyConfig.displayModeBar = true;
 	if(activeTab == 1){
-		Plotly.react(recWaveGraph, recWaveData, recGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-		Plotly.react(recFourierGraph, recFourierData, recFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+		Plotly.react(recWaveGraph, recWaveData, recGraphLayout, plotlyConfig);
+		Plotly.react(recFourierGraph, recFourierData, recFourierLayout, plotlyConfig);
 	}
 	if(activeTab > 1){
-		Plotly.react(savWaveGraph, recWaveData, recGraphConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
-		Plotly.react(savFourierGraph, recFourierData, recFourierConfig, {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]});
+		Plotly.react(savWaveGraph, recWaveData, recGraphLayout, plotlyConfig);
+		Plotly.react(savFourierGraph, recFourierData, recFourierLayout, plotlyConfig);
 	}
 	isModeBarDisplayed = true;
 }
 function hideModeBar(){
+	plotlyConfig.displayModeBar = false;
 	if(activeTab == 1){
-		Plotly.react(recWaveGraph, recWaveData, recGraphConfig, {displayModeBar: false});
-		Plotly.react(recFourierGraph, recFourierData, recFourierConfig, {displayModeBar: false});
+		Plotly.react(recWaveGraph, recWaveData, recGraphLayout, plotlyConfig);
+		Plotly.react(recFourierGraph, recFourierData, recFourierLayout, plotlyConfig);
 	}
 	if(activeTab > 1){
-		Plotly.react(savWaveGraph, recWaveData, recGraphConfig, {displayModeBar: false});
-		Plotly.react(savFourierGraph, recFourierData, recFourierConfig, {displayModeBar: false});
+		Plotly.react(savWaveGraph, recWaveData, recGraphLayout, plotlyConfig);
+		Plotly.react(savFourierGraph, recFourierData, recFourierLayout, plotlyConfig);
 	}
 	isModeBarDisplayed = false;
 }
@@ -924,13 +948,13 @@ function onSampleButton() {
 		return;
 	}
 	// Get the sampleLength
-	sampleLength = sampleLengthInput.value;
+	sampleLength = parseFloat(sampleLengthInput.value, 10);
 
 	// Record new datas
 	audio.startRecording(sampleLength);
 
 	// Set graph axes range
-	recGraphConfig.xaxis.range[1] = sampleLength;
+	recGraphLayout.xaxis.range[1] = sampleLength;
 
 	// Save the sampleRate used
 	recordedSampleRate = recSampleRate;
@@ -997,8 +1021,25 @@ function onTabButtonClick(_id) {
 
 	// Draw the graphs if the record tab is active
 	if(activeTab == 1){
-		Plotly.react(recWaveGraph, recWaveData, recGraphConfig);
-		Plotly.react(recFourierGraph, recFourierData, recFourierConfig);
+		Plotly.react(recWaveGraph, recWaveData, recGraphLayout);
+		Plotly.react(recFourierGraph, recFourierData, recFourierLayout);
+	}
+}
+
+function onRecTabButtonClick(_id) {
+	sampleTabButton.classList.remove("phy-tab-active");
+	fileTabButton.classList.remove("phy-tab-active");
+	if(_id == 0){
+		sampleTab.style.display = "block";
+		fileTab.style.display = "none";
+
+		sampleTabButton.classList.add("phy-tab-active");
+	}
+	else{
+		sampleTab.style.display = "none";
+		fileTab.style.display = "block";
+
+		fileTabButton.classList.add("phy-tab-active");
 	}
 }
 
@@ -1055,6 +1096,7 @@ window.onload = function() {
 
 	// Activate a tab
 	onTabButtonClick(0);
+	onRecTabButtonClick(0);
 
 	draw();
 };

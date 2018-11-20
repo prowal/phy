@@ -30,23 +30,25 @@ button:focus {outline:0;}
 /* Custom tabs*/
 .phy-tab{
 	font-weight: bold;
-	opacity:0.80;
+	opacity:0.60;
 	border-bottom: 3px solid rgba(0, 0, 0, 0) !important; /*Transparent border*/
+	/*color:#009688;*/
 	-webkit-transition: .4s;
 	transition: .4s;
 }
 .phy-tab-alt:hover{
 	opacity:1 !important;
-	color: white !important;
+	color: #009688 !important;
 }
 .phy-tab:hover{
 	opacity:1 !important;
-	color: white !important;
+	color: #009688 !important;
 }
 .phy-tab-active{
 	font-weight: bold;
 	opacity:1 !important;
-	border-bottom: 3px solid white !important;
+	color: #009688;
+	border-bottom: 3px solid #009688 !important;
 }
 .phy-tab:hover > .phy-tab-close-button { 
 	opacity:0.8!important;
@@ -56,12 +58,13 @@ button:focus {outline:0;}
 .phy-tab-close-button{
 	padding: 1px;
 	opacity:0;
+	color: #009688;
 	-webkit-transition: .3s;
 	transition: .3s;
 }
 .phy-tab-close-button:hover{
 	opacity:1 !important;
-	color: white !important;
+	color: #3f51b5 !important;
 }
 
 .phy-fadeout {
