@@ -40,7 +40,7 @@
 
 	<link rel="stylesheet" href="lib/phy.css">
 
-	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+	<script src="https://cdn.plot.ly/plotly-1.41.3.min.js"></script>
 	<script src="https://cdn.plot.ly/plotly-locale-fr-latest.js"></script>
 	<script>Plotly.setPlotConfig({locale: 'fr-FR'})</script>
 
@@ -146,8 +146,10 @@
 				</div>
 				<!-- File tab -->
 				<div id="fileTab" class="w3-container w3-white" style="display:none">
-					TODO
-					<!-- <input type="file" id="myFile">-->
+					<input type="file" id="fileInput">
+					<button class="w3-button w3-block w3-theme w3-hover-theme2" id="decodeButton" style="margin-top: 25px; margin-bottom: 15px; padding:0px;">
+						<h3 style="margin:8">Decoder le fichier</h3>
+					</button>
 				</div>
 			</div>
 			<!-- Second element -->
@@ -238,6 +240,20 @@
 			</div>
 		</div>
 	</div>
+	<!-- file modal card -->
+	<div id="fileModal" class="w3-modal">
+		<div class="w3-modal-content w3-animate-top w3-card-4" style="width:400px;">
+			<header class="w3-container w3-theme2">
+				<h2>Fichier trop long</h2>
+			</header>
+			<div style="padding: 10px;">
+				<span class="w3-container w3-cell" style="width:100%; margin: 10px;">
+					Le fichier est trop long, seuls les 20 premières secondes seront utilisées.
+				</span>
+				<span id="validateSaveButton" class="w3-button w3-theme w3-hover-theme2 w3-cell" style="width:50px"><i class="fas fa-check"></i></span>
+			</div>
+		</div>
+	</div>
 
 <script>
 const $ = document.querySelector.bind(document);
@@ -265,6 +281,10 @@ let fourier = new Fourier(rtBasebufferSize);
 
 // Create a PhyAudio object
 let audio = new PhyAudio(rtBasebufferSize);
+
+// Create a FileReader object
+let fileReader = new FileReader();
+fileReader.addEventListener("loadend", onFileReaderLoadEnd);
 
 let activeTab;
 
@@ -327,6 +347,9 @@ sampleLengthInput.addEventListener("keyup", function(event){onSampleLengthInputK
 const saveNameInput = $("#saveNameInput");
 saveNameInput.addEventListener("keyup", function(event){onSaveNameInputKeyup(event)});
 
+const fileInput = $("#fileInput");
+//fileInput.addEventListener("keyup", function(event){onSaveNameInputKeyup(event)}); TODO
+
 const rtSampleRateSelect = $("#rtSampleRateSelect");
 rtSampleRateSelect.addEventListener("change", onRtSampleRateSelectChange);
 
@@ -380,6 +403,9 @@ validateSaveButton.addEventListener("click", onValidateSaveButtonClick);
 const fourierReplotButton = $("#fourierReplotButton");
 fourierReplotButton.addEventListener("click", onFourierReplotButtonClick);
 
+const decodeButton = $("#decodeButton");
+decodeButton.addEventListener("click", onDecodeButtonClick);
+
 const infoButton = $("#infoButton");
 infoButton.addEventListener("click", onInfoButtonClick);
 const closeInfoButton = $("#closeInfoButton");
@@ -396,10 +422,10 @@ let rtGraphConfig = new GraphJSConfig("", "Temps (s)", "Amplitude", 0, 0.04, -32
 let rtFourierConfig = new GraphJSConfig("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768);
 
 let recGraphLayout = new PlotlyLayout("", "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768);
-let recFourierLayout = new PlotlyLayout("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, "r");
+let recFourierLayout = new PlotlyLayout("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, "r", ".2f");
 
 let savGraphLayout = new PlotlyLayout("", "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768);
-let savFourierLayout = new PlotlyLayout("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, "r");
+let savFourierLayout = new PlotlyLayout("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, "r", ".2f");
 
 let plotlyConfig = {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]};
 
@@ -462,7 +488,6 @@ function recordDraw() {
 	if(audio.isDataAvailable() == true){
 		// Display the save and playback buttons
 		recSampleContainer.style.display = "block";
-		recSaveButton.style.display ="block";
 		// Hide the progress bar
 		recProgressBarContainer.style.display = "none";
 		recProgressBarLabel.style.display = "none";
@@ -563,6 +588,7 @@ function arrayOfPointsCopy(_array, _length = _array.length){
 function PlotlyData(_name) {
 	this.x = [];
 	this.y = [];
+	this.type = "scattergl";
 	this.mode = "line";
 	this.name = _name;
 	this.line = {
@@ -878,6 +904,7 @@ function onValidateSaveButtonClick() {
 		});
 	}
 	else{
+		debugger;
 		saves.push({
 			name: text,
 			points: recWavePoints,
@@ -930,7 +957,64 @@ function onFourierReplotButtonClick() {
 	let dftResult = computeFourier(savWaveData[0], baseSampleRate / saves[activeTab-2].displaySampleRateLvl, saves[activeTab-2].fourierPlottingRange);
 	saves[activeTab-2].fpoints.x = dftResult.x;
 	saves[activeTab-2].fpoints.y = dftResult.y;
-	saveDraw();
+	//saveDraw(); TODO TEST
+	savFourierData[0].x = saves[activeTab-2].fpoints.x.slice();
+	savFourierData[0].y = saves[activeTab-2].fpoints.y.slice();
+	Plotly.react(savFourierGraph, savFourierData, savFourierLayout);
+}
+
+function onDecodeButtonClick() {
+	// TODO
+	// Hide the playback controls
+	recSampleContainer.style.display = "none";
+	fileReader.readAsArrayBuffer(fileInput.files[0]);
+	// TODO afficher "decodage..."
+}
+
+function onFileReaderLoadEnd(){
+	audio.decode(fileReader.result, onAudioDecodeEnd);
+}
+
+function onAudioDecodeEnd(_data){
+	// TODO supprimer "decodage..."
+	// Discard old datas
+	if(_data.duration > 20){
+		// modal ???
+		recWavePoints = new Points(20 * baseSampleRate);
+	}
+	else{
+		recWavePoints = new Points(_data.length);
+	}
+
+	// Display the save and playback buttons
+	recSampleContainer.style.display = "block";
+	// Display the sample length
+	recSampleLengthLabel.innerHTML = formatDate(recWavePoints.x.length / baseSampleRate * 1000);
+
+	// Apply chosen sampleRate
+	recWavePoints.setY(modifySampleRate(convertFloat32ToInt16(_data.getChannelData(0), recWavePoints.y.length), baseSampleRate, baseSampleRate)); // TODO choose channel and change sr
+
+	// Set the new datas
+		for(let i = 0; i < recWavePoints.x.length; i++){
+		recWavePoints.x[i] = i / baseSampleRate;
+	}
+
+	// Set graph axes range
+	recGraphLayout.xaxis.range[1] = recWavePoints.x.length / baseSampleRate;
+
+	// Save the sampleRate used DUMMY
+	recordedSampleRate = baseSampleRate;
+
+	//Draw the wave
+	recWaveData[0].x = recWavePoints.x;
+	recWaveData[0].y = recWavePoints.y;
+	Plotly.react(recWaveGraph, recWaveData, recGraphLayout);
+
+	// Compute and plot the dft
+	recFourierPoints = computeFourier(recWaveData[0], recSampleRate);
+	recFourierData[0].x = recFourierPoints.x;
+	recFourierData[0].y = recFourierPoints.y;
+	Plotly.react(recFourierGraph, recFourierData, recFourierLayout);
 }
 
 function onSampleButton() {
