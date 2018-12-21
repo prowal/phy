@@ -146,8 +146,15 @@
 				</div>
 				<!-- File tab -->
 				<div id="fileTab" class="w3-container w3-white" style="display:none">
-					<input type="file" id="fileInput">
-					<button class="w3-button w3-block w3-theme w3-hover-theme2" id="decodeButton" style="margin-top: 25px; margin-bottom: 15px; padding:0px;">
+					<input type="file" id="fileInput" class="inputfile">
+					<label class="w3-button w3-block w3-theme w3-hover-theme2 phy-menu-label" id="inputFileButton" for="fileInput" style="margin-bottom: 15px; padding:0px;">
+						<h3 style="margin:8"><i class="fas fa-file-upload"></i> Choisir un fichier</h3>
+					</label>
+					<div class="w3-border phy-menu-label" id="fileInputResult" style="display:none;">
+						<div class="w3-container" style="width: 80%"><p id="fileInputLabel">FICHIER</p></div>
+						<button class="w3-theme w3-button" id="fileInputResultDiscardButton" style="flex: 1; padding:0px;"><i class="fas fa-times"></i></button>
+					</div>
+					<button class="w3-button w3-block w3-theme w3-hover-theme2 phy-menu-label" id="decodeButton" style="margin-bottom: 15px; padding:0px; display: none;">
 						<h3 style="margin:8">Decoder le fichier</h3>
 					</button>
 				</div>
@@ -348,7 +355,10 @@ const saveNameInput = $("#saveNameInput");
 saveNameInput.addEventListener("keyup", function(event){onSaveNameInputKeyup(event)});
 
 const fileInput = $("#fileInput");
-//fileInput.addEventListener("keyup", function(event){onSaveNameInputKeyup(event)}); TODO
+fileInput.addEventListener("change", function(event){onFileInputChange(event)});
+
+const fileInputResultDiscardButton = $("#fileInputResultDiscardButton");
+fileInputResultDiscardButton.addEventListener("click", onFileInputResultDiscardButtonClick);
 
 const rtSampleRateSelect = $("#rtSampleRateSelect");
 rtSampleRateSelect.addEventListener("change", onRtSampleRateSelectChange);
@@ -904,7 +914,6 @@ function onValidateSaveButtonClick() {
 		});
 	}
 	else{
-		debugger;
 		saves.push({
 			name: text,
 			points: recWavePoints,
@@ -938,6 +947,16 @@ function onSaveNameInputKeyup(event){
   }
 }
 
+function onFileInputChange(event){
+	fileReader.readAsArrayBuffer(fileInput.files[0]);
+}
+function onFileInputResultDiscardButtonClick(event){
+	fileInput.value = "";
+	$("#inputFileButton").style.display="block";
+	$("#fileInputResult").style.display="none";
+	decodeButton.style.display="none";
+}
+
 function onSampleLengthInputKeyup(event){
 	// Cancel the default action, if needed
 	event.preventDefault();
@@ -967,12 +986,14 @@ function onDecodeButtonClick() {
 	// TODO
 	// Hide the playback controls
 	recSampleContainer.style.display = "none";
-	fileReader.readAsArrayBuffer(fileInput.files[0]);
+	audio.decode(fileReader.result, onAudioDecodeEnd);
 	// TODO afficher "decodage..."
 }
 
 function onFileReaderLoadEnd(){
-	audio.decode(fileReader.result, onAudioDecodeEnd);
+	$("#inputFileButton").style.display="none";
+	$("#fileInputResult").style.display="flex";
+	decodeButton.style.display="block";
 }
 
 function onAudioDecodeEnd(_data){
@@ -1105,6 +1126,8 @@ function onTabButtonClick(_id) {
 
 	// Draw the graphs if the record tab is active
 	if(activeTab == 1){
+		recGraphLayout.datarevision++;
+		recFourierLayout.datarevision++;
 		Plotly.react(recWaveGraph, recWaveData, recGraphLayout);
 		Plotly.react(recFourierGraph, recFourierData, recFourierLayout);
 	}
@@ -1171,6 +1194,9 @@ function onCloseInfoButtonClick(){
 }
 
 window.onload = function() {
+	// Init the file inputs logic
+	initFileInputs();
+
 	// Create the rt graph and link the datas
 	rtWaveChart = new Chart(rtWaveCanvasCtx, rtGraphConfig);
 	rtFourierChart = new Chart(rtFourierCanvasCtx, rtFourierConfig);
