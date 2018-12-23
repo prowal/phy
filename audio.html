@@ -157,9 +157,6 @@
 						<div class="w3-container" style="width: 80%"><p id="fileInputLabel">FICHIER</p></div>
 						<button class="w3-theme w3-button" id="fileInputResultDiscardButton" style="flex: 1; padding:0px;"><i class="fas fa-times"></i></button>
 					</div>
-					<button class="w3-button w3-block w3-theme w3-hover-theme2 phy-menu-label" id="decodeButton" style="margin-bottom: 15px; padding:0px; display: none;">
-						<h3 style="margin:8">Decoder le fichier</h3>
-					</button>
 				</div>
 			</div>
 			<!-- Second element -->
@@ -415,9 +412,6 @@ validateSaveButton.addEventListener("click", onValidateSaveButtonClick);
 
 const fourierReplotButton = $("#fourierReplotButton");
 fourierReplotButton.addEventListener("click", onFourierReplotButtonClick);
-
-const decodeButton = $("#decodeButton");
-decodeButton.addEventListener("click", onDecodeButtonClick);
 
 const infoButton = $("#infoButton");
 infoButton.addEventListener("click", onInfoButtonClick);
@@ -1137,8 +1131,8 @@ function onCloseInfoButtonClick(){
 -------------------------------------FILE LOADING FUNCTIONS-------------------------------------
 ----------------------------------------------------------------------------------------------*/
 function onFileInputChange(event){
+	// Read the file
 	fileReader.readAsArrayBuffer(fileInput.files[0]);
-	// TODO
 	// Hide the playback controls
 	recSampleContainer.style.display = "none";
 	// Hide the fileInput button
@@ -1154,17 +1148,12 @@ function onFileInputResultDiscardButtonClick(event){
 	decodeButton.style.display="none";
 }
 
-function onDecodeButtonClick() {
-
-}
-
 function onFileReaderLoadEnd(){
+	// Decode the audio in the file
 	audio.decode(fileReader.result, onAudioDecodeEnd);
-	// TODO afficher "decodage..."
 }
 
 function onAudioDecodeEnd(_data){
-	// TODO supprimer "decodage..."
 	$("#inputFileDecodingLabel").style.display="none";
 	$("#fileInputResult").style.display="flex";
 
