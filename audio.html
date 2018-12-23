@@ -685,7 +685,7 @@ function populateSampleRateSelect(_select, _initLvl = 1, _l = 4){
 /*----------------------------------------------------------------------------------------------
 -------------------------------TOGGLE MODEBAR (PLOTLY BUGFIX)-----------------------------------
 ----------------------------------------------------------------------------------------------*/
-function showModeBar(){
+/*function showModeBar(){
 	plotlyConfig.displayModeBar = true;
 	if(activeTab == 1){
 		Plotly.react(recWaveGraph, recWaveData, recGraphLayout, plotlyConfig);
@@ -708,7 +708,7 @@ function hideModeBar(){
 		Plotly.react(savFourierGraph, recFourierData, recFourierLayout, plotlyConfig);
 	}
 	isModeBarDisplayed = false;
-}
+}*/
 
 /*----------------------------------------------------------------------------------------------
 ------------------------------------POPULATE TABS FUNCTION--------------------------------------
@@ -889,7 +889,7 @@ function onRecSaveButtonClick() {
 	saveNameInput.focus();
 
 	// Hides the modebar while the modal is active (plotly bug)
-	hideModeBar();
+	//hideModeBar();
 }
 
 function onValidateSaveButtonClick() {
@@ -935,7 +935,7 @@ function onValidateSaveButtonClick() {
 	$("#saveModal").style.display="none";
 
 	// Show the modebar again (plotly bug)
-	showModeBar();
+	//showModeBar();
 }
 
 function onSaveNameInputKeyup(event){
@@ -1118,14 +1118,14 @@ function onInfoButtonClick() {
 	$("#infoModal").style.display="block";
 
 	// Hides the modebar while the modal is active (plotly bug)
-	hideModeBar();
+	//hideModeBar();
 }
 
 function onCloseInfoButtonClick(){
 	$("#infoModal").style.display="none";
 
 	// Show the modebar (plotly bug)
-	showModeBar();
+	//showModeBar();
 }
 /*----------------------------------------------------------------------------------------------
 -------------------------------------FILE LOADING FUNCTIONS-------------------------------------
