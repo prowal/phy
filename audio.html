@@ -146,11 +146,14 @@
 				</div>
 				<!-- File tab -->
 				<div id="fileTab" class="w3-container w3-white" style="display:none">
-					<input type="file" id="fileInput" class="inputfile">
+					<input type="file" accept="audio/*" id="fileInput" class="inputfile">
 					<label class="w3-button w3-block w3-theme w3-hover-theme2 phy-menu-label" id="inputFileButton" for="fileInput" style="margin-bottom: 15px; padding:0px;">
 						<h3 style="margin:8"><i class="fas fa-file-upload"></i> Choisir un fichier</h3>
 					</label>
-					<div class="w3-border phy-menu-label" id="fileInputResult" style="display:none;">
+					<label class="w3-container w3-block w3-center w3-theme phy-menu-label" id="inputFileDecodingLabel" style="display:none; margin-bottom: 15px; padding:0px;">
+						<h3 style="margin:8"><i class="fas fa-spinner fa-spin"></i> Chargement ...</h3>
+					</label>
+					<div class="w3-border phy-menu-label" id="fileInputResult" style="display:none; margin-bottom: 15px;">
 						<div class="w3-container" style="width: 80%"><p id="fileInputLabel">FICHIER</p></div>
 						<button class="w3-theme w3-button" id="fileInputResultDiscardButton" style="flex: 1; padding:0px;"><i class="fas fa-times"></i></button>
 					</div>
@@ -563,6 +566,10 @@ function saveDraw() {
 
 function draw() {
 	requestAnimationFrame(draw);
+
+	// resume the audio context if it is suspended
+	audio.resumeContext();
+
 	switch(activeTab){
 	case 0:
 		realtimeDraw();
@@ -947,16 +954,6 @@ function onSaveNameInputKeyup(event){
   }
 }
 
-function onFileInputChange(event){
-	fileReader.readAsArrayBuffer(fileInput.files[0]);
-}
-function onFileInputResultDiscardButtonClick(event){
-	fileInput.value = "";
-	$("#inputFileButton").style.display="block";
-	$("#fileInputResult").style.display="none";
-	decodeButton.style.display="none";
-}
-
 function onSampleLengthInputKeyup(event){
 	// Cancel the default action, if needed
 	event.preventDefault();
@@ -980,62 +977,6 @@ function onFourierReplotButtonClick() {
 	savFourierData[0].x = saves[activeTab-2].fpoints.x.slice();
 	savFourierData[0].y = saves[activeTab-2].fpoints.y.slice();
 	Plotly.react(savFourierGraph, savFourierData, savFourierLayout);
-}
-
-function onDecodeButtonClick() {
-	// TODO
-	// Hide the playback controls
-	recSampleContainer.style.display = "none";
-	audio.decode(fileReader.result, onAudioDecodeEnd);
-	// TODO afficher "decodage..."
-}
-
-function onFileReaderLoadEnd(){
-	$("#inputFileButton").style.display="none";
-	$("#fileInputResult").style.display="flex";
-	decodeButton.style.display="block";
-}
-
-function onAudioDecodeEnd(_data){
-	// TODO supprimer "decodage..."
-	// Discard old datas
-	if(_data.duration > 20){
-		// modal ???
-		recWavePoints = new Points(20 * baseSampleRate);
-	}
-	else{
-		recWavePoints = new Points(_data.length);
-	}
-
-	// Display the save and playback buttons
-	recSampleContainer.style.display = "block";
-	// Display the sample length
-	recSampleLengthLabel.innerHTML = formatDate(recWavePoints.x.length / baseSampleRate * 1000);
-
-	// Apply chosen sampleRate
-	recWavePoints.setY(modifySampleRate(convertFloat32ToInt16(_data.getChannelData(0), recWavePoints.y.length), baseSampleRate, baseSampleRate)); // TODO choose channel and change sr
-
-	// Set the new datas
-		for(let i = 0; i < recWavePoints.x.length; i++){
-		recWavePoints.x[i] = i / baseSampleRate;
-	}
-
-	// Set graph axes range
-	recGraphLayout.xaxis.range[1] = recWavePoints.x.length / baseSampleRate;
-
-	// Save the sampleRate used DUMMY
-	recordedSampleRate = baseSampleRate;
-
-	//Draw the wave
-	recWaveData[0].x = recWavePoints.x;
-	recWaveData[0].y = recWavePoints.y;
-	Plotly.react(recWaveGraph, recWaveData, recGraphLayout);
-
-	// Compute and plot the dft
-	recFourierPoints = computeFourier(recWaveData[0], recSampleRate);
-	recFourierData[0].x = recFourierPoints.x;
-	recFourierData[0].y = recFourierPoints.y;
-	Plotly.react(recFourierGraph, recFourierData, recFourierLayout);
 }
 
 function onSampleButton() {
@@ -1192,6 +1133,84 @@ function onCloseInfoButtonClick(){
 	// Show the modebar (plotly bug)
 	showModeBar();
 }
+/*----------------------------------------------------------------------------------------------
+-------------------------------------FILE LOADING FUNCTIONS-------------------------------------
+----------------------------------------------------------------------------------------------*/
+function onFileInputChange(event){
+	fileReader.readAsArrayBuffer(fileInput.files[0]);
+	// TODO
+	// Hide the playback controls
+	recSampleContainer.style.display = "none";
+	// Hide the fileInput button
+	$("#inputFileButton").style.display="none";
+	// Display the decoding label
+	$("#inputFileDecodingLabel").style.display="block";
+}
+
+function onFileInputResultDiscardButtonClick(event){
+	fileInput.value = "";
+	$("#inputFileButton").style.display="block";
+	$("#fileInputResult").style.display="none";
+	decodeButton.style.display="none";
+}
+
+function onDecodeButtonClick() {
+
+}
+
+function onFileReaderLoadEnd(){
+	audio.decode(fileReader.result, onAudioDecodeEnd);
+	// TODO afficher "decodage..."
+}
+
+function onAudioDecodeEnd(_data){
+	// TODO supprimer "decodage..."
+	$("#inputFileDecodingLabel").style.display="none";
+	$("#fileInputResult").style.display="flex";
+
+	// Discard old datas
+	if(_data.duration > 20){
+		// modal ???
+		recWavePoints = new Points(20 * baseSampleRate);
+	}
+	else{
+		recWavePoints = new Points(_data.length);
+	}
+
+	// Display the save and playback buttons
+	recSampleContainer.style.display = "block";
+	// Display the sample length
+	recSampleLengthLabel.innerHTML = formatDate(recWavePoints.x.length / baseSampleRate * 1000);
+
+	// Apply chosen sampleRate
+	recWavePoints.setY(modifySampleRate(convertFloat32ToInt16(_data.getChannelData(0), recWavePoints.y.length), baseSampleRate, baseSampleRate)); // TODO choose channel and change sr
+
+	// Set the new datas
+		for(let i = 0; i < recWavePoints.x.length; i++){
+		recWavePoints.x[i] = i / baseSampleRate;
+	}
+
+	// Set graph axes range
+	recGraphLayout.xaxis.range[1] = recWavePoints.x.length / baseSampleRate;
+
+	// Save the sampleRate used DUMMY
+	recordedSampleRate = baseSampleRate;
+
+	//Draw the wave
+	recWaveData[0].x = recWavePoints.x;
+	recWaveData[0].y = recWavePoints.y;
+	Plotly.react(recWaveGraph, recWaveData, recGraphLayout);
+
+	// Compute and plot the dft
+	recFourierPoints = computeFourier(recWaveData[0], recSampleRate);
+	recFourierData[0].x = recFourierPoints.x;
+	recFourierData[0].y = recFourierPoints.y;
+	Plotly.react(recFourierGraph, recFourierData, recFourierLayout);
+}
+
+/*----------------------------------------------------------------------------------------------
+-----------------------------------------WINDOWS.ONLOAD-----------------------------------------
+----------------------------------------------------------------------------------------------*/
 
 window.onload = function() {
 	// Init the file inputs logic
