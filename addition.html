@@ -53,8 +53,8 @@
 	<div class="header w3-theme">
 		<div class="w3-bar w3-card-4 w3-center">
 			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>Addition d'onde et analyse spectrale</b></span>
-			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle fa-lg"></i></b></button>
-			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><b><i class="fas fa-home fa-lg"></i></b></a>
+			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><i class="fas fa-info-circle fa-lg"></i></button>
+			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><i class="fas fa-home fa-lg"></i></a>
 		</div> 
 	</div>
 	<div class="w3-row">
@@ -70,13 +70,17 @@
 							</label>
 						</h3>
 					</header>
-					<div class="w3-container">
-						<p class="">Fréquence :</p>
-						<input class="range-slider_range" id="frequencySlider1" type="range" value="50" min="20" max="200">
-						<span class="range-slider_value" id="frequencyValue1">50 Hz</span>
-						<p>Amplitude :</p>
-						<input class="range-slider_range" id="amplitudeSlider1" type="range" value="20" min="0" max="20">
-						<span class="range-slider_value" id="amplitudeValue1">20</span>
+					<div>
+						<div class="w3-panel">
+							<label class="phy-menu-label">Fréquence :</label>
+							<input class="range-slider_range" id="frequencySlider1" type="range" value="50" min="20" max="200">
+							<span class="range-slider_value" id="frequencyValue1">50 Hz</span>
+						</div>
+						<div class="w3-panel">
+							<label class="phy-menu-label">Amplitude :</label>
+							<input class="range-slider_range" id="amplitudeSlider1" type="range" value="20" min="0" max="20">
+							<span class="range-slider_value" id="amplitudeValue1">20</span>
+						</div>
 					</div>
 				</div>
 				<!-- Middle-right card -->
@@ -90,13 +94,17 @@
 							</label>
 						</h3>
 					</header>
-					<div class="w3-container">
-						<p>Fréquence :</p>
-						<input class="range-slider_range" id="frequencySlider2" type="range" value="100" min="20" max="200">
-						<span class="range-slider_value" id="frequencyValue2">100 Hz</span>
-						<p>Amplitude :</p>
-						<input class="range-slider_range" id="amplitudeSlider2" type="range" value="10" min="0" max="20">
-						<span class="range-slider_value" id="amplitudeValue2">10</span>
+					<div>
+						<div class="w3-panel">
+							<label class="phy-menu-label">Fréquence :</label>
+							<input class="range-slider_range" id="frequencySlider2" type="range" value="100" min="20" max="200">
+							<span class="range-slider_value" id="frequencyValue2">100 Hz</span>
+						</div>
+						<div class="w3-panel">
+							<label class="phy-menu-label">Amplitude :</label>
+							<input class="range-slider_range" id="amplitudeSlider2" type="range" value="10" min="0" max="20">
+							<span class="range-slider_value" id="amplitudeValue2">10</span>
+						</div>
 					</div>
 				</div>
 				<!-- Bottom-right card -->
