@@ -85,8 +85,8 @@ button:focus {outline:0;}
 
 /* Custom menu items*/
 .phy-menu-label{
-	margin-top: 20px;
-	display:inline-block;
+	font-weight: bold;
+	opacity:0.60;
 }
 
 .phy-no-bmargin{
@@ -288,4 +288,16 @@ input:checked + .toggleSlider:before {
 /* remove border */
 	input::-moz-focus-inner, input::-moz-focus-outer {
 	border: 0;
+}
+
+/*----------------------------------------------------------------------------------------------
+-------------------------------------------INPUT FILE-------------------------------------------
+----------------------------------------------------------------------------------------------*/
+.inputfile {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
 }

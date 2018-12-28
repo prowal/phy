@@ -40,8 +40,8 @@
 
 	<link rel="stylesheet" href="lib/phy.css">
 
-	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-	<script src="https://cdn.plot.ly/plotly-locale-fr-latest.js"></script>
+	<script src="lib/plotly/plotly.min.js"></script>
+	<script src="lib/plotly/plotly-locale-fr.js"></script>
 	<script>Plotly.setPlotConfig({locale: 'fr-FR'})</script>
 
 	<script src="lib/Chart.min.js"></script>
@@ -63,12 +63,12 @@
 	<div class="w3-card-4 w3-white">
 		<div class="w3-bar w3-center w3-theme">
 			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>Analyseur audio</b></span>
-			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle fa-lg"></i></b></button>
-			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><b><i class="fas fa-home fa-lg"></i></b></a>
+			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><i class="fas fa-info-circle fa-lg"></i></button>
+			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><i class="fas fa-home fa-lg"></i></a>
 		</div>
 		<div id="tabBar" class="w3-bar">
 			<button id ="rtTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">TEMPS REEL</button>
-			<button id ="recTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">ENREGISTRER</button>
+			<button id ="recTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">ACQUISITION</button>
 			<span class="w3-bar-item w3-opacity"><i class="fas fa-minus fa-rotate-90"></i></span>
 		</div>
 	</div>
@@ -83,19 +83,22 @@
 				<header class="w3-container w3-theme">
 					<h3>Paramètres</h3>
 				</header>
-				<div class="w3-container w3-white">
-					<label class="w3-opacity phy-menu-label"><b>Amplification :</b></label>
-					<input class="range-slider_range" id="rtAmplificationSlider" type="range" value="10" min="0" max="20">
-					<span class="range-slider_value" id="rtAmplificationValue">x 1</span>
-					<label class="w3-opacity phy-menu-label"><b>Fréquence d'échantillonage</b></label>
-					<select id="rtSampleRateSelect" class="w3-select">
-					</select> 
+				<div class="w3-white" style="overflow:hidden">
+					<div class="w3-panel">
+						<label class="phy-menu-label">Amplification :</label>
+						<input class="range-slider_range" id="rtAmplificationSlider" type="range" value="10" min="0" max="20">
+						<span class="range-slider_value" id="rtAmplificationValue">x 1</span>
+					</div>
+					<div class="w3-panel">
+						<label class="phy-menu-label">Fréquence d'échantillonage</label>
+						<select id="rtSampleRateSelect" class="w3-select"></select> 
+					</div>
 				</div>
 			</div>
 			<!-- Second element -->
 			<div class="w3-card-4 phy-menu-element w3-white" >
-				<button class="w3-button w3-block w3-hover-red" id="pauseButton"><h3 style="margin:0"><i class="fas fa-pause"></i> Pause</h3></button>
-				<button class="w3-button w3-block" id="rtSaveButton" style="display:none"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
+				<button class="w3-button w3-block w3-xlarge w3-hover-red" id="pauseButton"><i class="fas fa-pause"></i> Pause</button>
+				<button class="w3-button w3-block w3-xlarge" id="rtSaveButton" style="display:none"><i class="fas fa-save"></i> Sauvegarder</button>
 			</div>
 		</div>
 		<!-- First column -->
@@ -130,24 +133,40 @@
 					<button id ="fileTabButton" class="w3-half w3-button w3-hover-none phy-tab">Fichier</button>
 				</div>
 				<!-- Sample tab -->
-				<div id="sampleTab" class="w3-container w3-white">
-					<label class="w3-opacity phy-menu-label"><b>Durée d'acquisition</b></label>
-					<input type="number" class="w3-input" id="sampleLengthInput" value="0.05" step="0.01" min="0.01" max="30">
-					<label class="w3-opacity phy-menu-label"><b>Fréquence d'échantillonage</b></label>
-					<select id="recSampleRateSelect" class="w3-select">
-					</select> 
-					<button class="w3-button w3-block w3-theme w3-hover-theme2" id="sampleButton" style="margin-top: 25px; margin-bottom: 15px; padding:0px;">
-						<h3 style="margin:8"><i class="fas fa-microphone"></i> Acquisition</h3>
-					</button>
-					<div id="recProgressBarContainer" class="w3-display-container w3-theme" id="sampleButton" style="display: none; margin-top: 25px; margin-bottom: 15px; padding:0px;">
-						<div id="recProgressBarLabel" class="w3-display-middle" style="display: none;"><h3 style="margin:8">00:00</h3></div>
-						<div id="recProgressBar" class="w3-theme2 w3-center" style="height:56px; width:20%; margin:0px;"></div>
+				<div id="sampleTab" class="w3-white" style="overflow:hidden">
+					<div class="w3-panel">
+						<label class="phy-menu-label">Durée d'acquisition</label>
+						<input type="number" class="w3-input" id="sampleLengthInput" value="0.05" step="0.01" min="0.01" max="30">
+					</div>
+					<div class="w3-panel">
+						<label class="phy-menu-label">Fréquence d'échantillonage</label>
+						<select id="recSampleRateSelect" class="w3-select"></select>
+					</div>
+					<div class="w3-panel">
+						<button class="w3-button w3-block w3-xlarge w3-theme w3-hover-theme2" id="sampleButton" >
+							<i class="fas fa-microphone"></i> Acquisition
+						</button>
+						<div id="recProgressBarContainer" class="w3-display-container w3-theme" id="sampleButton" style="display: none;">
+							<div id="recProgressBarLabel" class="w3-display-middle w3-xlarge" style="display: none;">00:00</div>
+							<div id="recProgressBar" class="w3-theme2 w3-center" style="height:52px;"></div>
+						</div>
 					</div>
 				</div>
 				<!-- File tab -->
-				<div id="fileTab" class="w3-container w3-white" style="display:none">
-					TODO
-					<!-- <input type="file" id="myFile">-->
+				<div id="fileTab" class="w3-white" style="overflow:hidden">
+					<div class="w3-panel">
+						<input type="file" accept="audio/*" id="fileInput" class="inputfile">
+						<label class="w3-button w3-block w3-xlarge w3-theme w3-hover-theme2 " id="inputFileButton" for="fileInput" >
+							<i class="fas fa-file-upload"></i> Parcourir ...
+						</label>
+						<label class="w3-container w3-padding w3-block w3-xlarge w3-center w3-theme " id="inputFileDecodingLabel" style="display:none;">
+							<i class="fas fa-spinner fa-spin"></i> Chargement ...
+						</label>
+						<div class="w3-border" id="fileInputResult" style="display:none;">
+							<div class="w3-container" style="width: 80%"><p id="fileInputLabel">FICHIER</p></div>
+							<button class="w3-theme w3-button" id="fileInputResultDiscardButton" style="flex: 1; padding:0px;"><i class="fas fa-times"></i></button>
+						</div>
+					</div>
 				</div>
 			</div>
 			<!-- Second element -->
@@ -156,10 +175,8 @@
 					<h3 class="w3-bar-item" style="padding: 0px;">Enregistrement </h3>
 					<h3 id="recSampleLengthLabel" class="w3-bar-item w3-right" style="padding: 0px;"></h3>
 				</header>
-				<div class="w3-container w3-white">
-				</div>
-				<button class="w3-button w3-block" id="recPlayButton" ></button>
-				<button class="w3-button w3-block" id="recSaveButton" style="margin-bottom: 15px;"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
+				<button class="w3-button w3-block w3-xlarge" id="recPlayButton" ></button>
+				<button class="w3-button w3-block w3-xlarge" id="recSaveButton"><i class="fas fa-save"></i> Sauvegarder</button>
 			</div>
 		</div>
 		<!-- First column -->
@@ -185,10 +202,11 @@
 				<header class="w3-container w3-theme">
 					<h3>Traitement</h3>
 				</header>
-				<div class="w3-container w3-white">
-					<label class="w3-opacity phy-menu-label"><b>Fréquence d'échantillonage</b></label>
-					<select id="savSampleRateSelect" class="w3-select">
-					</select> 
+				<div class="w3-white" style="overflow:hidden">
+					<div class="w3-panel">
+						<label class="phy-menu-label">Fréquence d'échantillonage</label>
+						<select id="savSampleRateSelect" class="w3-select"></select> 
+					</div>
 				</div>
 			</div>
 			<!-- Second element -->
@@ -196,7 +214,7 @@
 				<header class="w3-container w3-theme">
 					<h3>Analyse spectrale</h3>
 				</header>
-				<button class="w3-button w3-block" id="fourierReplotButton"><h3 style="margin:0"><i class="fas fa-calculator"></i> Recalculer</h3></button>
+				<button class="w3-button w3-block w3-xlarge" id="fourierReplotButton"><i class="fas fa-calculator"></i> Recalculer</button>
 			</div>
 			<!-- Third element -->
 			<div class="w3-card-4 phy-menu-element w3-white">
@@ -204,7 +222,7 @@
 					<h3 class="w3-bar-item" style="padding: 0px;">Enregistrement </h3>
 					<h3 id="savSampleLengthLabel" class="w3-bar-item w3-right" style="padding: 0px;"></h3>
 				</header>
-				<button class="w3-button w3-block" id="savPlayButton"></button>
+				<button class="w3-button w3-block w3-xlarge" id="savPlayButton"></button>
 			</div>
 		</div>
 		<!-- First column -->
@@ -230,11 +248,25 @@
 			<header class="w3-container w3-theme2">
 				<h2>Sauvegarder</h2>
 			</header>
-			<div style="padding: 10px;">
-				<span class="w3-container w3-cell" style="width:100%; margin: 10px;">
-					<input type="text" class="w3-input w3-border-0" id="saveNameInput" placeholder="Nom de la sauvegarde">
+			<div class="w3-padding">
+				<span class="w3-container w3-cell" style="width:100%;">
+					<input type="text" class="w3-input" id="saveNameInput" placeholder="Nom de la sauvegarde">
 				</span>
-				<span id="validateSaveButton" class="w3-button w3-theme w3-hover-theme2 w3-cell" style="width:50px"><i class="fas fa-check"></i></span>
+				<span id="validateSaveButton" class="w3-button w3-theme w3-hover-theme2 w3-cell"><i class="fas fa-check"></i></span>
+			</div>
+		</div>
+	</div>
+	<!-- file modal card -->
+	<div id="fileModal" class="w3-modal">
+		<div class="w3-modal-content w3-animate-top w3-card-4" style="width:400px;">
+			<header class="w3-container w3-theme2">
+				<h2>Fichier trop long</h2>
+			</header>
+			<div class="w3-padding">
+				<span class="w3-container w3-cell" style="width:100%;">
+					Le fichier est trop long, seules les 20 premières secondes ont été chargées.
+				</span>
+				<span id="validateFileButton" class="w3-button w3-theme w3-hover-theme2 w3-cell"><i class="fas fa-check"></i></span>
 			</div>
 		</div>
 	</div>
@@ -265,6 +297,10 @@ let fourier = new Fourier(rtBasebufferSize);
 
 // Create a PhyAudio object
 let audio = new PhyAudio(rtBasebufferSize);
+
+// Create a FileReader object
+let fileReader = new FileReader();
+fileReader.addEventListener("loadend", onFileReaderLoadEnd);
 
 let activeTab;
 
@@ -327,6 +363,12 @@ sampleLengthInput.addEventListener("keyup", function(event){onSampleLengthInputK
 const saveNameInput = $("#saveNameInput");
 saveNameInput.addEventListener("keyup", function(event){onSaveNameInputKeyup(event)});
 
+const fileInput = $("#fileInput");
+fileInput.addEventListener("change", function(event){onFileInputChange(event)});
+
+const fileInputResultDiscardButton = $("#fileInputResultDiscardButton");
+fileInputResultDiscardButton.addEventListener("click", onFileInputResultDiscardButtonClick);
+
 const rtSampleRateSelect = $("#rtSampleRateSelect");
 rtSampleRateSelect.addEventListener("change", onRtSampleRateSelectChange);
 
@@ -368,14 +410,17 @@ rtSaveButton.addEventListener("click", onRtSaveButtonClick);
 const sampleButton = $("#sampleButton");
 sampleButton.addEventListener("click", onSampleButton);
 
-let recPlayToggleButton = new ToggleButton($("#recPlayButton"),"<h3 style='margin:0'><i class='fas fa-play'></i> Lire</h3>","<h3 style='margin:0'><i class='fas fa-stop'></i> Stop</h3>",onRecPlayButtonClick,onRecStopButtonClick);
-let savPlayToggleButton = new ToggleButton($("#savPlayButton"),"<h3 style='margin:0'><i class='fas fa-play'></i> Lire</h3>","<h3 style='margin:0'><i class='fas fa-stop'></i> Stop</h3>",onSavPlayButtonClick,onSavStopButtonClick);
+let recPlayToggleButton = new ToggleButton($("#recPlayButton"),"<i class='fas fa-play'></i> Lire","<i class='fas fa-stop'></i> Stop",onRecPlayButtonClick,onRecStopButtonClick);
+let savPlayToggleButton = new ToggleButton($("#savPlayButton"),"<i class='fas fa-play'></i> Lire","<i class='fas fa-stop'></i> Stop",onSavPlayButtonClick,onSavStopButtonClick);
 
 const recSaveButton = $("#recSaveButton");
 recSaveButton.addEventListener("click", onRecSaveButtonClick);
 
 const validateSaveButton = $("#validateSaveButton");
 validateSaveButton.addEventListener("click", onValidateSaveButtonClick);
+
+const validateFileButton = $("#validateFileButton");
+validateFileButton.addEventListener("click", onValidateFileButtonClick);
 
 const fourierReplotButton = $("#fourierReplotButton");
 fourierReplotButton.addEventListener("click", onFourierReplotButtonClick);
@@ -396,10 +441,10 @@ let rtGraphConfig = new GraphJSConfig("", "Temps (s)", "Amplitude", 0, 0.04, -32
 let rtFourierConfig = new GraphJSConfig("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768);
 
 let recGraphLayout = new PlotlyLayout("", "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768);
-let recFourierLayout = new PlotlyLayout("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, "r");
+let recFourierLayout = new PlotlyLayout("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, "r", ".2f");
 
 let savGraphLayout = new PlotlyLayout("", "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768);
-let savFourierLayout = new PlotlyLayout("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, "r");
+let savFourierLayout = new PlotlyLayout("", "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, "r", ".2f");
 
 let plotlyConfig = {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]};
 
@@ -454,7 +499,7 @@ function recordDraw() {
 		recProgressBar.style.width = Math.min((elapsedTime) / (sampleLength * 10), 100) + '%';
 		let remainingTime = new Date(Math.max(0, sampleLength - (Date.now() - samplingStartTime)));
 
-		recProgressBarLabel.firstChild.innerHTML = formatDate(Math.max(0,sampleLength * 1000 - (Date.now() - samplingStartTime)));
+		recProgressBarLabel.innerHTML = formatDate(Math.max(0,sampleLength * 1000 - (Date.now() - samplingStartTime)));
 		//recProgressBarLabel.firstChild.innerHTML = Math.floor(remainingTime/1) + ":" + Math.floor((remainingTime % 1) * 100);
 	}
 
@@ -462,7 +507,6 @@ function recordDraw() {
 	if(audio.isDataAvailable() == true){
 		// Display the save and playback buttons
 		recSampleContainer.style.display = "block";
-		recSaveButton.style.display ="block";
 		// Hide the progress bar
 		recProgressBarContainer.style.display = "none";
 		recProgressBarLabel.style.display = "none";
@@ -528,6 +572,10 @@ function saveDraw() {
 
 function draw() {
 	requestAnimationFrame(draw);
+
+	// resume the audio context if it is suspended
+	audio.resumeContext();
+
 	switch(activeTab){
 	case 0:
 		realtimeDraw();
@@ -563,6 +611,7 @@ function arrayOfPointsCopy(_array, _length = _array.length){
 function PlotlyData(_name) {
 	this.x = [];
 	this.y = [];
+	this.type = "scattergl";
 	this.mode = "line";
 	this.name = _name;
 	this.line = {
@@ -648,7 +697,7 @@ function populateSampleRateSelect(_select, _initLvl = 1, _l = 4){
 /*----------------------------------------------------------------------------------------------
 -------------------------------TOGGLE MODEBAR (PLOTLY BUGFIX)-----------------------------------
 ----------------------------------------------------------------------------------------------*/
-function showModeBar(){
+/*function showModeBar(){
 	plotlyConfig.displayModeBar = true;
 	if(activeTab == 1){
 		Plotly.react(recWaveGraph, recWaveData, recGraphLayout, plotlyConfig);
@@ -671,7 +720,7 @@ function hideModeBar(){
 		Plotly.react(savFourierGraph, recFourierData, recFourierLayout, plotlyConfig);
 	}
 	isModeBarDisplayed = false;
-}
+}*/
 
 /*----------------------------------------------------------------------------------------------
 ------------------------------------POPULATE TABS FUNCTION--------------------------------------
@@ -852,7 +901,7 @@ function onRecSaveButtonClick() {
 	saveNameInput.focus();
 
 	// Hides the modebar while the modal is active (plotly bug)
-	hideModeBar();
+	//hideModeBar();
 }
 
 function onValidateSaveButtonClick() {
@@ -898,7 +947,11 @@ function onValidateSaveButtonClick() {
 	$("#saveModal").style.display="none";
 
 	// Show the modebar again (plotly bug)
-	showModeBar();
+	//showModeBar();
+}
+
+function onValidateFileButtonClick() {
+	$("#fileModal").style.display="none";
 }
 
 function onSaveNameInputKeyup(event){
@@ -930,7 +983,10 @@ function onFourierReplotButtonClick() {
 	let dftResult = computeFourier(savWaveData[0], baseSampleRate / saves[activeTab-2].displaySampleRateLvl, saves[activeTab-2].fourierPlottingRange);
 	saves[activeTab-2].fpoints.x = dftResult.x;
 	saves[activeTab-2].fpoints.y = dftResult.y;
-	saveDraw();
+	//saveDraw(); TODO TEST
+	savFourierData[0].x = saves[activeTab-2].fpoints.x.slice();
+	savFourierData[0].y = saves[activeTab-2].fpoints.y.slice();
+	Plotly.react(savFourierGraph, savFourierData, savFourierLayout);
 }
 
 function onSampleButton() {
@@ -1021,6 +1077,8 @@ function onTabButtonClick(_id) {
 
 	// Draw the graphs if the record tab is active
 	if(activeTab == 1){
+		recGraphLayout.datarevision++;
+		recFourierLayout.datarevision++;
 		Plotly.react(recWaveGraph, recWaveData, recGraphLayout);
 		Plotly.react(recFourierGraph, recFourierData, recFourierLayout);
 	}
@@ -1076,17 +1134,93 @@ function onInfoButtonClick() {
 	$("#infoModal").style.display="block";
 
 	// Hides the modebar while the modal is active (plotly bug)
-	hideModeBar();
+	//hideModeBar();
 }
 
 function onCloseInfoButtonClick(){
 	$("#infoModal").style.display="none";
 
 	// Show the modebar (plotly bug)
-	showModeBar();
+	//showModeBar();
+}
+/*----------------------------------------------------------------------------------------------
+-------------------------------------FILE LOADING FUNCTIONS-------------------------------------
+----------------------------------------------------------------------------------------------*/
+function onFileInputChange(event){
+	// Read the file
+	fileReader.readAsArrayBuffer(fileInput.files[0]);
+	// Hide the playback controls
+	recSampleContainer.style.display = "none";
+	// Hide the fileInput button
+	$("#inputFileButton").style.display="none";
+	// Display the decoding label
+	$("#inputFileDecodingLabel").style.display="block";
 }
 
+function onFileInputResultDiscardButtonClick(event){
+	fileInput.value = "";
+	$("#inputFileButton").style.display="block";
+	$("#fileInputResult").style.display="none";
+}
+
+function onFileReaderLoadEnd(){
+	// Decode the audio in the file
+	audio.decode(fileReader.result, onAudioDecodeEnd);
+}
+
+function onAudioDecodeEnd(_data){
+	$("#inputFileDecodingLabel").style.display="none";
+	$("#fileInputResult").style.display="flex";
+
+	// Discard old datas
+	if(_data.duration > 20){
+		// Display save modal
+		$("#fileModal").style.display="block";
+		recWavePoints = new Points(20 * baseSampleRate);
+	}
+	else{
+		recWavePoints = new Points(_data.length);
+	}
+
+	// Display the save and playback buttons
+	recSampleContainer.style.display = "block";
+	// Display the sample length
+	recSampleLengthLabel.innerHTML = formatDate(recWavePoints.x.length / baseSampleRate * 1000);
+
+	// Apply chosen sampleRate
+	recWavePoints.setY(modifySampleRate(convertFloat32ToInt16(_data.getChannelData(0), recWavePoints.y.length), baseSampleRate, baseSampleRate)); // TODO choose channel and change sr
+
+	// Set the new datas
+		for(let i = 0; i < recWavePoints.x.length; i++){
+		recWavePoints.x[i] = i / baseSampleRate;
+	}
+
+	// Set graph axes range
+	recGraphLayout.xaxis.range[1] = recWavePoints.x.length / baseSampleRate;
+
+	// Save the sampleRate used DUMMY
+	recordedSampleRate = baseSampleRate;
+
+	//Draw the wave
+	recWaveData[0].x = recWavePoints.x;
+	recWaveData[0].y = recWavePoints.y;
+	Plotly.react(recWaveGraph, recWaveData, recGraphLayout);
+
+	// Compute and plot the dft
+	recFourierPoints = computeFourier(recWaveData[0], recSampleRate);
+	recFourierData[0].x = recFourierPoints.x;
+	recFourierData[0].y = recFourierPoints.y;
+	Plotly.react(recFourierGraph, recFourierData, recFourierLayout);
+}
+
+/*----------------------------------------------------------------------------------------------
+-----------------------------------------WINDOWS.ONLOAD-----------------------------------------
+----------------------------------------------------------------------------------------------*/
+
 window.onload = function() {
+	// Init the file inputs logic
+	initFileInputs();
+
 	// Create the rt graph and link the datas
 	rtWaveChart = new Chart(rtWaveCanvasCtx, rtGraphConfig);
 	rtFourierChart = new Chart(rtFourierCanvasCtx, rtFourierConfig);

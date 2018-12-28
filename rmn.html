@@ -64,8 +64,8 @@
 	<div class="header w3-theme">
 		<div class="w3-bar w3-card-4 w3-center">
 			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>Générateur simpliste de spectres RMN</b></span>
-			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle fa-lg"></i></b></button>
-			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><b><i class="fas fa-home fa-lg"></i></b></a>
+			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><i class="fas fa-info-circle fa-lg"></i></button>
+			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><i class="fas fa-home fa-lg"></i></a>
 		</div> 
 	</div>
 
@@ -141,40 +141,40 @@
 				<button class="w3-button w3-block w3-hover-green" id="addPeakButton"><i class="fas fa-plus-circle fa-lg"></i></button>
 			</div>
 			<!-- Second right card -->
-			<div class="w3-card-4 w3-margin">
+			<div class="w3-card-4 w3-white w3-margin" style="overflow:hidden">
 				<header class="w3-container w3-theme">
 					<h3>Courbe d'intégration</h3>
 				</header>
-				<div class="w3-container w3-white">
-					<div class="w3-bar w3-padding">
-						<span class="w3-bar-item">Visible : </span>
-						<label class="switch w3-right">
+				<div class="w3-panel w3-row">
+					<span class="phy-menu-label w3-twothird">Visible : </span>
+					<div class="w3-rest w3-center">
+						<label class="switch">
 							<input type="checkbox" id="integrationCheckbox">
 							<span class="toggleSlider round"></span>
 						</label>
-					</div> 
+					</div>
 				</div>
 			</div>
 			<!-- Third right card -->
-			<div class="w3-card-4 w3-margin">
+			<div class="w3-card-4 w3-white w3-margin" style="overflow:hidden">
 				<header class="w3-container w3-theme">
 					<h3>Paramètres</h3>
 				</header>
-				<table class="w3-table w3-centered w3-white">
-					<tr>
-						<td>Largeur des pics :</td>
-						<td><input class="range-slider_range" style="width:80px" id="peakSizeSlider" type="range" value="200" min="100" max="300" step="100"></td>
-					</tr>
-					<tr>
-						<td>Monochrome :</td>
-						<td>
-							<label class="switch">
-								<input type="checkbox" id="bwCheckbox">
-								<span class="toggleSlider round"></span>
-							</label>
-						</td>
-					</tr>
-				</table>
+				<div class="w3-panel w3-row">
+					<label class="phy-menu-label w3-twothird">Largeur des pics : </label>
+					<div class="w3-rest">
+						<input class="range-slider_range " style="width:80px" id="peakSizeSlider" type="range" value="200" min="100" max="300" step="100">
+					</div>
+				</div>
+				<div class="w3-panel w3-row">
+					<label class="phy-menu-label w3-twothird">Monochrome : </label>
+					<div class="w3-rest w3-center">
+						<label class="switch">
+							<input type="checkbox" id="bwCheckbox">
+							<span class="toggleSlider round"></span>
+						</label>
+					</div>
+				</div>
 			</div>
 		</div>
 		<!-- Canvas card -->
