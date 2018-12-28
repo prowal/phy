@@ -257,14 +257,14 @@
 		</div>
 	</div>
 	<!-- file modal card -->
-	<div id="saveModal" class="w3-modal">
+	<div id="fileModal" class="w3-modal">
 		<div class="w3-modal-content w3-animate-top w3-card-4" style="width:400px;">
 			<header class="w3-container w3-theme2">
 				<h2>Fichier trop long</h2>
 			</header>
 			<div class="w3-padding">
 				<span class="w3-container w3-cell" style="width:100%;">
-					Le fichier est trop long, seuls les 20 premières secondes seront utilisées.
+					Le fichier est trop long, seules les 20 premières secondes ont été chargées.
 				</span>
 				<span id="validateFileButton" class="w3-button w3-theme w3-hover-theme2 w3-cell"><i class="fas fa-check"></i></span>
 			</div>
@@ -418,6 +418,9 @@ recSaveButton.addEventListener("click", onRecSaveButtonClick);
 
 const validateSaveButton = $("#validateSaveButton");
 validateSaveButton.addEventListener("click", onValidateSaveButtonClick);
+
+const validateFileButton = $("#validateFileButton");
+validateFileButton.addEventListener("click", onValidateFileButtonClick);
 
 const fourierReplotButton = $("#fourierReplotButton");
 fourierReplotButton.addEventListener("click", onFourierReplotButtonClick);
@@ -947,6 +950,10 @@ function onValidateSaveButtonClick() {
 	//showModeBar();
 }
 
+function onValidateFileButtonClick() {
+	$("#fileModal").style.display="none";
+}
+
 function onSaveNameInputKeyup(event){
 	// Cancel the default action, if needed
 	event.preventDefault();
@@ -1154,7 +1161,6 @@ function onFileInputResultDiscardButtonClick(event){
 	fileInput.value = "";
 	$("#inputFileButton").style.display="block";
 	$("#fileInputResult").style.display="none";
-	decodeButton.style.display="none";
 }
 
 function onFileReaderLoadEnd(){
@@ -1168,7 +1174,8 @@ function onAudioDecodeEnd(_data){
 
 	// Discard old datas
 	if(_data.duration > 20){
-		// modal ???
+		// Display save modal
+		$("#fileModal").style.display="block";
 		recWavePoints = new Points(20 * baseSampleRate);
 	}
 	else{
