@@ -63,8 +63,8 @@
 	<div class="w3-card-4 w3-white">
 		<div class="w3-bar w3-center w3-theme">
 			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>Analyseur audio</b></span>
-			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><b><i class="fas fa-info-circle fa-lg"></i></b></button>
-			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><b><i class="fas fa-home fa-lg"></i></b></a>
+			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><i class="fas fa-info-circle fa-lg"></i></button>
+			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><i class="fas fa-home fa-lg"></i></a>
 		</div>
 		<div id="tabBar" class="w3-bar">
 			<button id ="rtTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">TEMPS REEL</button>
@@ -83,19 +83,22 @@
 				<header class="w3-container w3-theme">
 					<h3>Paramètres</h3>
 				</header>
-				<div class="w3-container w3-white">
-					<label class="w3-opacity phy-menu-label"><b>Amplification :</b></label>
-					<input class="range-slider_range" id="rtAmplificationSlider" type="range" value="10" min="0" max="20">
-					<span class="range-slider_value" id="rtAmplificationValue">x 1</span>
-					<label class="w3-opacity phy-menu-label"><b>Fréquence d'échantillonage</b></label>
-					<select id="rtSampleRateSelect" class="w3-select">
-					</select> 
+				<div class="w3-white" style="overflow:hidden">
+					<div class="w3-panel">
+						<label class="phy-menu-label">Amplification :</label>
+						<input class="range-slider_range" id="rtAmplificationSlider" type="range" value="10" min="0" max="20">
+						<span class="range-slider_value" id="rtAmplificationValue">x 1</span>
+					</div>
+					<div class="w3-panel">
+						<label class="phy-menu-label">Fréquence d'échantillonage</label>
+						<select id="rtSampleRateSelect" class="w3-select"></select> 
+					</div>
 				</div>
 			</div>
 			<!-- Second element -->
 			<div class="w3-card-4 phy-menu-element w3-white" >
-				<button class="w3-button w3-block w3-hover-red" id="pauseButton"><h3 style="margin:0"><i class="fas fa-pause"></i> Pause</h3></button>
-				<button class="w3-button w3-block" id="rtSaveButton" style="display:none"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
+				<button class="w3-button w3-block w3-xlarge w3-hover-red" id="pauseButton"><i class="fas fa-pause"></i> Pause</button>
+				<button class="w3-button w3-block w3-xlarge" id="rtSaveButton" style="display:none"><i class="fas fa-save"></i> Sauvegarder</button>
 			</div>
 		</div>
 		<!-- First column -->
@@ -130,32 +133,39 @@
 					<button id ="fileTabButton" class="w3-half w3-button w3-hover-none phy-tab">Fichier</button>
 				</div>
 				<!-- Sample tab -->
-				<div id="sampleTab" class="w3-container w3-white">
-					<label class="w3-opacity phy-menu-label"><b>Durée d'acquisition</b></label>
-					<input type="number" class="w3-input" id="sampleLengthInput" value="0.05" step="0.01" min="0.01" max="30">
-					<label class="w3-opacity phy-menu-label"><b>Fréquence d'échantillonage</b></label>
-					<select id="recSampleRateSelect" class="w3-select">
-					</select> 
-					<button class="w3-button w3-block w3-theme w3-hover-theme2" id="sampleButton" style="margin-top: 25px; margin-bottom: 15px; padding:0px;">
-						<h3 style="margin:8"><i class="fas fa-microphone"></i> Acquisition</h3>
-					</button>
-					<div id="recProgressBarContainer" class="w3-display-container w3-theme" id="sampleButton" style="display: none; margin-top: 25px; margin-bottom: 15px; padding:0px;">
-						<div id="recProgressBarLabel" class="w3-display-middle" style="display: none;"><h3 style="margin:8">00:00</h3></div>
-						<div id="recProgressBar" class="w3-theme2 w3-center" style="height:56px; width:20%; margin:0px;"></div>
+				<div id="sampleTab" class="w3-white" style="overflow:hidden">
+					<div class="w3-panel">
+						<label class="phy-menu-label">Durée d'acquisition</label>
+						<input type="number" class="w3-input" id="sampleLengthInput" value="0.05" step="0.01" min="0.01" max="30">
+					</div>
+					<div class="w3-panel">
+						<label class="phy-menu-label">Fréquence d'échantillonage</label>
+						<select id="recSampleRateSelect" class="w3-select"></select>
+					</div>
+					<div class="w3-panel">
+						<button class="w3-button w3-block w3-xlarge w3-theme w3-hover-theme2" id="sampleButton" >
+							<i class="fas fa-microphone"></i> Acquisition
+						</button>
+						<div id="recProgressBarContainer" class="w3-display-container w3-theme" id="sampleButton" style="display: none;">
+							<div id="recProgressBarLabel" class="w3-display-middle w3-xlarge" style="display: none;">00:00</div>
+							<div id="recProgressBar" class="w3-theme2 w3-center" style="height:52px;"></div>
+						</div>
 					</div>
 				</div>
 				<!-- File tab -->
-				<div id="fileTab" class="w3-container w3-white" style="display:none">
-					<input type="file" accept="audio/*" id="fileInput" class="inputfile">
-					<label class="w3-button w3-block w3-theme w3-hover-theme2 phy-menu-label" id="inputFileButton" for="fileInput" style="margin-bottom: 15px; padding:0px;">
-						<h3 style="margin:8"><i class="fas fa-file-upload"></i> Choisir un fichier</h3>
-					</label>
-					<label class="w3-container w3-block w3-center w3-theme phy-menu-label" id="inputFileDecodingLabel" style="display:none; margin-bottom: 15px; padding:0px;">
-						<h3 style="margin:8"><i class="fas fa-spinner fa-spin"></i> Chargement ...</h3>
-					</label>
-					<div class="w3-border phy-menu-label" id="fileInputResult" style="display:none; margin-bottom: 15px;">
-						<div class="w3-container" style="width: 80%"><p id="fileInputLabel">FICHIER</p></div>
-						<button class="w3-theme w3-button" id="fileInputResultDiscardButton" style="flex: 1; padding:0px;"><i class="fas fa-times"></i></button>
+				<div id="fileTab" class="w3-white" style="overflow:hidden">
+					<div class="w3-panel">
+						<input type="file" accept="audio/*" id="fileInput" class="inputfile">
+						<label class="w3-button w3-block w3-xlarge w3-theme w3-hover-theme2 " id="inputFileButton" for="fileInput" >
+							<i class="fas fa-file-upload"></i> Parcourir ...
+						</label>
+						<label class="w3-container w3-padding w3-block w3-xlarge w3-center w3-theme " id="inputFileDecodingLabel" style="display:none;">
+							<i class="fas fa-spinner fa-spin"></i> Chargement ...
+						</label>
+						<div class="w3-border" id="fileInputResult" style="display:none;">
+							<div class="w3-container" style="width: 80%"><p id="fileInputLabel">FICHIER</p></div>
+							<button class="w3-theme w3-button" id="fileInputResultDiscardButton" style="flex: 1; padding:0px;"><i class="fas fa-times"></i></button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -165,10 +175,8 @@
 					<h3 class="w3-bar-item" style="padding: 0px;">Enregistrement </h3>
 					<h3 id="recSampleLengthLabel" class="w3-bar-item w3-right" style="padding: 0px;"></h3>
 				</header>
-				<div class="w3-container w3-white">
-				</div>
-				<button class="w3-button w3-block" id="recPlayButton" ></button>
-				<button class="w3-button w3-block" id="recSaveButton" style="margin-bottom: 15px;"><h3 style="margin:0"><i class="fas fa-save"></i> Sauvegarder</h3></button>
+				<button class="w3-button w3-block w3-xlarge" id="recPlayButton" ></button>
+				<button class="w3-button w3-block w3-xlarge" id="recSaveButton"><i class="fas fa-save"></i> Sauvegarder</button>
 			</div>
 		</div>
 		<!-- First column -->
@@ -194,10 +202,11 @@
 				<header class="w3-container w3-theme">
 					<h3>Traitement</h3>
 				</header>
-				<div class="w3-container w3-white">
-					<label class="w3-opacity phy-menu-label"><b>Fréquence d'échantillonage</b></label>
-					<select id="savSampleRateSelect" class="w3-select">
-					</select> 
+				<div class="w3-white" style="overflow:hidden">
+					<div class="w3-panel">
+						<label class="phy-menu-label">Fréquence d'échantillonage</label>
+						<select id="savSampleRateSelect" class="w3-select"></select> 
+					</div>
 				</div>
 			</div>
 			<!-- Second element -->
@@ -205,7 +214,7 @@
 				<header class="w3-container w3-theme">
 					<h3>Analyse spectrale</h3>
 				</header>
-				<button class="w3-button w3-block" id="fourierReplotButton"><h3 style="margin:0"><i class="fas fa-calculator"></i> Recalculer</h3></button>
+				<button class="w3-button w3-block w3-xlarge" id="fourierReplotButton"><i class="fas fa-calculator"></i> Recalculer</button>
 			</div>
 			<!-- Third element -->
 			<div class="w3-card-4 phy-menu-element w3-white">
@@ -213,7 +222,7 @@
 					<h3 class="w3-bar-item" style="padding: 0px;">Enregistrement </h3>
 					<h3 id="savSampleLengthLabel" class="w3-bar-item w3-right" style="padding: 0px;"></h3>
 				</header>
-				<button class="w3-button w3-block" id="savPlayButton"></button>
+				<button class="w3-button w3-block w3-xlarge" id="savPlayButton"></button>
 			</div>
 		</div>
 		<!-- First column -->
@@ -239,25 +248,25 @@
 			<header class="w3-container w3-theme2">
 				<h2>Sauvegarder</h2>
 			</header>
-			<div style="padding: 10px;">
-				<span class="w3-container w3-cell" style="width:100%; margin: 10px;">
-					<input type="text" class="w3-input w3-border-0" id="saveNameInput" placeholder="Nom de la sauvegarde">
+			<div class="w3-padding">
+				<span class="w3-container w3-cell" style="width:100%;">
+					<input type="text" class="w3-input" id="saveNameInput" placeholder="Nom de la sauvegarde">
 				</span>
-				<span id="validateSaveButton" class="w3-button w3-theme w3-hover-theme2 w3-cell" style="width:50px"><i class="fas fa-check"></i></span>
+				<span id="validateSaveButton" class="w3-button w3-theme w3-hover-theme2 w3-cell"><i class="fas fa-check"></i></span>
 			</div>
 		</div>
 	</div>
 	<!-- file modal card -->
-	<div id="fileModal" class="w3-modal">
+	<div id="saveModal" class="w3-modal">
 		<div class="w3-modal-content w3-animate-top w3-card-4" style="width:400px;">
 			<header class="w3-container w3-theme2">
 				<h2>Fichier trop long</h2>
 			</header>
-			<div style="padding: 10px;">
-				<span class="w3-container w3-cell" style="width:100%; margin: 10px;">
+			<div class="w3-padding">
+				<span class="w3-container w3-cell" style="width:100%;">
 					Le fichier est trop long, seuls les 20 premières secondes seront utilisées.
 				</span>
-				<span id="validateSaveButton" class="w3-button w3-theme w3-hover-theme2 w3-cell" style="width:50px"><i class="fas fa-check"></i></span>
+				<span id="validateFileButton" class="w3-button w3-theme w3-hover-theme2 w3-cell"><i class="fas fa-check"></i></span>
 			</div>
 		</div>
 	</div>
@@ -401,8 +410,8 @@ rtSaveButton.addEventListener("click", onRtSaveButtonClick);
 const sampleButton = $("#sampleButton");
 sampleButton.addEventListener("click", onSampleButton);
 
-let recPlayToggleButton = new ToggleButton($("#recPlayButton"),"<h3 style='margin:0'><i class='fas fa-play'></i> Lire</h3>","<h3 style='margin:0'><i class='fas fa-stop'></i> Stop</h3>",onRecPlayButtonClick,onRecStopButtonClick);
-let savPlayToggleButton = new ToggleButton($("#savPlayButton"),"<h3 style='margin:0'><i class='fas fa-play'></i> Lire</h3>","<h3 style='margin:0'><i class='fas fa-stop'></i> Stop</h3>",onSavPlayButtonClick,onSavStopButtonClick);
+let recPlayToggleButton = new ToggleButton($("#recPlayButton"),"<i class='fas fa-play'></i> Lire","<i class='fas fa-stop'></i> Stop",onRecPlayButtonClick,onRecStopButtonClick);
+let savPlayToggleButton = new ToggleButton($("#savPlayButton"),"<i class='fas fa-play'></i> Lire","<i class='fas fa-stop'></i> Stop",onSavPlayButtonClick,onSavStopButtonClick);
 
 const recSaveButton = $("#recSaveButton");
 recSaveButton.addEventListener("click", onRecSaveButtonClick);
@@ -487,7 +496,7 @@ function recordDraw() {
 		recProgressBar.style.width = Math.min((elapsedTime) / (sampleLength * 10), 100) + '%';
 		let remainingTime = new Date(Math.max(0, sampleLength - (Date.now() - samplingStartTime)));
 
-		recProgressBarLabel.firstChild.innerHTML = formatDate(Math.max(0,sampleLength * 1000 - (Date.now() - samplingStartTime)));
+		recProgressBarLabel.innerHTML = formatDate(Math.max(0,sampleLength * 1000 - (Date.now() - samplingStartTime)));
 		//recProgressBarLabel.firstChild.innerHTML = Math.floor(remainingTime/1) + ":" + Math.floor((remainingTime % 1) * 100);
 	}
 

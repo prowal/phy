@@ -85,8 +85,8 @@ button:focus {outline:0;}
 
 /* Custom menu items*/
 .phy-menu-label{
-	margin-top: 20px;
-	display:inline-block;
+	font-weight: bold;
+	opacity:0.60;
 }
 
 .phy-no-bmargin{
