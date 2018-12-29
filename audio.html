@@ -284,13 +284,13 @@ let rtFourierPoints;
 let recWavePoints;
 let recFourierPoints;
 
-let recWaveData = [new PlotlyData("TODO")];
-let recFourierData = [new PlotlyData("TODO")];
-let savWaveData = [new PlotlyData("TODO")];
-let savFourierData = [new PlotlyData("TODO")];
+let recWaveData = [new PlotlyData()];
+let recFourierData = [new PlotlyData()];
+let savWaveData = [new PlotlyData()];
+let savFourierData = [new PlotlyData()];
 
 const rtBasebufferSize = 4096;
-let rtLength = 0.04;
+const rtLength = 0.04;
 
 // Create the Fourier object
 let fourier = new Fourier(rtBasebufferSize);
@@ -317,7 +317,7 @@ let paused = false;
 let stabilization = true;
 
 // record vars
-let sampleLength = 0.05; // TODO TODO TODO TODO get the actual value from html
+let sampleLength = parseFloat($("#sampleLengthInput").value);
 let recSampleRate = baseSampleRate; // The sample will be recorded with this sampleRate
 let recordedSampleRate; // The sample was recorded with this sampleRate
 
@@ -357,7 +357,6 @@ rtAmplificationValue.addEventListener("dblclick", onRtAmplificationSliderDblClic
 
 // Get inputs and selects elements
 const sampleLengthInput = $("#sampleLengthInput");
-sampleLengthInput.addEventListener("input", onSampleLengthInput);
 sampleLengthInput.addEventListener("keyup", function(event){onSampleLengthInputKeyup(event)});
 
 const saveNameInput = $("#saveNameInput");
@@ -370,7 +369,6 @@ const fileInputResultDiscardButton = $("#fileInputResultDiscardButton");
 fileInputResultDiscardButton.addEventListener("click", onFileInputResultDiscardButtonClick);
 
 const rtSampleRateSelect = $("#rtSampleRateSelect");
-rtSampleRateSelect.addEventListener("change", onRtSampleRateSelectChange);
 
 const recSampleRateSelect = $("#recSampleRateSelect");
 recSampleRateSelect.addEventListener("change", onRecSampleRateSelectChange);
@@ -468,7 +466,7 @@ function realtimeDraw() {
 	// sample
 	let graphData = audio.getGraph();
 
-	rtWavePoints = new Points(graphData.length); // TODO TEN ES LA BANANE
+	rtWavePoints = new Points(graphData.length);
 	// Set the new datas
 	for(let i = 0; i < graphData.length; i++){
 		rtWavePoints.x[i] = i / baseSampleRate;
@@ -608,7 +606,7 @@ function arrayOfPointsCopy(_array, _length = _array.length){
 /*----------------------------------------------------------------------------------------------
 -------------------------------------PLOTLY DATA OBJECT-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
-function PlotlyData(_name) {
+function PlotlyData(_name = "") {
 	this.x = [];
 	this.y = [];
 	this.type = "scattergl";
@@ -983,7 +981,7 @@ function onFourierReplotButtonClick() {
 	let dftResult = computeFourier(savWaveData[0], baseSampleRate / saves[activeTab-2].displaySampleRateLvl, saves[activeTab-2].fourierPlottingRange);
 	saves[activeTab-2].fpoints.x = dftResult.x;
 	saves[activeTab-2].fpoints.y = dftResult.y;
-	//saveDraw(); TODO TEST
+	
 	savFourierData[0].x = saves[activeTab-2].fpoints.x.slice();
 	savFourierData[0].y = saves[activeTab-2].fpoints.y.slice();
 	Plotly.react(savFourierGraph, savFourierData, savFourierLayout);
@@ -1004,7 +1002,7 @@ function onSampleButton() {
 		return;
 	}
 	// Get the sampleLength
-	sampleLength = parseFloat(sampleLengthInput.value, 10);
+	sampleLength = parseFloat(sampleLengthInput.value);
 
 	// Record new datas
 	audio.startRecording(sampleLength);
@@ -1029,14 +1027,6 @@ function onSampleButton() {
 	if(sampleLength >= 1){
 		recProgressBarLabel.style.display = "block";
 	}
-}
-
-function onSampleLengthInput() {
-	// Empty TODO
-}
-
-function onRtSampleRateSelectChange() {
-	// Empty TODO
 }
 
 function onRecSampleRateSelectChange() {
