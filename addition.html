@@ -65,21 +65,26 @@
 						<h3>
 							Onde 1
 							<label class="switch w3-right">
-								<input type="checkbox" id="checkBox1">
+								<input type="checkbox" id="checkBox0">
 								<span class="toggleSlider round"></span>
 							</label>
 						</h3>
 					</header>
 					<div>
 						<div class="w3-panel">
-							<label class="phy-menu-label">Fréquence :</label>
-							<input class="range-slider_range" id="frequencySlider1" type="range" value="50" min="20" max="200">
-							<span class="range-slider_value" id="frequencyValue1">50 Hz</span>
+							<div class="phy-menu-label">Fréquence :</div>
+							<input class="range-slider_range" id="frequencySlider0" type="range" value="50" min="20" max="200">
+							<span class="range-slider_value" id="frequencyValue0">50 Hz</span>
 						</div>
 						<div class="w3-panel">
-							<label class="phy-menu-label">Amplitude :</label>
-							<input class="range-slider_range" id="amplitudeSlider1" type="range" value="20" min="0" max="20">
-							<span class="range-slider_value" id="amplitudeValue1">20</span>
+							<div class="phy-menu-label">Amplitude :</div>
+							<input class="range-slider_range" id="amplitudeSlider0" type="range" value="20" min="0" max="20">
+							<span class="range-slider_value" id="amplitudeValue0">20</span>
+						</div>
+						<div class="w3-panel">
+							<div class="phy-menu-label">Phase : </div>
+							<input class="range-slider_range" id="phaseSlider0" type="range" value="0" min="0" max="1" step="0.1">
+							<span class="range-slider_value" id="phaseValue0">0 T</span>
 						</div>
 					</div>
 				</div>
@@ -89,21 +94,26 @@
 						<h3>
 							Onde 2
 							<label class="switch w3-right">
-								<input type="checkbox" id="checkBox2">
+								<input type="checkbox" id="checkBox1">
 								<span class="toggleSlider round"></span>
 							</label>
 						</h3>
 					</header>
 					<div>
 						<div class="w3-panel">
-							<label class="phy-menu-label">Fréquence :</label>
-							<input class="range-slider_range" id="frequencySlider2" type="range" value="100" min="20" max="200">
-							<span class="range-slider_value" id="frequencyValue2">100 Hz</span>
+							<div class="phy-menu-label">Fréquence :</div>
+							<input class="range-slider_range" id="frequencySlider1" type="range" value="100" min="20" max="200">
+							<span class="range-slider_value" id="frequencyValue1">100 Hz</span>
 						</div>
 						<div class="w3-panel">
-							<label class="phy-menu-label">Amplitude :</label>
-							<input class="range-slider_range" id="amplitudeSlider2" type="range" value="10" min="0" max="20">
-							<span class="range-slider_value" id="amplitudeValue2">10</span>
+							<div class="phy-menu-label">Amplitude :</div>
+							<input class="range-slider_range" id="amplitudeSlider1" type="range" value="10" min="0" max="20">
+							<span class="range-slider_value" id="amplitudeValue1">10</span>
+						</div>
+						<div class="w3-panel">
+							<div class="phy-menu-label">Phase : </div>
+							<input class="range-slider_range" id="phaseSlider1" type="range" value="0" min="0" max="1" step="0.1">
+							<span class="range-slider_value" id="phaseValue1">0 T</span>
 						</div>
 					</div>
 				</div>
@@ -149,8 +159,7 @@
 const $ = document.querySelector.bind(document);
 
 // Declare vars
-let wave1= {a: 0, f: 0};
-let wave2 = {a: 0, f: 0};
+let waves = [{a: 0, f: 0},{a: 0, f: 0}]
 
 const samplingFrequency = 4096;
 const numSample = 8192;
@@ -158,11 +167,11 @@ const numSample = 8192;
 let chart1;
 let chart2;
 
-//let data1;
-let data1 = new Points(numSample,"float32");
-//let data2;
-let data2 = new Points(numSample,"float32");
-//let dataSum = [];
+let datas=[
+	new Points(numSample,"float32"),
+	new Points(numSample,"float32")
+]
+
 let dataSum = new Points(numSample,"float32");
 
 // Create the fft object
@@ -173,25 +182,23 @@ const canvasCtx1 = $("canvas.canvas1").getContext("2d");
 const canvasCtx2 = $("canvas.canvas2").getContext("2d");
 
 // Get DOM Elements
-const amplitudeSliderElt1 = $("#amplitudeSlider1");
-amplitudeSliderElt1.addEventListener("input", onAmplitudeSliderChange1);
+const amplitudeSliders = [$("#amplitudeSlider0"), $("#amplitudeSlider1")];
+amplitudeSliders[0].addEventListener("input", function(){onAmplitudeSliderChange(0);});
+amplitudeSliders[1].addEventListener("input", function(){onAmplitudeSliderChange(1);});
 
-const frequencySliderElt1 = $("#frequencySlider1");
-frequencySliderElt1.addEventListener("input", onfrequencySliderChange1);
+const frequencySliders = [$("#frequencySlider0"), $("#frequencySlider1")];
+frequencySliders[0].addEventListener("input", function(){onFrequencySliderChange(0);});
+frequencySliders[1].addEventListener("input", function(){onFrequencySliderChange(1);});
 
-const amplitudeSliderElt2 = $("#amplitudeSlider2");
-amplitudeSliderElt2.addEventListener("input", onAmplitudeSliderChange2);
+const phaseSliders = [$("#phaseSlider0"), $("#phaseSlider1")];
+phaseSliders[0].addEventListener("input", function(){onPhaseSliderChange(0);});
+phaseSliders[1].addEventListener("input", function(){onPhaseSliderChange(1);});
 
-const frequencySliderElt2 = $("#frequencySlider2");
-frequencySliderElt2.addEventListener("input", onfrequencySliderChange2);
-
-const checkBoxElt1 = $("#checkBox1");
-checkBoxElt1.addEventListener("click", onCheckBoxChange1);
-checkBoxElt1.checked = true;
-
-const checkBoxElt2 = $("#checkBox2");
-checkBoxElt2.addEventListener("click", onCheckBoxChange2);
-checkBoxElt2.checked = true;
+const checkBoxes = [$("#checkBox0"), $("#checkBox1")];
+checkBoxes[0].addEventListener("click", function(){onCheckBoxChange(0);});
+checkBoxes[1].addEventListener("click", function(){onCheckBoxChange(1);});
+checkBoxes[0].checked = true;
+checkBoxes[1].checked = true;
 
 const sumCheckBoxElt = $("#sumCheckBox");
 sumCheckBoxElt.addEventListener("click", onSumCheckBoxChange);
@@ -207,10 +214,10 @@ closeInfoButton.addEventListener("click", onCloseInfoButtonClick);
 /*----------------------------------------------------------------------------------------------
 -------------------------------------GENERATE WAVE FUNCTION-------------------------------------
 ----------------------------------------------------------------------------------------------*/
-function generateWave(_points, _frequency, _amplitude){
+function generateWave(_points, _wave){
 	for (let i = 0; i < numSample; i++){
 		_points.x[i] = i / samplingFrequency;
-		_points.y[i] = _amplitude * Math.sin(2*Math.PI * (i / samplingFrequency) * _frequency);
+		_points.y[i] = _wave.a * Math.sin(2 * Math.PI * (_wave.p + (i / samplingFrequency) * _wave.f));
 	}
 }
 
@@ -359,13 +366,15 @@ let config2 = {
 ----------------------------------------------------------------------------------------------*/
 window.onload = function() {
 	// Get the sliders' value
-	wave1.a = amplitudeSliderElt1.value;
-	wave1.f = frequencySliderElt1.value;
-	wave2.a = amplitudeSliderElt2.value;
-	wave2.f = frequencySliderElt2.value;
+	waves[0].a = parseInt(amplitudeSliders[0].value);
+	waves[0].f = parseInt(frequencySliders[0].value);
+	waves[0].p = parseInt(phaseSliders[0].value);
+	waves[1].a = parseInt(amplitudeSliders[1].value);
+	waves[1].f = parseInt(frequencySliders[1].value);
+	waves[1].p = parseInt(phaseSliders[1].value);
 
-	generateWave(data1, wave1.f,wave1.a);
-	generateWave(data2, wave2.f,wave2.a);
+	generateWave(datas[0], waves[0]);
+	generateWave(datas[1], waves[1]);
 
 	// Create the charts
 	chart1 = new Chart(canvasCtx1, config1);
@@ -374,50 +383,33 @@ window.onload = function() {
 	draw();
 };
 
-function onAmplitudeSliderChange1() {
-	wave1.a = amplitudeSliderElt1.value;
-	$("#amplitudeValue1").innerHTML = wave1.a;
-	generateWave(data1, wave1.f,wave1.a);
+function onAmplitudeSliderChange(_id) {
+	waves[_id].a = parseInt(amplitudeSliders[_id].value);
+	$("#amplitudeValue" + _id).innerHTML = waves[_id].a;
+	generateWave(datas[_id], waves[_id]);
 	draw();
 }
 
-function onfrequencySliderChange1() {
-	wave1.f = frequencySliderElt1.value;
-	$("#frequencyValue1").innerHTML = wave1.f + " Hz";
-	generateWave(data1, wave1.f,wave1.a);
+function onFrequencySliderChange(_id) {
+	waves[_id].f = parseInt(frequencySliders[_id].value);
+	$("#frequencyValue" + _id).innerHTML = waves[_id].f + " Hz";
+	generateWave(datas[_id], waves[_id]);
 	draw();
 }
 
-function onAmplitudeSliderChange2() {
-	wave2.a = amplitudeSliderElt2.value;
-	$("#amplitudeValue2").innerHTML = wave2.a;
-	generateWave(data2, wave2.f,wave2.a);
+function onPhaseSliderChange(_id) {
+	waves[_id].p = parseFloat(phaseSliders[_id].value);
+	$("#phaseValue" + _id).innerHTML = waves[_id].p + " T";
+	generateWave(datas[_id], waves[_id]);
 	draw();
 }
 
-function onfrequencySliderChange2() {
-	wave2.f = frequencySliderElt2.value;
-	$("#frequencyValue2").innerHTML = wave2.f + " Hz";
-	generateWave(data2, wave2.f,wave2.a);
-	draw();
-}
-
-function onCheckBoxChange1() {
-	if(checkBoxElt1.checked) {
-		chart1.data.datasets[0].hidden = false;
+function onCheckBoxChange(_id) {
+	if(checkBoxes[_id].checked) {
+		chart1.data.datasets[_id].hidden = false;
 	}
 	else{
-		chart1.data.datasets[0].hidden = true;
-	}
-	draw();
-}
-
-function onCheckBoxChange2() {
-	if(checkBoxElt2.checked) {
-		chart1.data.datasets[1].hidden = false;
-	}
-	else{
-		chart1.data.datasets[1].hidden = true;
+		chart1.data.datasets[_id].hidden = true;
 	}
 	draw();
 }
@@ -455,8 +447,8 @@ function onCloseInfoButtonClick(){
 function draw() {
 	// Compute the sum and build the FFT's arrays
 	for(let i = 0; i < numSample; i++){
-		dataSum.x[i] = data1.x[i];
-		dataSum.y[i] = data1.y[i] + data2.y[i];
+		dataSum.x[i] = datas[0].x[i];
+		dataSum.y[i] = datas[0].y[i] + datas[1].y[i];
 	}
 
 	if(fftCheckBoxElt.checked){
@@ -470,8 +462,8 @@ function draw() {
 
 	// Update the first chart
 	// Only draw the visible part
-	chart1.data.datasets[0].data = data1.toGJS().slice(0,Math.ceil(0.1 * samplingFrequency));
-	chart1.data.datasets[1].data = data2.toGJS().slice(0,Math.ceil(0.1 * samplingFrequency));
+	chart1.data.datasets[0].data = datas[0].toGJS().slice(0,Math.ceil(0.1 * samplingFrequency));
+	chart1.data.datasets[1].data = datas[1].toGJS().slice(0,Math.ceil(0.1 * samplingFrequency));
 	chart1.data.datasets[2].data = dataSum.toGJS().slice(0,Math.ceil(0.1 * samplingFrequency));
 	chart1.update();
 }
