@@ -85,7 +85,7 @@
 				</header>
 				<div class="w3-white" style="overflow:hidden">
 					<div class="w3-panel">
-						<label class="phy-menu-label">Amplification :</label>
+						<label class="phy-menu-label">Amplification</label>
 						<input class="range-slider_range" id="rtAmplificationSlider" type="range" value="1" min="0" max="2" step="0.1">
 						<span class="range-slider_value" id="rtAmplificationValue">x 1</span>
 					</div>
@@ -210,11 +210,26 @@
 				</div>
 			</div>
 			<!-- Second element -->
-			<div class="w3-card-4 phy-menu-element w3-white">
+			<div class="w3-card-4 phy-menu-element w3-white" style="overflow:hidden">
 				<header class="w3-container w3-theme">
 					<h3>Analyse spectrale</h3>
 				</header>
-				<button class="w3-button w3-block w3-xlarge" id="fourierReplotButton"><i class="fas fa-calculator"></i> Recalculer</button>
+				<div class="w3-panel">
+					<label class="phy-menu-label">Type d'analyse spectrale</label>
+					<div>
+						<input class="w3-radio" type="radio" name="fourierType" value="0" checked>
+						<label>Normale</label>
+					</div>
+					<div>
+						<input class="w3-radio" type="radio" name="fourierType" value="1">
+						<label>Temporelle</label>
+					</div>
+				</div>
+				<div class="w3-panel">
+					<button class="w3-button w3-block w3-xlarge w3-theme w3-hover-theme2" id="fourierReplotButton" >
+						<i class="fas fa-calculator"></i> Recalculer
+					</button>
+				</div>
 			</div>
 			<!-- Third element -->
 			<div class="w3-card-4 phy-menu-element w3-white">
