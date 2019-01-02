@@ -44,6 +44,9 @@
 	<script src="lib/plotly/plotly-locale-fr.js"></script>
 	<script>Plotly.setPlotConfig({locale: 'fr-FR'})</script>
 
+	<script src="https://code.highcharts.com/highcharts.js"></script>
+	<script src="https://code.highcharts.com/modules/boost.js"></script>
+
 	<script src="lib/Chart.min.js"></script>
 
 	<script src="lib/phy.js"></script>
@@ -461,11 +464,46 @@ let savFourierLayout = new PlotlyLayout("", "Fréquence (Hz)", "Amplitude", 0, 1
 
 let plotlyConfig = {responsive: true, displaylogo: false, displayModeBar: true, modeBarButtonsToRemove: ["toImage","sendDataToCloud"]};
 
+let highchartOptions = {
+	chart: {
+		zoomType: 'x'
+	},
+	title:{
+    text: null
+	},
+	legend:{
+		enabled: false
+	},
+	yAxis: {
+		title: {
+      text: 'Amplitude'
+    }
+	},
+	credits: {
+		enabled: false
+	},
+	tooltip: {
+		valueDecimals: 2
+	},
+	series: [{
+		animation: false,
+		data: [0,1,1,2],
+		name: 'TODO',
+		states: {
+			hover: {
+				enabled: false
+			}
+		}
+	}]
+}
+
 /*----------------------------------------------------------------------------------------------
 ------------------------Create the rec and sav graphs and link the datas------------------------
 ----------------------------------------------------------------------------------------------*/
-Plotly.react(recWaveGraph, recWaveData, recGraphLayout, plotlyConfig);
-Plotly.react(recFourierGraph, recFourierData, recFourierLayout, plotlyConfig);
+//Plotly.react(recWaveGraph, recWaveData, recGraphLayout, plotlyConfig);
+let recWaveChart = new Highcharts.chart('recGraphContainer', highchartOptions);
+let recFourierChart = new Highcharts.chart('recFourierContainer', highchartOptions);
+//Plotly.react(recFourierGraph, recFourierData, recFourierLayout, plotlyConfig);
 
 Plotly.react(savWaveGraph, savWaveData, savGraphLayout, plotlyConfig);
 Plotly.react(savFourierGraph, savFourierData, savFourierLayout, plotlyConfig);
@@ -479,28 +517,18 @@ function realtimeDraw() {
 	rtSampleRate = rtSampleRateSelect.value;
 
 	// sample
-	let graphData = audio.getGraph();
-
-	rtWavePoints = new Points(graphData.length);
-	// Set the new datas
-	for(let i = 0; i < graphData.length; i++){
-		rtWavePoints.x[i] = i / baseSampleRate;
-	}
-
-	// Apply chosen sampleRate
-	rtWavePoints.x = modifySampleRate(rtWavePoints.x, baseSampleRate, rtSampleRate);
-	rtWavePoints.y = modifySampleRate(graphData, baseSampleRate, rtSampleRate);
+	let rtWaveData = new LinearData(audio.getGraph(), 1 / baseSampleRate);
 
 	// Compute the fourier
-	rtFourierPoints  = computeFourier(rtWavePoints, rtSampleRate)
+	rtFourierData  = computeFourier(rtWaveData, rtSampleRate) // TODO rtSampleRate really needed to perform a fourier???
 
-	// Stabilize and trim the  datas
-	let trimedPoints = stabilize(rtWavePoints, rtLength * rtSampleRate);
+	rtWaveData.stabilize();
 
-	rtWaveChart.data.datasets[0].data = trimedPoints.toGJS();
-	rtWaveChart.update();
-	rtFourierChart.data.datasets[0].data = rtFourierPoints.toGJS();
+	rtWaveChart.data.datasets[0].data = rtWaveData.toGJS(baseSampleRate / rtSampleRate, sampleLength);
+	rtWaveChart.update(rtWaveChart.data.datasets[0].data);
+	rtFourierChart.data.datasets[0].data = rtFourierData.toGJS();
 	rtFourierChart.update();
+
 	};
 }
 
@@ -544,13 +572,15 @@ function recordDraw() {
 		//Draw the wave
 		recWaveData[0].x = recWavePoints.x;
 		recWaveData[0].y = recWavePoints.y;
-		Plotly.react(recWaveGraph, recWaveData, recGraphLayout);
+		//Plotly.react(recWaveGraph, recWaveData, recGraphLayout);
+		recWaveChart.series[0].setData(recWaveData[0].y);
 
 		// Compute and plot the dft
 		recFourierPoints = computeFourier(recWaveData[0], recSampleRate);
 		recFourierData[0].x = recFourierPoints.x;
 		recFourierData[0].y = recFourierPoints.y;
-		Plotly.react(recFourierGraph, recFourierData, recFourierLayout);
+		recFourierChart.series[0].setData(recFourierData[0].y);
+		//Plotly.react(recFourierGraph, recFourierData, recFourierLayout);
 	}
 }
 
@@ -600,7 +630,7 @@ function draw() {
 };
 
 /*----------------------------------------------------------------------------------------------
--------------------------------------DEEP COPY FUNCTIONS----------------------------------------
+-------------------------------------DEEP COPY FUNCTION-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
 function arrayCopy(_array, _length = _array.length){
 	let copy = [];
@@ -610,12 +640,57 @@ function arrayCopy(_array, _length = _array.length){
 	return copy;
 }
 
-function arrayOfPointsCopy(_array, _length = _array.length){
-	let copy = [];
-	for(let i = 0; i < _length; i++){
-		copy[i] = {x: _array[i].x, y:_array[i].y};
+/*----------------------------------------------------------------------------------------------
+--------------------------------------LINEAR DATA Object----------------------------------------
+----------------------------------------------------------------------------------------------*/
+function LinearData(_data, _step = 1) {
+	this.data = _data;
+	this.step = _step;
+
+	this.generateXData = function(_xdata){
+		// Create a new float32 array and populate it 
+		let xdata = new Float32Array(this.data.length);
+		for(let i = 0; i < xdata.length; i++){
+			xdata[i] = i * this.step;
+		}
+		return xdata;
 	}
-	return copy;
+
+	this.toGJS = function(_downSampling = 1, _length = this.data.length * this.step){
+		let xdata = this.generateXData();
+		// create a new array of points
+		let a = [];
+		for(let i = 0; i < (_length / this.step) / _downSampling; i++){
+			a[i] = {x: xdata[i * _downSampling], y: this.data[i * _downSampling]};
+		}
+
+		return a;
+	}
+
+	this.getData = function(_downSampling = 1){
+		if(_downSampling == 1){
+			return this.data;
+		} else{
+			let data = new Int16Array(this.data.length / _downSampling); // TODO PAS QUE INT16!!!
+			for(let i = 0; i < data.length; i++){
+				data[i] = this.data[i*_downSampling];
+			}
+			return data;
+		}
+	}
+
+	this.stabilize = function(){
+		let maximum = 0;
+		let maximumIndex = 0;
+		for(let i = 0; i < this.data.length / 10; i++){
+			if(this.data[i] > maximum){
+				maximum = this.data[i];
+				maximumIndex = i;
+			}
+		}
+		
+		this.data.set(this.data.slice(maximumIndex, this.data.length));
+	}
 }
 
 /*----------------------------------------------------------------------------------------------
@@ -634,14 +709,14 @@ function PlotlyData(_name = "") {
 }
 
 /*----------------------------------------------------------------------------------------------
------------------------------------COMPUTE PLOTLY FOURIER---------------------------------------
+---------------------------------------COMPUTE FOURIER------------------------------------------
 ----------------------------------------------------------------------------------------------*/
 function computeFourier(_wave, _sampleRate, _range){
 	let startIndex;
 	let stopIndex;
 	if(_range == undefined){
 		startIndex = 0;
-		stopIndex = _wave.x.length;
+		stopIndex = _wave.data.length;
 	}
 	else{
 		startIndex = Math.floor(_range[0] * _sampleRate);
@@ -649,47 +724,20 @@ function computeFourier(_wave, _sampleRate, _range){
 	}
 
 	// Select the needed datas
-	let fftInput = new Points(stopIndex-startIndex);
-	fftInput.x = _wave.x.slice(startIndex, stopIndex);
-	fftInput.y = _wave.y.slice(startIndex, stopIndex);
+	let fftInput = new LinearData(_wave.getData(baseSampleRate/_sampleRate).slice(startIndex, stopIndex));
 
 	// limit dft to 10 kHz
-	let maxIndex = fftInput.y.length / 2;
+	let maxIndex = fftInput.data.length / 2;
 	if(_sampleRate / 2 > 10000){
-		maxIndex = fftInput.y.length / _sampleRate * 10000 + 1;
+		maxIndex = fftInput.data.length / _sampleRate * 10000 + 1;
 	}
 	// Plot the dft
-	let result = new Points(maxIndex);
+	let result = new LinearData(new Float32Array(maxIndex));
 	fourier.computeNormalizedFft(fftInput, result, _sampleRate, false);
 	return result;
 
 }
 
-/*----------------------------------------------------------------------------------------------
--------------------------------------MODIFY SAMPLE RATE-----------------------------------------
-----------------------------------------------------------------------------------------------*/
-function modifySampleRate(_wave, _initialSampleRate, _targetSampleRate){
-	// End function if target == initial
-	if(_initialSampleRate == _targetSampleRate){
-		return _wave;
-	}
-	
-	let factor = _initialSampleRate / _targetSampleRate;
-	let l = _wave.length;
-	let a = l / factor;
-	let result;
-
-	if(_wave instanceof Int16Array){
-		result = new Int16Array(a);
-	}
-	else{
-		result = new Float32Array(a);
-	}
-	for(let i = 0; i < a; i++){
-		result[i] = _wave[i * factor];
-	}
-	return result;
-}
 /*----------------------------------------------------------------------------------------------
 ---------------------------------POPULATE SAMPLERATE SELECT-------------------------------------
 ----------------------------------------------------------------------------------------------*/
@@ -1084,8 +1132,10 @@ function onTabButtonClick(_id) {
 	if(activeTab == 1){
 		recGraphLayout.datarevision++;
 		recFourierLayout.datarevision++;
-		Plotly.react(recWaveGraph, recWaveData, recGraphLayout);
-		Plotly.react(recFourierGraph, recFourierData, recFourierLayout);
+		//Plotly.react(recWaveGraph, recWaveData, recGraphLayout);
+		recWaveChart.series[0].setData(recWaveData[0].y);
+		//Plotly.react(recFourierGraph, recFourierData, recFourierLayout);
+		recFourierChart.series[0].setData(recFourierData[0].y);
 	}
 }
 
@@ -1203,13 +1253,15 @@ function onAudioDecodeEnd(_data){
 	//Draw the wave
 	recWaveData[0].x = recWavePoints.x;
 	recWaveData[0].y = recWavePoints.y;
-	Plotly.react(recWaveGraph, recWaveData, recGraphLayout);
+	//Plotly.react(recWaveGraph, recWaveData, recGraphLayout);
+	recWaveData.series[0].setData(recWaveData[0].y);
 
 	// Compute and plot the dft
 	recFourierPoints = computeFourier(recWaveData[0], recSampleRate);
 	recFourierData[0].x = recFourierPoints.x;
 	recFourierData[0].y = recFourierPoints.y;
-	Plotly.react(recFourierGraph, recFourierData, recFourierLayout);
+	//Plotly.react(recFourierGraph, recFourierData, recFourierLayout);
+	recFourierChart.series[0].setData(recFourierData[0].y);
 }
 
 /*----------------------------------------------------------------------------------------------
