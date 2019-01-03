@@ -1227,25 +1227,8 @@ function onAudioDecodeEnd(_data){
 		$("#fileModal").style.display="block";
 		recWavePoints = new Points(20 * baseSampleRate);
 	}
-	else{
-		recWavePoints = new Points(_data.length);
-	}
-
-	// Display the save and playback buttons
-	recSampleContainer.style.display = "block";
-	// Display the sample length
-	recSampleLengthLabel.innerHTML = formatDate(recWavePoints.x.length / baseSampleRate * 1000);
-
-	// Apply chosen sampleRate
-	recWavePoints.setY(modifySampleRate(convertFloat32ToInt16(_data.getChannelData(0), recWavePoints.y.length), baseSampleRate, baseSampleRate)); // TODO choose channel and change sr
-
-	// Set the new datas
-		for(let i = 0; i < recWavePoints.x.length; i++){
-		recWavePoints.x[i] = i / baseSampleRate;
-	}
-
-	// Set graph axes range
-	recGraphLayout.xaxis.range[1] = recWavePoints.x.length / baseSampleRate;
+	let data = _data.getChannelData(0)
+	recordGraphDraw(convertFloat32ToInt16(_data.getChannelData(0)), baseSampleRate);
 
 	// Save the sampleRate used DUMMY
 	recordedSampleRate = baseSampleRate;
