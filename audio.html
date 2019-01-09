@@ -44,7 +44,8 @@
 	<script src="lib/plotly/plotly-locale-fr.js"></script>
 	<script>Plotly.setPlotConfig({locale: 'fr-FR'})</script>
 
-	<script src="https://code.highcharts.com/highcharts.js"></script>
+	<script src="lib/highcharts.js"></script>
+	<!-- <script src="https://code.highcharts.com/highcharts.js"></script>-->
 	<script src="https://code.highcharts.com/modules/boost.js"></script>
 
 	<script src="lib/Chart.min.js"></script>
@@ -476,7 +477,7 @@ let savFourierOptions = new HighchartOptions(null, ["TODO"], "Fréquence (Hz)", 
 savWaveOptions.chart.events = {selection: function(event){onSavWaveGraphSelection(event)}};
 
 /*----------------------------------------------------------------------------------------------
-------------------------Create the rec and sav graphs and link the datas------------------------
+---------------------------------Create the rec and sav graphs ---------------------------------
 ----------------------------------------------------------------------------------------------*/
 //Plotly.react(recWaveGraph, recWaveData, recGraphLayout, plotlyConfig);
 let recWaveChart = new Highcharts.chart('recGraphContainer', recWaveOptions);
@@ -487,6 +488,9 @@ let recFourierChart = new Highcharts.chart('recFourierContainer', recFourierOpti
 //Plotly.react(savFourierGraph, savFourierData, savFourierLayout, plotlyConfig);
 let savWaveChart = new Highcharts.chart('savGraphContainer', savWaveOptions);
 let savFourierChart = new Highcharts.chart('savFourierContainer', savFourierOptions);
+
+savWaveChart.xAxis[0].allowZoomOutside = true;
+savWaveChart.yAxis[0].allowZoomOutside = true;
 
 /*----------------------------------------------------------------------------------------------
 -----------------------------------------DRAW FUNCTIONS-----------------------------------------
@@ -587,32 +591,57 @@ function saveDraw() {
 
 	
 	// Draw the wave
+
+
+
+
 	savWaveChart.series[0].pointInterval = saves[activeTab-2].linearData.step * saves[activeTab-2].displaySampleRateLvl;
 	savWaveChart.series[0].setData(arrayCopy(saves[activeTab-2].linearData.getData(saves[activeTab-2].displaySampleRateLvl)), false);
 	savFourierChart.series[0].pointInterval = saves[activeTab-2].fLinearData.step;
 	//savFourierChart.series[0].setData(arrayCopy(saves[activeTab-2].fLinearData.getData()));
 
-	console.log(saves[activeTab-2].range.xRange[0]);
-	console.log(saves[activeTab-2].range.xRange[1]);
-	console.log(saves[activeTab-2].range.yRange[0]);
-	console.log(saves[activeTab-2].range.yRange[1]);
 
-	let a = saves[activeTab-2].range.xRange[0];
-	let b = saves[activeTab-2].range.xRange[1];
-	let c = saves[activeTab-2].range.yRange[0];
-	let d = saves[activeTab-2].range.yRange[1];
+	
+	//let a = saves[activeTab-2].range.xRange[0];
+	//let b = saves[activeTab-2].range.xRange[1];
+	//let c = saves[activeTab-2].range.yRange[0];
+	//let d = saves[activeTab-2].range.yRange[1];
 
-	savWaveChart.zoomOut()
+	//console.log(saves[activeTab-2].range.xRange[0]);
+	//console.log(saves[activeTab-2].range.xRange[1]);
+	//console.log(saves[activeTab-2].range.yRange[0]);
+	//console.log(saves[activeTab-2].range.yRange[1]);
 
-	saves[activeTab-2].range.xRange[0] = a;
-	saves[activeTab-2].range.xRange[1] = b;
-	saves[activeTab-2].range.yRange[0] = c;
-	saves[activeTab-2].range.yRange[1] = d;
+	//savWaveChart.xAxis[0].zoom();
+	//savWaveChart.yAxis[0].zoom();
+	//savWaveChart.zoomOut();
+	savWaveChart.zoom({xAxis:[{min:saves[activeTab-2].range.xRange[0],max:saves[activeTab-2].range.xRange[1], axis:savWaveChart.xAxis[0]}], yAxis:[{min:saves[activeTab-2].range.yRange[0],max:saves[activeTab-2].range.yRange[1], axis:savWaveChart.yAxis[0]}]})
+	//console.log("zoom");
+	//console.log(saves[activeTab-2].range.xRange[0]);
+	//console.log(saves[activeTab-2].range.xRange[1]);
+	//console.log(saves[activeTab-2].range.yRange[0]);
+	//console.log(saves[activeTab-2].range.yRange[1]);
+	//savWaveChart.xAxis[0].zoom(a,b);
+	//savWaveChart.yAxis[0].zoom(c,d);
 
-	savWaveChart.xAxis[0].zoom(a,b);
-	savWaveChart.yAxis[0].zoom(c,d);
+	//saves[activeTab-2].range.xRange[0] = a;
+	//saves[activeTab-2].range.xRange[1] = b;
+	//saves[activeTab-2].range.yRange[0] = c;
+	//saves[activeTab-2].range.yRange[1] = d;
+	/*if(savWaveChart.xAxis[0].userMin !== undefined || savWaveChart.xAxis[0].userMax !== undefined
+	|| savWaveChart.yAxis[0].userMin !== undefined || savWaveChart.yAxis[0].userMax !== undefined){
+		savWaveChart.showResetZoom();
+		console.log("show");
+	} else{
+		console.log("destroy");
+		if(!!savWaveChart.resetZoomButton && typeof savWaveChart.resetZoomButton === 'object'){
+			savWaveChart.resetZoomButton.destroy();
+		}
+	}*/
 
-	savWaveChart.redraw();
+	//savWaveChart.redraw()
+
+	//savWaveChart.redraw();
 	
 	//savWaveChart.showResetZoom();
 	
@@ -893,13 +922,12 @@ savFourierGraph.on("plotly_relayout",
 -------------------------------------HIHGCHART ZOOM EVENTS--------------------------------------
 ----------------------------------------------------------------------------------------------*/
 function onSavWaveGraphSelection(event){
-	console.log("trigger");
 	if (event.xAxis != undefined){ // handmade selection
 		saves[activeTab-2].range.xRange = [event.xAxis[0].min, event.xAxis[0].max];
 		saves[activeTab-2].range.yRange = [event.yAxis[0].min, event.yAxis[0].max];
 	} else{ // Reset zoom button
-		saves[activeTab-2].range.xRange = [null, null];
-		saves[activeTab-2].range.yRange = [null, null];
+		saves[activeTab-2].range.xRange = [undefined, undefined];
+		saves[activeTab-2].range.yRange = [undefined, undefined];
 	}
 }
 
@@ -997,7 +1025,7 @@ function onValidateSaveButtonClick() {
 			fLinearData: recFourierData,
 			recordedSampleRateLvl: baseSampleRate / recordedSampleRate,
 			displaySampleRateLvl: baseSampleRate / recordedSampleRate,
-			range: {xRange: [0, recWaveData.getDuration()], yRange: [-32768, 32768]},
+			range: {xRange: [undefined /*0*/, undefined/*recWaveData.getDuration()*/], yRange: [/*-32768*/undefined, /*32768*/undefined]},
 			fourierRange: {xRange: [0, 10000], yRange: [0, 32768]},
 			//fourierPlottingRange: [0, recWavePoints.x[recWavePoints.x.length - 1]],
 		});
