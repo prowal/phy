@@ -475,6 +475,7 @@ let savWaveOptions = new HighchartOptions(null, ["TODO"], "Temps (s)", "Amplitud
 let savFourierOptions = new HighchartOptions(null, ["TODO"], "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768);
 
 savWaveOptions.chart.events = {selection: function(event){onSavWaveGraphSelection(event)}};
+savFourierOptions.chart.events = {selection: function(event){onSavFourierGraphSelection(event)}};
 
 /*----------------------------------------------------------------------------------------------
 ---------------------------------Create the rec and sav graphs ---------------------------------
@@ -491,6 +492,8 @@ let savFourierChart = new Highcharts.chart('savFourierContainer', savFourierOpti
 
 savWaveChart.xAxis[0].allowZoomOutside = true;
 savWaveChart.yAxis[0].allowZoomOutside = true;
+savFourierChart.xAxis[0].allowZoomOutside = true;
+savFourierChart.yAxis[0].allowZoomOutside = true;
 
 /*----------------------------------------------------------------------------------------------
 -----------------------------------------DRAW FUNCTIONS-----------------------------------------
@@ -598,7 +601,7 @@ function saveDraw() {
 	savWaveChart.series[0].pointInterval = saves[activeTab-2].linearData.step * saves[activeTab-2].displaySampleRateLvl;
 	savWaveChart.series[0].setData(arrayCopy(saves[activeTab-2].linearData.getData(saves[activeTab-2].displaySampleRateLvl)), false);
 	savFourierChart.series[0].pointInterval = saves[activeTab-2].fLinearData.step;
-	//savFourierChart.series[0].setData(arrayCopy(saves[activeTab-2].fLinearData.getData()));
+	savFourierChart.series[0].setData(arrayCopy(saves[activeTab-2].fLinearData.getData()), false);
 
 
 	
@@ -615,7 +618,13 @@ function saveDraw() {
 	//savWaveChart.xAxis[0].zoom();
 	//savWaveChart.yAxis[0].zoom();
 	//savWaveChart.zoomOut();
-	savWaveChart.zoom({xAxis:[{min:saves[activeTab-2].range.xRange[0],max:saves[activeTab-2].range.xRange[1], axis:savWaveChart.xAxis[0]}], yAxis:[{min:saves[activeTab-2].range.yRange[0],max:saves[activeTab-2].range.yRange[1], axis:savWaveChart.yAxis[0]}]})
+	console.log(saves[activeTab-2].fourierRange.xRange[0]);
+	console.log(saves[activeTab-2].fourierRange.xRange[1]);
+	console.log(saves[activeTab-2].fourierRange.yRange[0]);
+	console.log(saves[activeTab-2].fourierRange.yRange[1]);
+	savWaveChart.zoom({xAxis:[{min:saves[activeTab-2].range.xRange[0],max:saves[activeTab-2].range.xRange[1], axis:savWaveChart.xAxis[0]}], yAxis:[{min:saves[activeTab-2].range.yRange[0],max:saves[activeTab-2].range.yRange[1], axis:savWaveChart.yAxis[0]}]});
+	savFourierChart.zoom({xAxis:[{min:saves[activeTab-2].fourierRange.xRange[0],max:saves[activeTab-2].fourierRange.xRange[1], axis:savFourierChart.xAxis[0]}], yAxis:[{min:saves[activeTab-2].fourierRange.yRange[0],max:saves[activeTab-2].fourierRange.yRange[1], axis:savFourierChart.yAxis[0]}]});
+
 	//console.log("zoom");
 	//console.log(saves[activeTab-2].range.xRange[0]);
 	//console.log(saves[activeTab-2].range.xRange[1]);
@@ -931,6 +940,16 @@ function onSavWaveGraphSelection(event){
 	}
 }
 
+function onSavFourierGraphSelection(event){
+	if (event.xAxis != undefined){ // handmade selection
+		saves[activeTab-2].fourierRange.xRange = [event.xAxis[0].min, event.xAxis[0].max];
+		saves[activeTab-2].fourierRange.yRange = [event.yAxis[0].min, event.yAxis[0].max];
+	} else{ // Reset zoom button
+		saves[activeTab-2].fourierRange.xRange = [undefined, undefined];
+		saves[activeTab-2].fourierRange.yRange = [undefined, undefined];
+	}
+}
+
 /*----------------------------------------------------------------------------------------------
 ---------------------------------------------EVENTS---------------------------------------------
 ----------------------------------------------------------------------------------------------*/
@@ -1013,8 +1032,9 @@ function onValidateSaveButtonClick() {
 			fLinearData: rtFourierData,
 			recordedSampleRateLvl: baseSampleRate / rtSampleRate,
 			displaySampleRateLvl: baseSampleRate / rtSampleRate,
-			range: {xRange: [0, rtWaveData.getDuration()], yRange: [-32768, 32768]},
-			fourierRange: {xRange: [0, 10000], yRange: [0, 32768]},
+			//range: {xRange: [0, rtWaveData.getDuration()], yRange: [-32768, 32768]},
+			range: {xRange: [undefined, undefined], yRange: [undefined, undefined]},
+			fourierRange: {xRange: [undefined, undefined], yRange: [undefined, undefined]},
 			//fourierPlottingRange: [0, rtWavePoints.x[rtWavePoints.x.length - 1]],
 		});
 	}
@@ -1025,8 +1045,9 @@ function onValidateSaveButtonClick() {
 			fLinearData: recFourierData,
 			recordedSampleRateLvl: baseSampleRate / recordedSampleRate,
 			displaySampleRateLvl: baseSampleRate / recordedSampleRate,
-			range: {xRange: [undefined /*0*/, undefined/*recWaveData.getDuration()*/], yRange: [/*-32768*/undefined, /*32768*/undefined]},
-			fourierRange: {xRange: [0, 10000], yRange: [0, 32768]},
+			//range: {xRange: [undefined /*0*/, undefined/*recWaveData.getDuration()*/], yRange: [/*-32768*/undefined, /*32768*/undefined]},
+			range: {xRange: [undefined, undefined], yRange: [undefined, undefined]},
+			fourierRange: {xRange: [undefined, undefined], yRange: [undefined, undefined]},
 			//fourierPlottingRange: [0, recWavePoints.x[recWavePoints.x.length - 1]],
 		});
 	}
