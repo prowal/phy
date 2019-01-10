@@ -602,9 +602,6 @@ function saveDraw() {
 	savWaveChart.series[0].setData(arrayCopy(saves[activeTab-2].linearData.getData(saves[activeTab-2].displaySampleRateLvl)), false);
 	savFourierChart.series[0].pointInterval = saves[activeTab-2].fLinearData.step;
 	savFourierChart.series[0].setData(arrayCopy(saves[activeTab-2].fLinearData.getData()), false);
-
-
-	
 	//let a = saves[activeTab-2].range.xRange[0];
 	//let b = saves[activeTab-2].range.xRange[1];
 	//let c = saves[activeTab-2].range.yRange[0];
@@ -618,10 +615,6 @@ function saveDraw() {
 	//savWaveChart.xAxis[0].zoom();
 	//savWaveChart.yAxis[0].zoom();
 	//savWaveChart.zoomOut();
-	console.log(saves[activeTab-2].fourierRange.xRange[0]);
-	console.log(saves[activeTab-2].fourierRange.xRange[1]);
-	console.log(saves[activeTab-2].fourierRange.yRange[0]);
-	console.log(saves[activeTab-2].fourierRange.yRange[1]);
 	savWaveChart.zoom({xAxis:[{min:saves[activeTab-2].range.xRange[0],max:saves[activeTab-2].range.xRange[1], axis:savWaveChart.xAxis[0]}], yAxis:[{min:saves[activeTab-2].range.yRange[0],max:saves[activeTab-2].range.yRange[1], axis:savWaveChart.yAxis[0]}]});
 	savFourierChart.zoom({xAxis:[{min:saves[activeTab-2].fourierRange.xRange[0],max:saves[activeTab-2].fourierRange.xRange[1], axis:savFourierChart.xAxis[0]}], yAxis:[{min:saves[activeTab-2].fourierRange.yRange[0],max:saves[activeTab-2].fourierRange.yRange[1], axis:savFourierChart.yAxis[0]}]});
 
@@ -1089,15 +1082,20 @@ function onSampleLengthInputKeyup(event){
 function onFourierReplotButtonClick() {
 	// Save the ranges
 	/*saves[activeTab-2].range.xRange = arrayCopy(savWaveGraph.layout.xaxis.range);
-	saves[activeTab-2].range.yRange = arrayCopy(savWaveGraph.layout.yaxis.range);
+	saves[activeTab-2].range.yRange = arrayCopy(savWaveGraph.layout.yaxis.range);*/
 
-	saves[activeTab-2].fourierPlottingRange = savWaveGraph.layout.xaxis.range;
-	let dftResult = computeFourier(savWaveData[0], baseSampleRate / saves[activeTab-2].displaySampleRateLvl, saves[activeTab-2].fourierPlottingRange);
-	saves[activeTab-2].fpoints.x = dftResult.x;
+	saves[activeTab-2].fourierPlottingRange = [savWaveChart.xAxis[0].min,savWaveChart.xAxis[0].max];
+	// Compute the dft
+	//let dftResult  = computeFourier(recWaveData, baseSampleRate / saves[activeTab-2].displaySampleRateLvl,);
+	saves[activeTab-2].fLinearData = computeFourier(saves[activeTab-2].linearData, baseSampleRate / saves[activeTab-2].displaySampleRateLvl, saves[activeTab-2].fourierPlottingRange);
+	savFourierChart.series[0].pointInterval = saves[activeTab-2].fLinearData.step;
+	savFourierChart.series[0].setData(arrayCopy(saves[activeTab-2].fLinearData.getData()));
+	/*saves[activeTab-2].fpoints.x = dftResult.x;
 	saves[activeTab-2].fpoints.y = dftResult.y;
 	
 	savFourierData[0].x = saves[activeTab-2].fpoints.x.slice();
 	savFourierData[0].y = saves[activeTab-2].fpoints.y.slice();
+
 	Plotly.react(savFourierGraph, savFourierData, savFourierLayout);*/
 }
 
