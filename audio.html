@@ -421,14 +421,14 @@ populateSampleRateSelect(recSampleRateSelect, 1, 16);
 -----------------------------------------GRAPH SETTINGS-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
 
-let rtWaveOptions = new HighchartOptions(null, ["TODO"], "Temps (s)", "Amplitude", 0, 0.04, -32768, 32768, undefined, false, false);
-let rtFourierOptions = new HighchartOptions(null, ["TODO"], "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, undefined, false, false);
+let rtWaveOptions = new HighchartOptions(null, ["TODO"], "Temps (s)", "Amplitude", 0, 0.04, -32768, 32768, 0, undefined, false, false);
+let rtFourierOptions = new HighchartOptions(null, ["TODO"], "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, 0, undefined, false, false);
 
-let recWaveOptions = new HighchartOptions(null, ["TODO"], "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768, "xy");
-let recFourierOptions = new HighchartOptions(null, ["TODO"], "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, "xy");
+let recWaveOptions = new HighchartOptions(null, ["TODO"], "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768, 7, "xy");
+let recFourierOptions = new HighchartOptions(null, ["TODO"], "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, 2, "xy");
 
-let savWaveOptions = new HighchartOptions(null, ["TODO"], "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768, "xy");
-let savFourierOptions = new HighchartOptions(null, ["TODO"], "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, "xy");
+let savWaveOptions = new HighchartOptions(null, ["TODO"], "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768, 7, "xy");
+let savFourierOptions = new HighchartOptions(null, ["TODO"], "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, 2, "xy");
 
 savWaveOptions.chart.events = {selection: function(event){onSavWaveGraphSelection(event)}};
 savFourierOptions.chart.events = {selection: function(event){onSavFourierGraphSelection(event)}};
