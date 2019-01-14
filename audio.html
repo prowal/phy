@@ -40,10 +40,8 @@
 
 	<link rel="stylesheet" href="lib/phy.css">
 
-	<script src="lib/highcharts.js"></script>
-	<script src="https://code.highcharts.com/modules/boost.js"></script>
-
-	<script src="lib/Chart.min.js"></script>
+	<script src="lib/highcharts/highcharts.js"></script>
+	<script src="lib/highcharts/boost.js"></script>
 
 	<script src="lib/phy.js"></script>
 	<script src="lib/infomodal.js"></script>
@@ -211,10 +209,10 @@
 						<input class="w3-radio" type="radio" name="fourierType" value="0" checked>
 						<label>Normale</label>
 					</div>
-					<div>
+					<!--<div>
 						<input class="w3-radio" type="radio" name="fourierType" value="1">
 						<label>Temporelle</label>
-					</div>
+					</div>-->
 				</div>
 				<div class="w3-panel">
 					<button class="w3-button w3-block w3-xlarge w3-theme w3-hover-theme2" id="fourierReplotButton" >
@@ -1133,6 +1131,9 @@ window.onload = function() {
 
 	draw();
 };
+
+// TODO LIST:
+// - plot lines to show playback
 
 </script>
 </body>
