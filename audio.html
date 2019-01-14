@@ -288,13 +288,9 @@ const rtLength = 0.04;
 // True if the rt graph needs to be fully drawn
 let rtInitialDraw = true;
 
-// Create the Fourier object
+// Create fourier, PhyAudio and fileReader objects
 let fourier = new Fourier(rtBasebufferSize);
-
-// Create a PhyAudio object
 let audio = new PhyAudio(rtBasebufferSize);
-
-// Create a FileReader object
 let fileReader = new FileReader();
 fileReader.addEventListener("loadend", onFileReaderLoadEnd);
 
@@ -305,7 +301,6 @@ let baseSampleRate = audio.getSampleRate();
 
 // rt vars
 let paused = false;
-let stabilization = true;
 
 // record vars
 let sampleLength = parseFloat($("#sampleLengthInput").value);
@@ -316,14 +311,6 @@ let samplingStartTime;
 
 // save vars
 let saves = [];
-
-// Get highchart div elements
-const rtWaveGraph = $("#rtGraphContainer");
-const rtFourierGraph = $("#rtFourierContainer");
-const recWaveGraph = $("#recGraphContainer");
-const recFourierGraph = $("#recFourierContainer");
-let savWaveGraph = $("#savGraphContainer");		//TODO: const?
-let savFourierGraph = $("#savFourierContainer");
 
 // Get progress bar element
 const recSampleContainer = $("#recSampleContainer");
@@ -432,7 +419,7 @@ savWaveOptions.chart.events = {selection: function(event){onSavWaveGraphSelectio
 savFourierOptions.chart.events = {selection: function(event){onSavFourierGraphSelection(event)}};
 
 /*----------------------------------------------------------------------------------------------
----------------------------------Create the rec and sav graphs ---------------------------------
+---------------------------------------Create the graphs ---------------------------------------
 ----------------------------------------------------------------------------------------------*/
 let rtWaveChart = new Highcharts.chart('rtGraphContainer', rtWaveOptions);
 let rtFourierChart = new Highcharts.chart('rtFourierContainer', rtFourierOptions);
@@ -485,7 +472,6 @@ function recordDraw() {
 		let remainingTime = new Date(Math.max(0, sampleLength - (Date.now() - samplingStartTime)));
 
 		recProgressBarLabel.innerHTML = formatDate(Math.max(0,sampleLength * 1000 - (Date.now() - samplingStartTime)));
-		//recProgressBarLabel.firstChild.innerHTML = Math.floor(remainingTime/1) + ":" + Math.floor((remainingTime % 1) * 100);
 	}
 
 	// sample
@@ -581,7 +567,7 @@ function LinearData(_data, _step = 1) {
 		return xdata;
 	}
 
-	this.toGJS = function(_downSampling = 1, _length = this.data.length * this.step, stabilize = false){
+	/*this.toGJS = function(_downSampling = 1, _length = this.data.length * this.step, stabilize = false){
 		let data
 		if(stabilize == true){
 			data = this.stabilize();
@@ -595,7 +581,7 @@ function LinearData(_data, _step = 1) {
 			a[i] = {x: xdata[i * _downSampling], y: data[i * _downSampling]};
 		}
 		return a;
-	}
+	}*/
 
 	this.getData = function(_downSampling = 1, _length = undefined, stabilize = false){
 		let data
@@ -735,27 +721,6 @@ function populateTabs(){
 	firstHalf.addEventListener("click", function(){onTabButtonClick(i + 2)});
 	secondHalf.addEventListener("click", function(){onTabCloseButtonClick(i)});
 	}
-}
-
-/*----------------------------------------------------------------------------------------------
---------------------------------------STABILIZE FUNCTION----------------------------------------
-----------------------------------------------------------------------------------------------*/
-function stabilize(_points, _length){
-	let maximum = 0;
-	let maximumIndex = 0;
-	for(let i = 0; i < _points.x.length / 10; i++){
-		if(_points.y[i] > maximum){
-			maximum = _points.y[i];
-			maximumIndex = i;
-		}
-	}
-
-	let p = new Points(_length);
-
-	p.x.set(_points.x.slice(0, _length));
-	p.y.set(_points.y.slice(maximumIndex, maximumIndex + _length));
-
-	return p;
 }
 
 /*----------------------------------------------------------------------------------------------
@@ -1134,6 +1099,7 @@ window.onload = function() {
 
 // TODO LIST:
 // - plot lines to show playback
+// - temporal fourier
 
 </script>
 </body>
