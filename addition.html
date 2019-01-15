@@ -61,7 +61,7 @@
 	<div class="w3-row">
 			<div class="w3-col w3-right" style="width: 350px">
 				<!-- Top-right card -->
-				<div class="w3-card-4 w3-margin w3-white">
+				<div class="w3-card-4 w3-white phy-menu-element">
 					<header class="w3-container w3-blue">
 						<h3>
 							Onde 1
@@ -90,7 +90,7 @@
 					</div>
 				</div>
 				<!-- Middle-right card -->
-				<div class="w3-card-4 w3-margin w3-white">
+				<div class="w3-card-4 w3-white phy-menu-element">
 					<header class="w3-container w3-deep-orange">
 						<h3>
 							Onde 2
@@ -119,7 +119,7 @@
 					</div>
 				</div>
 				<!-- Bottom-right card -->
-				<div class="w3-card-4 w3-margin w3-white">
+				<div class="w3-card-4 w3-white phy-menu-element">
 					<header class="w3-container w3-pink">
 						<h3>
 							Somme des ondes
@@ -140,17 +140,18 @@
 					</div>
 				</div>
 			</div>
-			<!-- Canvas card 1-->
-			<div class="w3-card-4 w3-rest w3-margin w3-white">
-				<div id="waveContainer" class="w3-container w3-margin" style="height: calc(65vh - 82px)">
+			<div class="w3-rest">
+				<!-- graph card 1-->
+				<div class="w3-card-4 w3-margin w3-white">
+					<div id="waveContainer" class="w3-container w3-margin" style="height: calc(65vh - 50px)">
+					</div>
+				</div>
+				<!-- graph card 2-->
+				<div id="fourierCard" class="w3-card-4 w3-margin w3-white" style="display: none">
+					<div id="fourierContainer" class="w3-container w3-margin" style="height: calc(35vh - 50px)">
+					</div>
 				</div>
 			</div>
-			<!-- Canvas card 2-->
-			<div id="fourierCard" class="w3-card-4 w3-rest w3-margin w3-white" style="display: none">
-				<div id="fourierContainer" class="w3-container w3-margin canvas" style="height: calc(35vh - 82px)">
-				</div>
-			</div>
-		</div>
 	<!-- Modal card -->
 	<script>modalWrite("addition");</script>
 
