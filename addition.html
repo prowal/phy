@@ -41,6 +41,7 @@
 	<link rel="stylesheet" href="lib/phy.css">
 
 	<script src="lib/Chart.min.js"></script>
+	<script src="lib/highcharts/highcharts.js"></script>
 
 	<script src="lib/fourier.js"></script>
 
@@ -60,7 +61,7 @@
 	<div class="w3-row">
 			<div class="w3-col w3-right" style="width: 350px">
 				<!-- Top-right card -->
-				<div class="w3-card-4 w3-margin w3-white">
+				<div class="w3-card-4 w3-white phy-menu-element">
 					<header class="w3-container w3-blue">
 						<h3>
 							Onde 1
@@ -71,25 +72,25 @@
 						</h3>
 					</header>
 					<div>
-						<div class="w3-panel">
+						<div class="w3-container" style = "margin-top: 8px">
 							<div class="phy-menu-label">Fréquence :</div>
 							<input class="range-slider_range" id="frequencySlider0" type="range" value="50" min="20" max="200">
 							<span class="range-slider_value" id="frequencyValue0">50 Hz</span>
 						</div>
-						<div class="w3-panel">
+						<div class="w3-container">
 							<div class="phy-menu-label">Amplitude :</div>
-							<input class="range-slider_range" id="amplitudeSlider0" type="range" value="20" min="0" max="20">
-							<span class="range-slider_value" id="amplitudeValue0">20</span>
+							<input class="range-slider_range" id="amplitudeSlider0" type="range" value="50" min="0" max="50">
+							<span class="range-slider_value" id="amplitudeValue0">50</span>
 						</div>
-						<div class="w3-panel">
+						<div class="w3-container">
 							<div class="phy-menu-label">Phase : </div>
-							<input class="range-slider_range" id="phaseSlider0" type="range" value="0" min="0" max="1" step="0.1">
+							<input class="range-slider_range" id="phaseSlider0" type="range" value="0" min="0" max="1" step="0.01">
 							<span class="range-slider_value" id="phaseValue0">0 T</span>
 						</div>
 					</div>
 				</div>
 				<!-- Middle-right card -->
-				<div class="w3-card-4 w3-margin w3-white">
+				<div class="w3-card-4 w3-white phy-menu-element">
 					<header class="w3-container w3-deep-orange">
 						<h3>
 							Onde 2
@@ -100,25 +101,25 @@
 						</h3>
 					</header>
 					<div>
-						<div class="w3-panel">
+						<div class="w3-container" style = "margin-top: 8px">
 							<div class="phy-menu-label">Fréquence :</div>
 							<input class="range-slider_range" id="frequencySlider1" type="range" value="100" min="20" max="200">
 							<span class="range-slider_value" id="frequencyValue1">100 Hz</span>
 						</div>
-						<div class="w3-panel">
+						<div class="w3-container">
 							<div class="phy-menu-label">Amplitude :</div>
-							<input class="range-slider_range" id="amplitudeSlider1" type="range" value="10" min="0" max="20">
-							<span class="range-slider_value" id="amplitudeValue1">10</span>
+							<input class="range-slider_range" id="amplitudeSlider1" type="range" value="25" min="0" max="50">
+							<span class="range-slider_value" id="amplitudeValue1">25</span>
 						</div>
-						<div class="w3-panel">
+						<div class="w3-container">
 							<div class="phy-menu-label">Phase : </div>
-							<input class="range-slider_range" id="phaseSlider1" type="range" value="0" min="0" max="1" step="0.1">
+							<input class="range-slider_range" id="phaseSlider1" type="range" value="0" min="0" max="1" step="0.01">
 							<span class="range-slider_value" id="phaseValue1">0 T</span>
 						</div>
 					</div>
 				</div>
 				<!-- Bottom-right card -->
-				<div class="w3-card-4 w3-margin w3-white">
+				<div class="w3-card-4 w3-white phy-menu-element">
 					<header class="w3-container w3-pink">
 						<h3>
 							Somme des ondes
@@ -139,19 +140,18 @@
 					</div>
 				</div>
 			</div>
-			<!-- Canvas card 1-->
-			<div class="w3-card-4 w3-rest w3-margin w3-white">
-				<div class="w3-container w3-margin" style="height: calc(65vh - 82px)">
-					<canvas class="canvas1"></canvas>
+			<div class="w3-rest">
+				<!-- graph card 1-->
+				<div class="w3-card-4 w3-margin w3-white">
+					<div id="waveContainer" class="w3-container w3-margin" style="height: calc(65vh - 50px)">
+					</div>
+				</div>
+				<!-- graph card 2-->
+				<div id="fourierCard" class="w3-card-4 w3-margin w3-white" style="display: none">
+					<div id="fourierContainer" class="w3-container w3-margin" style="height: calc(35vh - 50px)">
+					</div>
 				</div>
 			</div>
-			<!-- Canvas card 2-->
-			<div class="w3-card-4 w3-rest w3-margin w3-white canvas2" style="display: none">
-				<div class="w3-container w3-margin canvas" style="height: calc(35vh - 82px)">
-					<canvas class="canvas2"></canvas>
-				</div>
-			</div>
-		</div>
 	<!-- Modal card -->
 	<script>modalWrite("addition");</script>
 
@@ -161,6 +161,8 @@ const $ = document.querySelector.bind(document);
 // Declare vars
 let waves = [{a: 0, f: 0},{a: 0, f: 0}]
 
+let initialDraw = true;
+
 const samplingFrequency = 4096;
 const numSample = 8192;
 
@@ -168,18 +170,15 @@ let chart1;
 let chart2;
 
 let datas=[
-	new Points(numSample,"float32"),
-	new Points(numSample,"float32")
+	new LinearData(new Float32Array(numSample), 1 / samplingFrequency),
+	new LinearData(new Float32Array(numSample), 1 / samplingFrequency)
 ]
 
-let dataSum = new Points(numSample,"float32");
+//let dataSum = new Points(numSample,"float32");
+let dataSum = new LinearData(new Float32Array(numSample), 1 / samplingFrequency);
 
 // Create the fft object
 var fft = new Fourier(numSample * 2);
-
-// Get canvas contexts and hide the FFT's canvas
-const canvasCtx1 = $("canvas.canvas1").getContext("2d");
-const canvasCtx2 = $("canvas.canvas2").getContext("2d");
 
 // Get DOM Elements
 const amplitudeSliders = [$("#amplitudeSlider0"), $("#amplitudeSlider1")];
@@ -214,152 +213,34 @@ closeInfoButton.addEventListener("click", onCloseInfoButtonClick);
 /*----------------------------------------------------------------------------------------------
 -------------------------------------GENERATE WAVE FUNCTION-------------------------------------
 ----------------------------------------------------------------------------------------------*/
-function generateWave(_points, _wave){
+function generateWave(_data, _wave){
 	for (let i = 0; i < numSample; i++){
-		_points.x[i] = i / samplingFrequency;
-		_points.y[i] = _wave.a * Math.sin(2 * Math.PI * (_wave.p + (i / samplingFrequency) * _wave.f));
+		_data.data[i] = _wave.a * Math.sin(2 * Math.PI * (_wave.p + (i / samplingFrequency) * _wave.f));
 	}
 }
 
 /*----------------------------------------------------------------------------------------------
 -------------------------------------------FFT FUNCTION-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
-function computeFFT(_points){
-	let spectrum = new Points(840, "float32");
-	fft.computeNormalizedFft(_points, spectrum, samplingFrequency, false);
+function computeFFT(_data){
+	let spectrum = new LinearData(new Float32Array(420));
+	fft.computeNormalizedFft(_data, spectrum, samplingFrequency, false);
 	return spectrum;
 }
 
 /*----------------------------------------------------------------------------------------------
------------------------------------------GRAPH SETTINGS-----------------------------------------
+------------------------------------GRAPH OPTIONS AND OBJECTS-----------------------------------
 ----------------------------------------------------------------------------------------------*/
-let config1 = {
-	type: "line",
-	data: {
-		datasets: [{
-			label: "Onde 1",
-			//data: data1,
-			borderColor: phyColors.blue,
-			// Hides the points...
-			radius: 0,
-			fill: false
-		},
-		{
-			label: "Onde 2",
-			//data: data2,
-			borderColor: phyColors.deepOrange,
-			// Hides the points...
-			radius: 0,
-			fill: false,
-		},
-		{
-			label: "Somme des ondes",
-			//data: data2,
-			borderColor: phyColors.pink,
-			// Hides the points...
-			radius: 0,
-			fill: false,
-			hidden: true
-		}
-		]
-	},
-	options: {
-		lineTension: 0,
-		responsive: true,
-		animation: false,
-		maintainAspectRatio: false,
-		legend: {
-				display: false
-			},
-		title: {
-			display: false,
-		},
-		scales: {
-			xAxes: [{
-				display: true,
-				type: "linear",
-				position: "bottom",
-				scaleLabel: {
-					display: true,
-					labelString: "Temps (s)"
-				},
-				ticks: {
-					min: 0,
-					max: 0.1,
-					//autoSkip: true,
-					//maxTicksLimit: 10,
-					stepSize: .01
-				}
-			}],
-			yAxes: [{
-				display: true,
-				scaleLabel: {
-					display: true,
-					labelString: "Amplitude"
-				},
-				ticks: {
-					suggestedMin: -50,
-					suggestedMax: 50,
-				}
-			}]
-		}
-	}
-};
+let waveOptions = new HighchartOptions(null, "Temps (s)", "Amplitude", 0, 0.1, -120, 120, 0, undefined, false, false);
+let fourierOptions = new HighchartOptions(null, "Fréquence (Hz)", "Amplitude", 0, 210, 0, 100, 0, undefined, false, false);
 
-let config2 = {
-	type: "line",
-	data: {
-		datasets: [{
-			label: "Somme des ondes",
-			//data: data1,
-			borderColor: phyColors.pink,
-			// Hides the points...
-			radius: 0,
-			fill: false
-		}]
-	},
-	options: {
-		lineTension: 0,
-		responsive: true,
-		animation: false,
-		maintainAspectRatio: false,
-		legend: {
-				display: false
-			},
-		title: {
-			display: false,
-		},
-		scales: {
-			xAxes: [{
-				display: true,
-				type: "linear",
-				position: "bottom",
-				scaleLabel: {
-					display: true,
-					labelString: "Fréquence (Hz)"
-				},
-				ticks: {
-					min: 0,
-					max: 210,
-					//autoSkip: true,
-					//maxTicksLimit: 10,
-					stepSize: 10
-				}
-			}],
-			yAxes: [{
-				display: true,
-				scaleLabel: {
-					display: true,
-					labelString: "Amplitude"
-				},
-				ticks: {
-					suggestedMin: 0,
-					suggestedMax: 40,
-				}
-			}]
-		}
-	}
-};
+waveOptions.series[0] = {animation:false, color: phyColors.blue};
+waveOptions.series[1] = {animation:false, color: phyColors.deepOrange};
+waveOptions.series[2] = {animation:false, color: phyColors.pink, visible: false};
+fourierOptions.series[0] = {animation:false, color: phyColors.pink};
+
+let waveChart = new Highcharts.chart('waveContainer', waveOptions);
+let fourierChart = new Highcharts.chart('fourierContainer', fourierOptions);
 
 /*----------------------------------------------------------------------------------------------
 ---------------------------------------------EVENTS---------------------------------------------
@@ -375,10 +256,6 @@ window.onload = function() {
 
 	generateWave(datas[0], waves[0]);
 	generateWave(datas[1], waves[1]);
-
-	// Create the charts
-	chart1 = new Chart(canvasCtx1, config1);
-	chart2 = new Chart(canvasCtx2, config2);
 
 	draw();
 };
@@ -406,30 +283,30 @@ function onPhaseSliderChange(_id) {
 
 function onCheckBoxChange(_id) {
 	if(checkBoxes[_id].checked) {
-		chart1.data.datasets[_id].hidden = false;
+		waveChart.series[_id].setVisible(true, false);
 	}
 	else{
-		chart1.data.datasets[_id].hidden = true;
+		waveChart.series[_id].setVisible(false, false);
 	}
 	draw();
 }
 
 function onSumCheckBoxChange() {
 	if(sumCheckBoxElt.checked) {
-		chart1.data.datasets[2].hidden = false;
+		waveChart.series[2].setVisible(true, false);
 	}
 	else{
-		chart1.data.datasets[2].hidden = true;
+		waveChart.series[2].setVisible(false, false);
 	}
 	draw();
 }
 
 function onFftCheckBoxChange() {
 	if(fftCheckBoxElt.checked) {
-		$("div.canvas2").style.display="block";
+		$("#fourierCard").style.display="block";
 	}
 	else{
-		$("div.canvas2").style.display="none";
+		$("#fourierCard").style.display="none";
 	}
 	draw();
 }
@@ -447,25 +324,39 @@ function onCloseInfoButtonClick(){
 function draw() {
 	// Compute the sum and build the FFT's arrays
 	for(let i = 0; i < numSample; i++){
-		dataSum.x[i] = datas[0].x[i];
-		dataSum.y[i] = datas[0].y[i] + datas[1].y[i];
+		dataSum.data[i] = datas[0].data[i] + datas[1].data[i];
 	}
-
-	if(fftCheckBoxElt.checked){
+	
+	if(fftCheckBoxElt.checked || initialDraw == true){
 		// Compute the FFT
 		let spectrum = computeFFT(dataSum);
 
-		// Update the fft chart
-		chart2.data.datasets[0].data = spectrum.toGJS();
-		chart2.update();
+		// Update the chart
+		fourierChart.series[0].pointInterval = spectrum.step;
+		fourierChart.series[0].setData(spectrum.getData(), false);
+		fourierChart.series[0].redraw();
 	}
 
-	// Update the first chart
-	// Only draw the visible part
-	chart1.data.datasets[0].data = datas[0].toGJS().slice(0,Math.ceil(0.1 * samplingFrequency));
-	chart1.data.datasets[1].data = datas[1].toGJS().slice(0,Math.ceil(0.1 * samplingFrequency));
-	chart1.data.datasets[2].data = dataSum.toGJS().slice(0,Math.ceil(0.1 * samplingFrequency));
-	chart1.update();
+	// Set all intervals
+	waveChart.series[0].pointInterval = datas[0].step;
+	waveChart.series[1].pointInterval = datas[1].step;
+	waveChart.series[2].pointInterval = dataSum.step;
+
+	// Set the datas and redraw only the datas
+	waveChart.series[0].setData(datas[0].getData().slice(0,Math.ceil(0.1 * samplingFrequency)), false);
+	waveChart.series[1].setData(datas[1].getData().slice(0,Math.ceil(0.1 * samplingFrequency)), false);
+	waveChart.series[2].setData(dataSum.getData().slice(0,Math.ceil(0.1 * samplingFrequency)), false);
+	waveChart.series[0].redraw();
+	waveChart.series[1].redraw();
+	waveChart.series[2].redraw();
+
+	if(initialDraw == true){
+		initialDraw = false;
+
+		// Initial draw
+		waveChart.redraw();
+		fourierChart.redraw();
+	}
 }
 </script>
 </body>
