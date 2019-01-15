@@ -406,14 +406,14 @@ populateSampleRateSelect(recSampleRateSelect, 1, 16);
 -----------------------------------------GRAPH SETTINGS-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
 
-let rtWaveOptions = new HighchartOptions(null, ["TODO"], "Temps (s)", "Amplitude", 0, 0.04, -32768, 32768, 0, undefined, false, false);
-let rtFourierOptions = new HighchartOptions(null, ["TODO"], "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, 0, undefined, false, false);
+let rtWaveOptions = new HighchartOptions(null, "Temps (s)", "Amplitude", 0, 0.04, -32768, 32768, 0, undefined, false, false);
+let rtFourierOptions = new HighchartOptions(null, "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, 0, undefined, false, false);
 
-let recWaveOptions = new HighchartOptions(null, ["TODO"], "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768, 7, "xy");
-let recFourierOptions = new HighchartOptions(null, ["TODO"], "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, 2, "xy");
+let recWaveOptions = new HighchartOptions(null, "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768, 7, "xy");
+let recFourierOptions = new HighchartOptions(null, "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, 2, "xy");
 
-let savWaveOptions = new HighchartOptions(null, ["TODO"], "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768, 7, "xy");
-let savFourierOptions = new HighchartOptions(null, ["TODO"], "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, 2, "xy");
+let savWaveOptions = new HighchartOptions(null, "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768, 7, "xy");
+let savFourierOptions = new HighchartOptions(null, "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, 2, "xy");
 
 savWaveOptions.chart.events = {selection: function(event){onSavWaveGraphSelection(event)}};
 savFourierOptions.chart.events = {selection: function(event){onSavFourierGraphSelection(event)}};
@@ -549,83 +549,6 @@ function arrayCopy(_array, _length = _array.length){
 		copy[i] = _array[i];
 	}
 	return copy;
-}
-
-/*----------------------------------------------------------------------------------------------
---------------------------------------LINEAR DATA Object----------------------------------------
-----------------------------------------------------------------------------------------------*/
-function LinearData(_data, _step = 1) {
-	this.data = _data;
-	this.step = _step;
-
-	this.generateXData = function(_length){
-		// Create a new float32 array and populate it 
-		let xdata = new Float32Array(this.data.length);
-		for(let i = 0; i < xdata.length; i++){
-			xdata[i] = i * this.step;
-		}
-		return xdata;
-	}
-
-	/*this.toGJS = function(_downSampling = 1, _length = this.data.length * this.step, stabilize = false){
-		let data
-		if(stabilize == true){
-			data = this.stabilize();
-		} else{
-			data = this.data;
-		}
-		let xdata = this.generateXData(data.length);
-		// create a new array of points
-		let a = [];
-		for(let i = 0; i < (_length / this.step) / _downSampling; i++){
-			a[i] = {x: xdata[i * _downSampling], y: data[i * _downSampling]};
-		}
-		return a;
-	}*/
-
-	this.getData = function(_downSampling = 1, _length = undefined, stabilize = false){
-		let data
-		if(stabilize == true){
-			data = this.stabilize();
-		} else{
-			data = this.data;
-		}
-		if(_length == undefined){
-			if(_downSampling == 1){
-				return data;
-			} else {
-				let data2 = new Int16Array(data.length / _downSampling); // TODO PAS QUE INT16!!!
-				for(let i = 0; i < data.length; i++){
-					data2[i] = data[i*_downSampling];
-				}
-				return data2;
-			}
-		} else{
-			let data2 = new Int16Array(_length * baseSampleRate / _downSampling); // TODO PAS QUE INT16!!!
-			for(let i = 0; i < _length * baseSampleRate / _downSampling; i++){
-				data2[i] = data[i*_downSampling];
-			}
-			return data2;
-		}
-	}
-
-	this.getDuration = function(){
-		return this.data.length * this.step;
-	}
-
-	this.stabilize = function(){
-		let maximum = 0;
-		let maximumIndex = 0;
-		for(let i = 0; i < this.data.length / 10; i++){
-			if(this.data[i] > maximum){
-				maximum = this.data[i];
-				maximumIndex = i;
-			}
-		}
-		let stabilizedData = new Int16Array(_data.length - maximumIndex)
-		stabilizedData.set(this.data.slice(maximumIndex, _data.length));
-		return stabilizedData;
-	}
 }
 
 /*----------------------------------------------------------------------------------------------
