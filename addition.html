@@ -40,7 +40,6 @@
 
 	<link rel="stylesheet" href="lib/phy.css">
 
-	<script src="lib/Chart.min.js"></script>
 	<script src="lib/highcharts/highcharts.js"></script>
 
 	<script src="lib/fourier.js"></script>
@@ -239,8 +238,8 @@ waveOptions.series[1] = {animation:false, color: phyColors.deepOrange};
 waveOptions.series[2] = {animation:false, color: phyColors.pink, visible: false};
 fourierOptions.series[0] = {animation:false, color: phyColors.pink};
 
-let waveChart = new Highcharts.chart('waveContainer', waveOptions);
-let fourierChart = new Highcharts.chart('fourierContainer', fourierOptions);
+let waveChart = new Highcharts.chart("waveContainer", waveOptions);
+let fourierChart = new Highcharts.chart("fourierContainer", fourierOptions);
 
 /*----------------------------------------------------------------------------------------------
 ---------------------------------------------EVENTS---------------------------------------------
