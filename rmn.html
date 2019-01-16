@@ -41,7 +41,7 @@
 
 	<link rel="stylesheet" href="lib/phy.css">
 
-	<script src="lib/Chart.min.js"></script>
+	<script src="lib/highcharts/highcharts.js"></script>
 
 	<script src="lib/rmn.js"></script>
 
@@ -179,8 +179,7 @@
 		</div>
 		<!-- Canvas card -->
 		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div class="w3-container w3-margin" style="height: calc(100vh - 120px)">
-				<canvas class="canvas"></canvas>
+			<div id="graph" class="w3-container w3-margin" style="height: calc(100vh - 120px)">
 			</div>
 		</div>
 	</div>
@@ -190,9 +189,6 @@
 
 <script>
 const $ = document.querySelector.bind(document);
-
-// Get canvas context
-const canvasCtx = $("canvas.canvas").getContext("2d");
 
 // Get buttons contexts
 const infoButton = $("#infoButton");
@@ -284,83 +280,23 @@ const maxPeakCount = 9;
 
 let data1 = [];
 let data2 = [];
-//let peaks = [];
-
-let chart;
 
 let nmr = new NMR(totalPPM, peakSizeSlider.value);
 
 /*----------------------------------------------------------------------------------------------
 -----------------------------------------GRAPH SETTINGS-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
-let config = {
-	type: "line",
-	data: {
-		datasets: [{
-			label: "Courbe d'integration",
-			borderColor: phyColors.deepOrange,
-			// Hides the points...
-			radius: 0,
-			hitRadius: 0,
-			borderWidth: 2,
-			fill: false,
-			hidden: true
-		},{
-			label: "Spectre RMN",
-			borderColor: phyColors.theme2,
-			radius: 0,
-			hitRadius: 0,
-			fill: false
-		}
-		]
-	},
-	options: {
-		lineTension: 0,
-		responsive: true,
-		animation: false,
-		maintainAspectRatio: false,
-		legend: {
-				display: false
-			},
-		title: {
-			display: false
-		},
-		/*tooltips: {
-      enabled: false
-    },*/
-		scales: {
-			xAxes: [{
-				display: true,
-				type: "linear",
-				position: "bottom",
-				scaleLabel: {
-					display: true,
-					labelString: "Déplacement chimique (ppm)"
-				},
-				ticks: {
-					min: 0,
-					max: totalPPM,
-					reverse: true,
-					//autoSkip: true,
-					//maxTicksLimit: 10,
-					stepSize: 1
-				}
-			}],
-			yAxes: [{
-				display: false,
-				scaleLabel: {
-					display: false,
-					padding: 0,
-				},
-				ticks: {
-					display: false,
-					suggestedMin: -1,
-					suggestedMax: 6,
-				}
-			}]
-		}
-	}
-};
+let highchartOptions = new HighchartOptions(null, "Déplacement chimique (ppm)", null, 0, totalPPM, -1, 6, 0, undefined, false, false);
+highchartOptions.xAxis.reversed = true;
+highchartOptions.xAxis.gridLineWidth = 1;
+highchartOptions.yAxis.gridLineWidth = 0;
+highchartOptions.yAxis.labels = {enabled : false};
+highchartOptions.yAxis.tickWidth = 0;
+
+highchartOptions.series[0] = {animation:false, color: phyColors.theme2};
+highchartOptions.series[1] = {animation:false, color: phyColors.deepOrange, visible: false};
+
+let chart = new Highcharts.chart("graph", highchartOptions);
 
 /*----------------------------------------------------------------------------------------------
 ------------------------------------------DRAW FUNCTION-----------------------------------------
@@ -369,11 +305,12 @@ function draw() {
 	// Generate the RMN spectrum
 	data1 = nmr.generateNMR();
 	data2 = nmr.generateIntegration()
-
+	
 	//Update the graph
-	chart.data.datasets[0].data = data2;
-	chart.data.datasets[1].data = data1;
-	chart.update();
+	chart.series[0].setData(data1.slice());
+	chart.series[1].setData(data2.slice());
+	chart.redraw();
+
 }
 
 /*----------------------------------------------------------------------------------------------
@@ -420,8 +357,6 @@ window.onload = function() {
 	// Set the pointPerPPM
 	nmr.pointPerPPM = peakSizeSlider.value;
 
-	// Create the graph and link the datas
-	chart = new Chart(canvasCtx, config);
 	draw();
 };
 
@@ -499,10 +434,10 @@ for(let i = 10; i < totalPPM * 10; i++){
 
 function onIntegrationCheckbox() {
 	if(integrationCheckbox.checked) {
-		chart.data.datasets[0].hidden = false;
+		chart.series[1].setVisible(true, false);
 	}
 	else{
-		chart.data.datasets[0].hidden = true;
+		chart.series[1].setVisible(false, false);
 	}
 	draw();
 };
@@ -514,12 +449,12 @@ function onPeakSizeSlider() {
 
 function onBwCheckbox() {
 	if(bwCheckbox.checked) {
-		chart.data.datasets[0].borderColor = phyColors.black;
-		chart.data.datasets[1].borderColor = phyColors.black;
+		chart.series[0].update({color: phyColors.black});
+		chart.series[1].update({color: phyColors.black});
 	}
 	else{
-		chart.data.datasets[0].borderColor = phyColors.deepOrange;
-		chart.data.datasets[1].borderColor = phyColors.theme2;
+		chart.series[0].update({color: phyColors.theme2});
+		chart.series[1].update({color: phyColors.deepOrange});
 	}
 	draw();
 };
