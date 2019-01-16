@@ -40,7 +40,7 @@
 
 	<link rel="stylesheet" href="lib/phy.css"> 
 
-	<script src="lib/Chart.min.js"></script>
+	<script src="lib/highcharts/highcharts.js"></script>
 
 	<script src="lib/ecg.js"></script>
 
@@ -57,7 +57,6 @@
 			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><i class="fas fa-home fa-lg"></i></a>
 		</div> 
 	</div>
-
 	<div class="w3-row">
 		<div class="w3-col w3-right" style="width: 285px">
 			<!-- First right card -->
@@ -91,8 +90,7 @@
 		</div>
 		<!-- Canvas card -->
 		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div class="w3-container w3-margin" style="height: calc(100vh - 120px)">
-				<canvas class="canvas"></canvas>
+			<div id="graph" class="w3-container w3-margin" style="height: calc(100vh - 120px)">
 			</div>
 		</div>
 	</div>
@@ -124,8 +122,6 @@ let noPPeriods = [];
 
 let noPFlag;
 
-let chart;
-
 // data1 = current frame array; data2 = past frame array
 let data1 = [];
 let data2 = [];
@@ -135,14 +131,13 @@ let time;
 
 let paused = false;
 
+let initialDraw = true;
+
 // Used to seek in rawRandomECG faster
 let indexCursor = 0;
 
 let activeSportButtonID = 0;
 let activeStateButtonID = 0;
-
-// Get canvas context
-const canvasCtx = $("canvas.canvas").getContext("2d");
 
 // Set the periods
 let period;
@@ -187,80 +182,15 @@ closeInfoButton.addEventListener("click", onCloseInfoButtonClick);
 /*----------------------------------------------------------------------------------------------
 -----------------------------------------GRAPH SETTINGS-----------------------------------------
 ----------------------------------------------------------------------------------------------*/
-// Hack to hide ticks
-let withTicks = {
-	display: true,
-	min: 0,
-	max: totalTime,
-	stepSize: 0.1
-};
+let highchartOptions = new HighchartOptions(null, "Temps (s)", "Amplitude", 0, totalTime, -2, 6, 0, undefined, false, false);
+highchartOptions.xAxis.max = totalTime;
+highchartOptions.xAxis.gridLineWidth = 1;
+highchartOptions.xAxis.tickInterval = 0.1;
 
-let noTicks = {
-	display: false,
-	autoSkip: false,
-	min: 0,
-	max: totalTime,
-	stepSize: 0.08
-};
+highchartOptions.series[0] = {animation:false, color: phyColors.theme2, type: "spline"}; // spline for curvature
+highchartOptions.series[1] = {animation:false, color: phyColors.theme2, type: "spline"};
 
-let config = {
-	type: "line",
-	data: {
-		datasets: [{
-			label: "ECG",
-			borderColor: phyColors.theme2,
-			// Hides the points...
-			radius: 0,
-			fill: false
-		},
-		{
-			label: "ECG2",
-			borderColor: phyColors.theme2,
-			radius: 0,
-			fill: false
-		}
-		]
-	},
-	options: {
-		lineTension: 0,
-		responsive: true,
-		animation: false,
-		maintainAspectRatio: false,
-		legend: {
-				display: false
-			},
-		title: {
-			display: false,
-			fontSize : 20,
-			fontColor: "#3f51b5",
-			text: "Echelle horizontale : 1 graduation = 0,08 s"
-		},
-		scales: {
-			xAxes: [{
-				display: true,
-				type: "linear",
-				position: "bottom",
-				scaleLabel: {
-					display: true,
-					labelString: "Temps (s)"
-				},
-				ticks: withTicks,
-			}],
-			yAxes: [{
-				display: true,
-				scaleLabel: {
-					display: true,
-					padding: 0,
-					labelString: "Amplitude"
-				},
-				ticks: {
-					suggestedMin: -2,
-					suggestedMax: 6,
-				}
-			}]
-		}
-	}
-};
+let chart = new Highcharts.chart("graph", highchartOptions);
 
 /*----------------------------------------------------------------------------------------------
 ---------------------------------GENERATE RANDOM PERIODS ARRAY----------------------------------
@@ -308,13 +238,13 @@ function drawRegularECG(){
 
 	data1.length = 0;
 	for(let i = 0; i < activeFrameEndIndex; i++){
-		data1[i] = {
-			x: i / pointPerPeriod * period,
-			y:rawECG[(i + activeFrameStartIndex) % pointPerPeriod].y
-		};
+		data1[i] = [
+			i / pointPerPeriod * period,
+			rawECG[(i + activeFrameStartIndex) % pointPerPeriod].y
+		];
 		// Check if P-Wave should be removed
 		if(noPFlag == true && noPPeriods[Math.floor(activeFramePeriodCount) + Math.floor((i + activeFrameStartIndex) / pointPerPeriod)] == true){ // A fusionner avec draw ecg normal
-			data1[i].y = rawNoPECG[(i + activeFrameStartIndex) % pointPerPeriod].y;
+			data1[i][1] = rawNoPECG[(i + activeFrameStartIndex) % pointPerPeriod].y;
 		};
 	};
 
@@ -327,17 +257,16 @@ function drawRegularECG(){
 
 		data2.length = 0;
 		for(let i = activeFrameEndIndex + blanckECGInterval; i < pastFrameEndIndex; i++){
-			data2[i - (activeFrameEndIndex + blanckECGInterval)] = {
-				x: i / pointPerPeriod * period,
-				y:rawECG[(i + pastFrameStartIndex) % pointPerPeriod].y
-			};
+			data2[i - (activeFrameEndIndex + blanckECGInterval)] = [
+				i / pointPerPeriod * period,
+				rawECG[(i + pastFrameStartIndex) % pointPerPeriod].y
+			];
 			// Check if P-Wave should be removed
 			if(noPFlag == true && noPPeriods[Math.floor(pastFramePeriodCount) + Math.floor((i + pastFrameStartIndex) / pointPerPeriod)] == true){
-				data2[i - (activeFrameEndIndex + blanckECGInterval)].y = rawNoPECG[(i + pastFrameStartIndex) % pointPerPeriod].y;
+				data2[i - (activeFrameEndIndex + blanckECGInterval)][1] = rawNoPECG[(i + pastFrameStartIndex) % pointPerPeriod].y;
 			};
 		};
 	};
-
 };
 
 function drawArythmicECG(){
@@ -354,23 +283,27 @@ function drawArythmicECG(){
 	data1.length = 0;
 	let ind = 0;
 	while(rawRandomECG[ind + indexCursor].x < time){
-		data1[ind] = {
-			x: rawRandomECG[ind + indexCursor].x % totalTime,
-			y: rawRandomECG[ind + indexCursor].y
-		};
+		data1[ind] = [
+			rawRandomECG[ind + indexCursor].x % totalTime,
+			rawRandomECG[ind + indexCursor].y
+		];
 		ind++;
 	};
 	// Draw the past frame
 	data2.length = 0;
 	if(time > totalTime){
+		let tmp = [];
 		let ind2 = 1;
 		while(rawRandomECG[indexCursor - ind2].x > time - totalTime + blanckECGIntervalTime){
-			data2[ind2] = {
-				x: rawRandomECG[indexCursor - ind2].x % totalTime,
-				y: rawRandomECG[indexCursor - ind2].y
-			};
+			tmp[ind2] = [
+				rawRandomECG[indexCursor - ind2].x % totalTime,
+				rawRandomECG[indexCursor - ind2].y
+			];
 			ind2++;
 		};
+		for(let i = 0; i < tmp.length; i++){ // Sort array
+			data2[i] = tmp[tmp.length - i - 1];
+		}
 	};
 };
 
@@ -406,11 +339,6 @@ window.onload = function() {
 	// Generate the raw ECG wave (without P wave)
 	rawNoPECG = ecg(pointPerPeriod, true);
 
-	// Create the graph and link the datas
-	chart = new Chart(canvasCtx, config);
-	chart.data.datasets[0].data = data1;
-	chart.data.datasets[1].data = data2;
-
 	// Set the default  settings
 	onSportButtonClick(0);
 
@@ -431,28 +359,28 @@ function onSportButtonClick(id){
 	sportButtons[id].classList.add("w3-theme2");
 	activeSportButtonID = id;
 
+	// Tweak tick intervals
 	if(id == 2 || id == 4){
-		// Hack to hide the ticks
-		chart.options.scales.xAxes[0].ticks = noTicks;
+		chart.xAxis[0].update({tickInterval : 0.08, labels:{enabled : false}, tickWidth: 0});
 	}
 	else{
-		chart.options.scales.xAxes[0].ticks = withTicks;
+		chart.xAxis[0].update({tickInterval : 0.1, labels:{enabled : true}, tickWidth: 1});
 	}
 
 	// Display the scale as title
 	if(id == 2){
-		chart.options.title.display = true;
+		chart.update({title: {text: "Echelle horizontale : 1 graduation = 0,08 s"}});
 	}
 	else{
-		chart.options.title.display = false;
+		chart.update({title: {text: null}});
 	}
 
 	// Hide the vertical gridLines
 	if(id == 4){
-		chart.options.scales.xAxes[0].gridLines.display = false;
+		chart.xAxis[0].update({gridLineWidth : 0});
 	}
 	else{
-		chart.options.scales.xAxes[0].gridLines.display = true;
+		chart.xAxis[0].update({gridLineWidth : 1});
 	}
 
 	onStateButtonClick(activeStateButtonID);
@@ -520,9 +448,18 @@ function draw() {
 	else{
 		drawRegularECG();
 	}
+	chart.series[0].setData(data1.slice(), false);
+	chart.series[1].setData(data2.slice(), false);
 
-	chart.update();
-	
+	chart.series[0].redraw();
+	chart.series[1].redraw();
+
+	if(initialDraw == true){
+		initialDraw = false;
+
+		// Initial draw
+		chart.redraw();
+	}
 }
 </script>
 </body>
