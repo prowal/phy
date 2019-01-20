@@ -281,8 +281,8 @@
 				<h2>Choisissez une configuration</h2>
 			</header>
 			<div class="w3-padding">
-				<span id="simpleModeButton" class="w3-button w3-theme w3-hover-theme2">Mode simple<br>(Sans analyse fréquentielle)</span>
-				<span id="fullModeButton" class="w3-button w3-theme w3-hover-theme2">Mode complet<br>(Avec analyse fréquentielle)</span>
+				<span id="simpleModeButton" class="w3-button w3-theme w3-hover-theme2 w3-large" style="width: 280px">Mode simple<br>(Sans analyse fréquentielle)</span>
+				<span id="fullModeButton" class="w3-button w3-theme w3-hover-theme2 w3-large" style="width: 280px">Mode complet<br>(Avec analyse fréquentielle)</span>
 			</div>
 		</div>
 	</div>
@@ -315,7 +315,7 @@ let activeTab;
 let baseSampleRate = audio.getSampleRate();
 
 // rt vars
-let paused = false;
+let paused = true;
 
 // record vars
 let sampleLength = parseFloat($("#sampleLengthInput").value);
@@ -484,6 +484,10 @@ function realtimeDraw() {
 }
 
 function recordDraw() {
+	// Reflow the charts to the div size
+	recWaveChart.reflow();
+	recFourierChart.reflow();
+	
 	// Update the progressBar
 	if(recProgressBarContainer.style.display === "block"){
 		
@@ -524,6 +528,10 @@ function recordGraphDraw(_data){
 }
 
 function saveDraw() {
+	// Reflow the charts to the div size
+	savWaveChart.reflow();
+	savFourierChart.reflow();
+
 	// Populate the sample rate 
 	populateSampleRateSelect(savSampleRateSelect, saves[activeTab-2].recordedSampleRateLvl, 32);
 	
@@ -834,12 +842,16 @@ function onSelectModeButtonClick(_id){
 		$("#fourierCard").style.display = "none";
 
 		// Resize wave charts to full height
-		$("#rtGraphContainer").style.height = "vh"; // Provoke reflow or something?
-		$("#recFourierContainer").style.height = "vh";
-		$("#savFourierContainer").style.display = "vh";
+		$("#rtGraphContainer").style.height = "calc(100vh - 145px)";
+		$("#recGraphContainer").style.height = "calc(100vh - 145px)";
+		$("#savGraphContainer").style.height = "calc(100vh - 145px)";
 	} else{
 		simpleMode = false;
 	}
+	// Reflow charts
+	rtWaveChart.reflow();
+
+	paused = false;
 }
 
 
