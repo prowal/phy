@@ -199,7 +199,7 @@
 				</div>
 			</div>
 			<!-- Second element -->
-			<div class="w3-card-4 phy-menu-element w3-white" style="overflow:hidden">
+			<div id="fourierCard" class="w3-card-4 phy-menu-element w3-white" style="overflow:hidden">
 				<header class="w3-container w3-theme">
 					<h3>Analyse spectrale</h3>
 				</header>
@@ -274,9 +274,24 @@
 			</div>
 		</div>
 	</div>
+	<!-- intro modal card -->
+	<div id="introModal" class="w3-modal">
+		<div class="w3-modal-content w3-animate-top w3-card-4" style="width:600px;">
+			<header class="w3-container w3-theme2">
+				<h2>Choisissez une configuration</h2>
+			</header>
+			<div class="w3-padding">
+				<span id="simpleModeButton" class="w3-button w3-theme w3-hover-theme2">Mode simple<br>(Sans analyse fréquentielle)</span>
+				<span id="fullModeButton" class="w3-button w3-theme w3-hover-theme2">Mode complet<br>(Avec analyse fréquentielle)</span>
+			</div>
+		</div>
+	</div>
 
 <script>
 const $ = document.querySelector.bind(document);
+
+// simpleMode enabled?
+let simpleMode = false;
 
 // Declare vars
 let rtWaveData;
@@ -399,6 +414,11 @@ const infoButton = $("#infoButton");
 infoButton.addEventListener("click", onInfoButtonClick);
 const closeInfoButton = $("#closeInfoButton");
 closeInfoButton.addEventListener("click", onCloseInfoButtonClick);
+
+const simpleModeButton = $("#simpleModeButton");
+simpleModeButton.addEventListener("click", function(){onSelectModeButtonClick(0)});
+const fullModeButton = $("#fullModeButton");
+fullModeButton.addEventListener("click", function(){onSelectModeButtonClick(1)});
 
 populateSampleRateSelect(recSampleRateSelect, 1, 16);
 
@@ -793,12 +813,35 @@ function onValidateSaveButtonClick() {
 
 	// Empty the input and hide the modal card
 	saveNameInput.value = "";
-	$("#saveModal").style.display="none";
+	$("#saveModal").style.display = "none";
 }
 
 function onValidateFileButtonClick() {
-	$("#fileModal").style.display="none";
+	$("#fileModal").style.display = "none";
 }
+
+function onSelectModeButtonClick(_id){
+	$("#introModal").style.display = "none";
+	if(_id == 0){
+		simpleMode = true;
+
+		// Hide fourier graph cards
+		$("#rtFourierContainer").parentNode.style.display = "none";
+		$("#recFourierContainer").parentNode.style.display = "none";
+		$("#savFourierContainer").parentNode.style.display = "none";
+
+		// Hide fourier menu card
+		$("#fourierCard").style.display = "none";
+
+		// Resize wave charts to full height
+		$("#rtGraphContainer").style.height = "vh"; // Provoke reflow or something?
+		$("#recFourierContainer").style.height = "vh";
+		$("#savFourierContainer").style.display = "vh";
+	} else{
+		simpleMode = false;
+	}
+}
+
 
 function onSaveNameInputKeyup(event){
 	// Cancel the default action, if needed
@@ -1012,6 +1055,9 @@ window.onload = function() {
 
 	// Init the rt gain slider
 	onRtAmplificationSliderChange()
+
+	// Display the intro modal
+	$("#introModal").style.display="block";
 
 	// Activate a tab
 	onTabButtonClick(0);
