@@ -464,22 +464,30 @@ function realtimeDraw() {
 	rtWaveData = new LinearData(audio.getGraph(), 1 / baseSampleRate);
 
 	// Compute the fourier
-	rtFourierData = computeFourier(rtWaveData, baseSampleRate) // TODO really needed to perform a fourier???
+	if(simpleMode == false){
+		rtFourierData = computeFourier(rtWaveData, baseSampleRate) // TODO really needed to perform a fourier???
+	} else{
+		rtFourierData = null;
+	}
 
 	// Initial Draw
 	if(rtInitialDraw && rtWaveData.data.length > 0){
 		rtWaveChart.series[0].pointInterval = rtWaveData.step * 2;
-		rtFourierChart.series[0].pointInterval = rtFourierData.step;
 		rtWaveChart.series[0].setData(arrayCopy(rtWaveData.getData(2, rtLength, true)));
-		rtFourierChart.series[0].setData(arrayCopy(rtFourierData.getData()));
+		if(simpleMode == false){
+			rtFourierChart.series[0].pointInterval = rtFourierData.step;
+			rtFourierChart.series[0].setData(arrayCopy(rtFourierData.getData()));
+		}
 		rtInitialDraw = false;
 	}
 
 	// Update datas and redraw the serie (not the whole graph)
 	rtWaveChart.series[0].setData(arrayCopy(rtWaveData.getData(2, rtLength, true)), false);
-	rtFourierChart.series[0].setData(arrayCopy(rtFourierData.getData()), false);
-	rtFourierChart.series[0].redraw();
 	rtWaveChart.series[0].redraw();
+	if(simpleMode == false){
+		rtFourierChart.series[0].setData(arrayCopy(rtFourierData.getData()), false);
+		rtFourierChart.series[0].redraw();
+	}
 	};
 }
 
@@ -517,14 +525,20 @@ function recordGraphDraw(_data){
 		// Display the sample length
 		recSampleLengthLabel.innerHTML = formatDate(recWaveData.getDuration() * 1000);
 		// Compute the dft
-		recFourierData = computeFourier(recWaveData, recordedSampleRate);
+		if(simpleMode == false){
+			recFourierData = computeFourier(recWaveData, recordedSampleRate);
+		} else{
+			recFourierData = null;
+		}
 		// Plot graphs
 		recWaveChart.xAxis.max = recWaveData.getDuration();
 		recWaveChart.series[0].pointInterval = recWaveData.step * (baseSampleRate / recordedSampleRate);
 		recWaveChart.series[0].setData(arrayCopy(recWaveData.getData(baseSampleRate / recordedSampleRate)));
 
-		recFourierChart.series[0].pointInterval = recFourierData.step;
-		recFourierChart.series[0].setData(arrayCopy(recFourierData.getData()));
+		if(simpleMode == false){
+			recFourierChart.series[0].pointInterval = recFourierData.step;
+			recFourierChart.series[0].setData(arrayCopy(recFourierData.getData()));
+		}
 }
 
 function saveDraw() {
@@ -544,12 +558,16 @@ function saveDraw() {
 	// Update the datas
 	savWaveChart.series[0].pointInterval = saves[activeTab-2].linearData.step * saves[activeTab-2].displaySampleRateLvl;
 	savWaveChart.series[0].setData(arrayCopy(saves[activeTab-2].linearData.getData(saves[activeTab-2].displaySampleRateLvl)), false);
-	savFourierChart.series[0].pointInterval = saves[activeTab-2].fLinearData.step;
-	savFourierChart.series[0].setData(arrayCopy(saves[activeTab-2].fLinearData.getData()), false);
+	if(simpleMode == false){
+		savFourierChart.series[0].pointInterval = saves[activeTab-2].fLinearData.step;
+		savFourierChart.series[0].setData(arrayCopy(saves[activeTab-2].fLinearData.getData()), false);
+	}
 
 	// Apply zoom and redraw (called by zoom)
 	savWaveChart.zoom({xAxis:[{min:saves[activeTab-2].range.xRange[0],max:saves[activeTab-2].range.xRange[1], axis:savWaveChart.xAxis[0]}], yAxis:[{min:saves[activeTab-2].range.yRange[0],max:saves[activeTab-2].range.yRange[1], axis:savWaveChart.yAxis[0]}]});
-	savFourierChart.zoom({xAxis:[{min:saves[activeTab-2].fourierRange.xRange[0],max:saves[activeTab-2].fourierRange.xRange[1], axis:savFourierChart.xAxis[0]}], yAxis:[{min:saves[activeTab-2].fourierRange.yRange[0],max:saves[activeTab-2].fourierRange.yRange[1], axis:savFourierChart.yAxis[0]}]});
+	if(simpleMode == false){
+		savFourierChart.zoom({xAxis:[{min:saves[activeTab-2].fourierRange.xRange[0],max:saves[activeTab-2].fourierRange.xRange[1], axis:savFourierChart.xAxis[0]}], yAxis:[{min:saves[activeTab-2].fourierRange.yRange[0],max:saves[activeTab-2].fourierRange.yRange[1], axis:savFourierChart.yAxis[0]}]});
+	}
 }
 
 function draw() {
