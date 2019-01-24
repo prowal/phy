@@ -8,7 +8,7 @@
 
 	La Belle Physique : Analyseur audio
 
-	Copyright (c) 2018 Gaétan Walter
+	Copyright (c) 2019 Gaétan Walter
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -199,7 +199,7 @@
 				</div>
 			</div>
 			<!-- Second element -->
-			<div class="w3-card-4 phy-menu-element w3-white" style="overflow:hidden">
+			<div id="fourierCard" class="w3-card-4 phy-menu-element w3-white" style="overflow:hidden">
 				<header class="w3-container w3-theme">
 					<h3>Analyse spectrale</h3>
 				</header>
@@ -274,9 +274,24 @@
 			</div>
 		</div>
 	</div>
+	<!-- intro modal card -->
+	<div id="introModal" class="w3-modal">
+		<div class="w3-modal-content w3-animate-top w3-card-4" style="width:600px;">
+			<header class="w3-container w3-theme2">
+				<h2>Choisissez une configuration</h2>
+			</header>
+			<div class="w3-padding">
+				<span id="simpleModeButton" class="w3-button w3-theme w3-hover-theme2 w3-large" style="width: 280px">Mode simple<br>(Sans analyse fréquentielle)</span>
+				<span id="fullModeButton" class="w3-button w3-theme w3-hover-theme2 w3-large" style="width: 280px">Mode complet<br>(Avec analyse fréquentielle)</span>
+			</div>
+		</div>
+	</div>
 
 <script>
 const $ = document.querySelector.bind(document);
+
+// simpleMode enabled?
+let simpleMode = false;
 
 // Declare vars
 let rtWaveData;
@@ -300,7 +315,7 @@ let activeTab;
 let baseSampleRate = audio.getSampleRate();
 
 // rt vars
-let paused = false;
+let paused = true;
 
 // record vars
 let sampleLength = parseFloat($("#sampleLengthInput").value);
@@ -400,6 +415,11 @@ infoButton.addEventListener("click", onInfoButtonClick);
 const closeInfoButton = $("#closeInfoButton");
 closeInfoButton.addEventListener("click", onCloseInfoButtonClick);
 
+const simpleModeButton = $("#simpleModeButton");
+simpleModeButton.addEventListener("click", function(){onSelectModeButtonClick(0)});
+const fullModeButton = $("#fullModeButton");
+fullModeButton.addEventListener("click", function(){onSelectModeButtonClick(1)});
+
 populateSampleRateSelect(recSampleRateSelect, 1, 16);
 
 /*----------------------------------------------------------------------------------------------
@@ -444,26 +464,38 @@ function realtimeDraw() {
 	rtWaveData = new LinearData(audio.getGraph(), 1 / baseSampleRate);
 
 	// Compute the fourier
-	rtFourierData = computeFourier(rtWaveData, baseSampleRate) // TODO really needed to perform a fourier???
+	if(simpleMode == false){
+		rtFourierData = computeFourier(rtWaveData, baseSampleRate) // TODO really needed to perform a fourier???
+	} else{
+		rtFourierData = null;
+	}
 
 	// Initial Draw
 	if(rtInitialDraw && rtWaveData.data.length > 0){
 		rtWaveChart.series[0].pointInterval = rtWaveData.step * 2;
-		rtFourierChart.series[0].pointInterval = rtFourierData.step;
 		rtWaveChart.series[0].setData(arrayCopy(rtWaveData.getData(2, rtLength, true)));
-		rtFourierChart.series[0].setData(arrayCopy(rtFourierData.getData()));
+		if(simpleMode == false){
+			rtFourierChart.series[0].pointInterval = rtFourierData.step;
+			rtFourierChart.series[0].setData(arrayCopy(rtFourierData.getData()));
+		}
 		rtInitialDraw = false;
 	}
 
 	// Update datas and redraw the serie (not the whole graph)
 	rtWaveChart.series[0].setData(arrayCopy(rtWaveData.getData(2, rtLength, true)), false);
-	rtFourierChart.series[0].setData(arrayCopy(rtFourierData.getData()), false);
-	rtFourierChart.series[0].redraw();
 	rtWaveChart.series[0].redraw();
+	if(simpleMode == false){
+		rtFourierChart.series[0].setData(arrayCopy(rtFourierData.getData()), false);
+		rtFourierChart.series[0].redraw();
+	}
 	};
 }
 
 function recordDraw() {
+	// Reflow the charts to the div size
+	recWaveChart.reflow();
+	recFourierChart.reflow();
+	
 	// Update the progressBar
 	if(recProgressBarContainer.style.display === "block"){
 		
@@ -493,17 +525,27 @@ function recordGraphDraw(_data){
 		// Display the sample length
 		recSampleLengthLabel.innerHTML = formatDate(recWaveData.getDuration() * 1000);
 		// Compute the dft
-		recFourierData = computeFourier(recWaveData, recordedSampleRate);
+		if(simpleMode == false){
+			recFourierData = computeFourier(recWaveData, recordedSampleRate);
+		} else{
+			recFourierData = null;
+		}
 		// Plot graphs
 		recWaveChart.xAxis.max = recWaveData.getDuration();
 		recWaveChart.series[0].pointInterval = recWaveData.step * (baseSampleRate / recordedSampleRate);
 		recWaveChart.series[0].setData(arrayCopy(recWaveData.getData(baseSampleRate / recordedSampleRate)));
 
-		recFourierChart.series[0].pointInterval = recFourierData.step;
-		recFourierChart.series[0].setData(arrayCopy(recFourierData.getData()));
+		if(simpleMode == false){
+			recFourierChart.series[0].pointInterval = recFourierData.step;
+			recFourierChart.series[0].setData(arrayCopy(recFourierData.getData()));
+		}
 }
 
 function saveDraw() {
+	// Reflow the charts to the div size
+	savWaveChart.reflow();
+	savFourierChart.reflow();
+
 	// Populate the sample rate 
 	populateSampleRateSelect(savSampleRateSelect, saves[activeTab-2].recordedSampleRateLvl, 32);
 	
@@ -516,12 +558,16 @@ function saveDraw() {
 	// Update the datas
 	savWaveChart.series[0].pointInterval = saves[activeTab-2].linearData.step * saves[activeTab-2].displaySampleRateLvl;
 	savWaveChart.series[0].setData(arrayCopy(saves[activeTab-2].linearData.getData(saves[activeTab-2].displaySampleRateLvl)), false);
-	savFourierChart.series[0].pointInterval = saves[activeTab-2].fLinearData.step;
-	savFourierChart.series[0].setData(arrayCopy(saves[activeTab-2].fLinearData.getData()), false);
+	if(simpleMode == false){
+		savFourierChart.series[0].pointInterval = saves[activeTab-2].fLinearData.step;
+		savFourierChart.series[0].setData(arrayCopy(saves[activeTab-2].fLinearData.getData()), false);
+	}
 
 	// Apply zoom and redraw (called by zoom)
 	savWaveChart.zoom({xAxis:[{min:saves[activeTab-2].range.xRange[0],max:saves[activeTab-2].range.xRange[1], axis:savWaveChart.xAxis[0]}], yAxis:[{min:saves[activeTab-2].range.yRange[0],max:saves[activeTab-2].range.yRange[1], axis:savWaveChart.yAxis[0]}]});
-	savFourierChart.zoom({xAxis:[{min:saves[activeTab-2].fourierRange.xRange[0],max:saves[activeTab-2].fourierRange.xRange[1], axis:savFourierChart.xAxis[0]}], yAxis:[{min:saves[activeTab-2].fourierRange.yRange[0],max:saves[activeTab-2].fourierRange.yRange[1], axis:savFourierChart.yAxis[0]}]});
+	if(simpleMode == false){
+		savFourierChart.zoom({xAxis:[{min:saves[activeTab-2].fourierRange.xRange[0],max:saves[activeTab-2].fourierRange.xRange[1], axis:savFourierChart.xAxis[0]}], yAxis:[{min:saves[activeTab-2].fourierRange.yRange[0],max:saves[activeTab-2].fourierRange.yRange[1], axis:savFourierChart.yAxis[0]}]});
+	}
 }
 
 function draw() {
@@ -793,12 +839,39 @@ function onValidateSaveButtonClick() {
 
 	// Empty the input and hide the modal card
 	saveNameInput.value = "";
-	$("#saveModal").style.display="none";
+	$("#saveModal").style.display = "none";
 }
 
 function onValidateFileButtonClick() {
-	$("#fileModal").style.display="none";
+	$("#fileModal").style.display = "none";
 }
+
+function onSelectModeButtonClick(_id){
+	$("#introModal").style.display = "none";
+	if(_id == 0){
+		simpleMode = true;
+
+		// Hide fourier graph cards
+		$("#rtFourierContainer").parentNode.style.display = "none";
+		$("#recFourierContainer").parentNode.style.display = "none";
+		$("#savFourierContainer").parentNode.style.display = "none";
+
+		// Hide fourier menu card
+		$("#fourierCard").style.display = "none";
+
+		// Resize wave charts to full height
+		$("#rtGraphContainer").style.height = "calc(100vh - 145px)";
+		$("#recGraphContainer").style.height = "calc(100vh - 145px)";
+		$("#savGraphContainer").style.height = "calc(100vh - 145px)";
+	} else{
+		simpleMode = false;
+	}
+	// Reflow charts
+	rtWaveChart.reflow();
+
+	paused = false;
+}
+
 
 function onSaveNameInputKeyup(event){
 	// Cancel the default action, if needed
@@ -1012,6 +1085,9 @@ window.onload = function() {
 
 	// Init the rt gain slider
 	onRtAmplificationSliderChange()
+
+	// Display the intro modal
+	$("#introModal").style.display="block";
 
 	// Activate a tab
 	onTabButtonClick(0);
