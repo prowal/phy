@@ -165,7 +165,11 @@
 					<h3 id="recSampleLengthLabel" class="w3-bar-item w3-right" style="padding: 0px;"></h3>
 				</header>
 				<button class="w3-button w3-block w3-xlarge" id="recPlayButton" ></button>
-				<button class="w3-button w3-block w3-xlarge" id="recSaveButton"><i class="fas fa-save"></i> Sauvegarder</button>
+				<button class="w3-button w3-block w3-large" id="recSaveButton">
+						<span class="w3-cell w3-cell-middle" style="width:50px"><i class="fas fa-bookmark w3-xlarge"></i></span>
+						<span class="w3-cell w3-xlarge">Sauvegarder<br>dans un onglet</span>
+				</button>
+				<!-- 	<span><i class="fas fa-save w3-xlarge"></i></span><span>Sauvegarder<br>en fichier audio</span>-->
 			</div>
 		</div>
 		<!-- First column -->
@@ -227,6 +231,10 @@
 					<h3 id="savSampleLengthLabel" class="w3-bar-item w3-right" style="padding: 0px;"></h3>
 				</header>
 				<button class="w3-button w3-block w3-xlarge" id="savPlayButton"></button>
+				<button class="w3-button w3-block w3-large" id="downloadButton">
+						<span class="w3-cell w3-cell-middle" style="width:50px"><i class="fas fa-save w3-xlarge"></i></span>
+						<span class="w3-cell w3-xlarge">Sauvegarder<br>en fichier audio</span>
+				</button>
 			</div>
 		</div>
 		<!-- First column -->
@@ -409,6 +417,9 @@ validateFileButton.addEventListener("click", onValidateFileButtonClick);
 
 const fourierReplotButton = $("#fourierReplotButton");
 fourierReplotButton.addEventListener("click", onFourierReplotButtonClick);
+
+const downloadButton = $("#downloadButton");
+downloadButton.addEventListener("click", ondownloadButtonClick);
 
 const infoButton = $("#infoButton");
 infoButton.addEventListener("click", onInfoButtonClick);
@@ -662,9 +673,9 @@ function populateTabs(){
 	let secondHalf = document.createElement("span");
 
 	// Add the icon
-	let audioFileIcon = document.createElement("i");
-	audioFileIcon.className ="fas fa-file-audio";
-	firstHalf.appendChild(audioFileIcon);
+	let icon = document.createElement("i");
+	icon.className ="fas fa-bookmark";
+	firstHalf.appendChild(icon);
 	
 	// Set the button's text
 	let newText = document.createTextNode(" " + saves[i].name);
@@ -806,7 +817,7 @@ function onValidateSaveButtonClick() {
 	// Get the save name
 	let text;
 	if(saveNameInput.value == ""){
-		text = "Enreg.";
+		text = "Enreg";
 	}
 	else{
 		text = saveNameInput.value;
@@ -903,6 +914,12 @@ function onFourierReplotButtonClick() {
 	// Update and redraw
 	savFourierChart.series[0].pointInterval = saves[activeTab-2].fLinearData.step;
 	savFourierChart.series[0].setData(arrayCopy(saves[activeTab-2].fLinearData.getData()));
+}
+
+function ondownloadButtonClick() {
+	let sr = baseSampleRate / saves[activeTab-2].displaySampleRateLvl;
+	let file = audio.generateWavFile(saves[activeTab-2].linearData.getData(saves[activeTab-2].displaySampleRateLvl), sr);
+	phyDownload(file, saves[activeTab-2].name);
 }
 
 function onSampleButton() {
