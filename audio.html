@@ -57,9 +57,9 @@
 	<div class="w3-card-4 w3-white">
 		<script>headerWrite("Analyseur audio");</script>
 		<div id="tabBar" class="w3-bar">
-			<button id ="rtTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">TEMPS REEL</button>
-			<button id ="recTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">ACQUISITION</button>
-			<span class="w3-bar-item w3-opacity"><i class="fas fa-minus fa-rotate-90"></i></span>
+			<button id ="rtTabButton" class="w3-bar-item w3-button w3-hover-none w3-padding-small phy-tab">TEMPS REEL</button>
+			<button id ="recTabButton" class="w3-bar-item w3-button w3-hover-none w3-padding-small phy-tab">ACQUISITION</button>
+			<span class="w3-bar-item w3-opacity w3-padding-small"><i class="fas fa-minus fa-rotate-90"></i></span>
 		</div>
 	</div>
 	<!-------------------------------------------------------------------------->
@@ -91,7 +91,7 @@
 		<div class="w3-rest">
 			<!-- First graph -->
 			<div class="w3-card-4 w3-margin w3-padding w3-white">
-				<div id="rtGraphContainer" style="height: calc(55vh - 86px)">
+				<div id="rtGraphContainer" style="height: calc(55vh - 78px)">
 					<!--<canvas class="rtWaveCanvas"></canvas>-->
 				</div>
 			</div>
@@ -173,7 +173,7 @@
 		<div class="w3-rest">
 			<!-- First graph -->
 			<div class="w3-card-4 w3-margin w3-padding w3-white">
-				<div id="recGraphContainer" style="height: calc(55vh - 86px)"></div>
+				<div id="recGraphContainer" style="height: calc(55vh - 78px)"></div>
 			</div>
 			<!-- Second graph -->
 			<div class="w3-card-4 w3-margin w3-padding w3-white">
@@ -241,15 +241,15 @@
 		<div class="w3-rest">
 			<!-- First graph -->
 			<div class="w3-card-4 w3-margin w3-padding w3-white">
-				<div id="savGraphContainer" style="height: calc(55vh - 88px)"></div>
+				<div id="savGraphContainer" style="height: calc(55vh - 78px)"></div>
 			</div>
 			<!-- Second graph -->
 			<div class="w3-card-4 w3-margin w3-padding w3-white" id="savRegularFourierCard">
-				<div id="savFourierContainer" style="height: calc(45vh - 88px)"></div>
+				<div id="savFourierContainer" style="height: calc(45vh - 78px)"></div>
 			</div>
 			<!-- Third graph -->
 			<div class="w3-card-4 w3-margin w3-padding w3-white" id="savTemporalFourierCard" style="display:none">
-				<div id="savTemporalFourierContainer" style="height: calc(45vh - 88px)"></div>
+				<div id="savTemporalFourierContainer" style="height: calc(45vh - 78px)"></div>
 			</div>
 		</div>
 	</div>
@@ -780,7 +780,7 @@ function populateTabs(){
 	secondHalf.appendChild(closeIcon);
 	
 	newButton.className ="w3-bar-item savTab phy-tab w3-hover-none";
-	firstHalf.className ="w3-button w3-hover-none phy-tab-alt";
+	firstHalf.className ="w3-button w3-hover-none phy-tab-alt w3-padding-small";
 	secondHalf.className ="w3-button w3-hover-none phy-tab-close-button";
 
 	newButton.style.padding = 0;
@@ -838,8 +838,6 @@ function onSavFourierGraphSelection(event){
 	if (event.xAxis != undefined){ // handmade selection
 		saves[activeTab-2].fourierRange.xRange = [event.xAxis[0].min, event.xAxis[0].max];
 		saves[activeTab-2].fourierRange.yRange = [event.yAxis[0].min, event.yAxis[0].max];
-		console.log("oui");
-		console.log(saves[activeTab-2].fourierRange.yRange);
 	} else{ // Reset zoom button
 		saves[activeTab-2].fourierRange.xRange = [undefined, undefined];
 		saves[activeTab-2].fourierRange.yRange = [undefined, undefined];
@@ -850,7 +848,6 @@ function onSavTemporalFourierGraphSelection(event){
 	if (event.xAxis != undefined){ // handmade selection
 		saves[activeTab-2].fourierRange.xRange = [event.xAxis[0].min, event.xAxis[0].max];
 		saves[activeTab-2].fourierRange.yRange = [event.yAxis[0].min, event.yAxis[0].max];
-		console.log(saves[activeTab-2].fourierRange.yRange);
 	} else{ // Reset zoom button
 		saves[activeTab-2].fourierRange.xRange = [undefined, undefined];
 		saves[activeTab-2].fourierRange.yRange = [undefined, undefined];
