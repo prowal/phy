@@ -978,9 +978,9 @@ function onSelectModeButtonClick(_id){
 		$("#fourierCard").style.display = "none";
 
 		// Resize wave charts to full height
-		$("#rtGraphContainer").style.height = "calc(100vh - 145px)";
-		$("#recGraphContainer").style.height = "calc(100vh - 145px)";
-		$("#savGraphContainer").style.height = "calc(100vh - 145px)";
+		$("#rtGraphContainer").style.height = "calc(100vh - 124px)";
+		$("#recGraphContainer").style.height = "calc(100vh - 124px)";
+		$("#savGraphContainer").style.height = "calc(100vh - 124px)";
 	} else{
 		simpleMode = false;
 	}
@@ -1035,8 +1035,8 @@ function onFourierReplotButtonClick() {
 	}
 	else{
 		// check data size and return if too short
-		if(saves[activeTab-2].linearData.getDuration() < 0.3){
-			alert("La durée de l'enregistrement dit être supérieure à 0,5s pour réaliser une analyse spectrale temporelle.");
+		if(saves[activeTab-2].fourierPlottingRange[1] - saves[activeTab-2].fourierPlottingRange[0] < 0.5){
+			alert("La durée doit être supérieure à 0,5s pour réaliser une analyse spectrale temporelle.");
 			return;
 		}
 		// display the temporal dft
@@ -1044,9 +1044,9 @@ function onFourierReplotButtonClick() {
 		$("#savTemporalFourierCard").style.display = "block";
 
 		let chunks = computeTemporalFourier(saves[activeTab-2].linearData, baseSampleRate / saves[activeTab-2].displaySampleRateLvl, saves[activeTab-2].fourierPlottingRange);
-
 		// Format data
 		let highestAmplitude = 0;
+		saves[activeTab-2].fTemporalData = [];
 		for(let i = 0; i < chunks.length; i++){
 			for(let j = 0; j < chunks[i].data.length; j++){
 				saves[activeTab-2].fTemporalData[i * chunks[0].data.length + j] = [j * chunks[0].step, i * chunkLength, chunks[i].data[j]];
@@ -1062,6 +1062,7 @@ function onFourierReplotButtonClick() {
 		});
 
 		// Set the new datas and draw
+		console.log(saves[activeTab-2].fTemporalData);
 		savTemporalFourierChart.series[0].setData(saves[activeTab-2].fTemporalData);
 		if(saves[activeTab-2].fourierType != 1){
 			// User changed fourier type => reset zoom
