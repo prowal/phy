@@ -801,14 +801,16 @@ function populateTabs(){
 ----------------------------------------------------------------------------------------------*/
 function audioPlayback(_data, _sr, _callback){
 	// Prepare the datas if the samplerate is not default
-	if(_sr != baseSampleRate){
-		let factor = baseSampleRate / _sr; 
-		let prepData = [];
-		for(let i = 0; i < _data.length; i++){
-			for(let j = i * factor; j < i * factor + factor; j++){
-				prepData[j] = _data[i];
+		if(_sr != baseSampleRate){
+			let factor = baseSampleRate / _sr; 
+			let prepData = [];
+			for(let i = 0; i < _data.length; i++){
+				prepData[i * factor] = _data[i];
+				for(let j = 1; j < factor; j++){
+					prepData[i * factor + j] =  (_data[i + 1] - _data[i]) / factor * j + _data[i + 1];
+				}
 			}
-		}
+		
 		// Play the recorded sound
 		audio.play(prepData);
 	}
