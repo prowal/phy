@@ -41,10 +41,11 @@
 	<link rel="stylesheet" href="lib/phy.css">
 
 	<script src="lib/highcharts/highcharts.js"></script>
+	<script src="lib/highcharts/heatmap.js"></script>
 	<script src="lib/highcharts/boost.js"></script>
 
 	<script src="lib/phy.js"></script>
-	<script src="lib/infomodal.js"></script>
+	<script src="lib/common.js"></script>
 
 	<script src="lib/audio.js"></script>
 
@@ -54,15 +55,11 @@
 <body class="w3-light-grey">
 	<!-- Header bar -->
 	<div class="w3-card-4 w3-white">
-		<div class="w3-bar w3-center w3-theme">
-			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>Analyseur audio</b></span>
-			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><i class="fas fa-info-circle fa-lg"></i></button>
-			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><i class="fas fa-home fa-lg"></i></a>
-		</div>
+		<script>headerWrite("Analyseur audio");</script>
 		<div id="tabBar" class="w3-bar">
-			<button id ="rtTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">TEMPS REEL</button>
-			<button id ="recTabButton" class="w3-bar-item w3-button w3-hover-none phy-tab">ACQUISITION</button>
-			<span class="w3-bar-item w3-opacity"><i class="fas fa-minus fa-rotate-90"></i></span>
+			<button id ="rtTabButton" class="w3-bar-item w3-button w3-hover-none w3-padding-small phy-tab">TEMPS REEL</button>
+			<button id ="recTabButton" class="w3-bar-item w3-button w3-hover-none w3-padding-small phy-tab">ACQUISITION</button>
+			<span class="w3-bar-item w3-opacity w3-padding-small"><i class="fas fa-minus fa-rotate-90"></i></span>
 		</div>
 	</div>
 	<!-------------------------------------------------------------------------->
@@ -94,13 +91,13 @@
 		<div class="w3-rest">
 			<!-- First graph -->
 			<div class="w3-card-4 w3-margin w3-padding w3-white">
-				<div id="rtGraphContainer" style="height: calc(55vh - 88px)">
+				<div id="rtGraphContainer" style="height: calc(55vh - 78px)">
 					<!--<canvas class="rtWaveCanvas"></canvas>-->
 				</div>
 			</div>
 			<!-- Second graph -->
 			<div class="w3-card-4 w3-margin w3-padding w3-white">
-				<div id="rtFourierContainer" style="height: calc(45vh - 88px)">
+				<div id="rtFourierContainer" style="height: calc(45vh - 78px)">
 				<!--	<canvas class="rtFourierCanvas"></canvas>-->
 				</div>
 			</div>
@@ -176,11 +173,11 @@
 		<div class="w3-rest">
 			<!-- First graph -->
 			<div class="w3-card-4 w3-margin w3-padding w3-white">
-				<div id="recGraphContainer" style="height: calc(55vh - 88px)"></div>
+				<div id="recGraphContainer" style="height: calc(55vh - 78px)"></div>
 			</div>
 			<!-- Second graph -->
 			<div class="w3-card-4 w3-margin w3-padding w3-white">
-				<div id="recFourierContainer" style="height: calc(45vh - 88px)"></div>
+				<div id="recFourierContainer" style="height: calc(45vh - 78px)"></div>
 			</div>
 		</div>
 	</div>
@@ -210,8 +207,11 @@
 				<div class="w3-panel">
 					<label class="phy-menu-label">Type d'analyse spectrale</label>
 					<div>
-						<input class="w3-radio" type="radio" name="fourierType" value="0" checked>
-						<label>Normale</label>
+						<input class="w3-radio" type="radio" name="fourierType" id="fourierTypeChoice0" value="0" checked>
+						<label for="fourierTypeChoice0">Normale</label>
+						<br>
+						<input class="w3-radio" type="radio" name="fourierType" id="fourierTypeChoice1" value="1">
+						<label for="fourierTypeChoice1">Temporelle</label>
 					</div>
 					<!--<div>
 						<input class="w3-radio" type="radio" name="fourierType" value="1">
@@ -241,11 +241,15 @@
 		<div class="w3-rest">
 			<!-- First graph -->
 			<div class="w3-card-4 w3-margin w3-padding w3-white">
-				<div id="savGraphContainer" style="height: calc(55vh - 88px)"></div>
+				<div id="savGraphContainer" style="height: calc(55vh - 78px)"></div>
 			</div>
 			<!-- Second graph -->
-			<div class="w3-card-4 w3-margin w3-padding w3-white">
-				<div id="savFourierContainer" style="height: calc(45vh - 88px)"></div>
+			<div class="w3-card-4 w3-margin w3-padding w3-white" id="savRegularFourierCard">
+				<div id="savFourierContainer" style="height: calc(45vh - 78px)"></div>
+			</div>
+			<!-- Third graph -->
+			<div class="w3-card-4 w3-margin w3-padding w3-white" id="savTemporalFourierCard" style="display:none">
+				<div id="savTemporalFourierContainer" style="height: calc(45vh - 78px)"></div>
 			</div>
 		</div>
 	</div>
@@ -307,6 +311,7 @@ let recWaveData;
 
 const rtBasebufferSize = 4096;
 const rtLength = 0.04;
+const chunkLength = 0.1;
 
 // True if the rt graph needs to be fully drawn
 let rtInitialDraw = true;
@@ -445,9 +450,64 @@ let recFourierOptions = new HighchartOptions(null, "Fréquence (Hz)", "Amplitude
 
 let savWaveOptions = new HighchartOptions(null, "Temps (s)", "Amplitude", 0, 0.05, -32768, 32768, 7, "xy");
 let savFourierOptions = new HighchartOptions(null, "Fréquence (Hz)", "Amplitude", 0, 10000, 0, 32768, 2, "xy");
+let savTemporalFourierOptions = {
+	chart: {
+		type: "heatmap",
+		zoomType:"xy",
+		spacingLeft: 0,
+		spacingBottom: 0
+	},
+	title: {
+    text: null
+	},
+	credits: {
+		enabled: false
+	},
+	legend: {
+		align: 'right',
+		layout: 'vertical',
+		margin: 0,
+		verticalAlign: 'top',
+		y: 25,
+		symbolHeight: 280
+	},
+	yAxis: {
+		title: {
+      text: "Temps (s)"
+    },
+		min: 0,
+		max: 2
+	},
+	xAxis: {
+		title: {
+      text: "Fréquence (Hz)"
+		},
+		minPadding: 0,
+		maxPadding: 0,
+		startOnTick: false,
+		endOnTick: false,
+		min: 0,
+		max: 10000,
+	},
+	colorAxis: {
+		minColor: "#e6ebf5",
+		maxColor: "#003399",
+		min: 0,
+		max: 20000
+		},
+		tooltip: {
+			formatter: function() {
+				console.log(this.x);
+				return "Fréquence: <b>" + Highcharts.numberFormat(this.x, 10) + "</b><br>" + "Temps: <b>" + Highcharts.numberFormat(this.y,1) + "</b>";
+			}
+		},
+	series:[{colsize:10//span columns on 10 units
+	}]
+}
 
 savWaveOptions.chart.events = {selection: function(event){onSavWaveGraphSelection(event)}};
 savFourierOptions.chart.events = {selection: function(event){onSavFourierGraphSelection(event)}};
+savTemporalFourierOptions.chart.events = {selection: function(event){onSavTemporalFourierGraphSelection(event)}};
 
 /*----------------------------------------------------------------------------------------------
 ---------------------------------------Create the graphs ---------------------------------------
@@ -460,11 +520,14 @@ let recFourierChart = new Highcharts.chart('recFourierContainer', recFourierOpti
 
 let savWaveChart = new Highcharts.chart('savGraphContainer', savWaveOptions);
 let savFourierChart = new Highcharts.chart('savFourierContainer', savFourierOptions);
+let savTemporalFourierChart = new Highcharts.chart('savTemporalFourierContainer', savTemporalFourierOptions);
 
 savWaveChart.xAxis[0].allowZoomOutside = true;
 savWaveChart.yAxis[0].allowZoomOutside = true;
 savFourierChart.xAxis[0].allowZoomOutside = true;
 savFourierChart.yAxis[0].allowZoomOutside = true;
+savTemporalFourierChart.xAxis[0].allowZoomOutside = true;
+savTemporalFourierChart.yAxis[0].allowZoomOutside = true;
 
 /*----------------------------------------------------------------------------------------------
 -----------------------------------------DRAW FUNCTIONS-----------------------------------------
@@ -476,7 +539,7 @@ function realtimeDraw() {
 
 	// Compute the fourier
 	if(simpleMode == false){
-		rtFourierData = computeFourier(rtWaveData, baseSampleRate) // TODO really needed to perform a fourier???
+		rtFourierData = computeFourier(rtWaveData, baseSampleRate);
 	} else{
 		rtFourierData = null;
 	}
@@ -556,6 +619,7 @@ function saveDraw() {
 	// Reflow the charts to the div size
 	savWaveChart.reflow();
 	savFourierChart.reflow();
+	savTemporalFourierChart.reflow();
 
 	// Populate the sample rate 
 	populateSampleRateSelect(savSampleRateSelect, saves[activeTab-2].recordedSampleRateLvl, 32);
@@ -566,18 +630,24 @@ function saveDraw() {
 	// Display the sample length
 	savSampleLengthLabel.innerHTML = formatDate(saves[activeTab-2].linearData.getDuration() * 1000);
 
-	// Update the datas
+	// Update the data & apply zoom
 	savWaveChart.series[0].pointInterval = saves[activeTab-2].linearData.step * saves[activeTab-2].displaySampleRateLvl;
 	savWaveChart.series[0].setData(arrayCopy(saves[activeTab-2].linearData.getData(saves[activeTab-2].displaySampleRateLvl)), false);
-	if(simpleMode == false){
+	savWaveChart.zoom({xAxis:[{min:saves[activeTab-2].range.xRange[0],max:saves[activeTab-2].range.xRange[1], axis:savWaveChart.xAxis[0]}], yAxis:[{min:saves[activeTab-2].range.yRange[0],max:saves[activeTab-2].range.yRange[1], axis:savWaveChart.yAxis[0]}]});
+
+	// Display the right fourier type and update the datas
+	if(saves[activeTab-2].fourierType == 0 && simpleMode == false){
+		$("#savRegularFourierCard").style.display = "block";
+		$("#savTemporalFourierCard").style.display = "none";
 		savFourierChart.series[0].pointInterval = saves[activeTab-2].fLinearData.step;
 		savFourierChart.series[0].setData(arrayCopy(saves[activeTab-2].fLinearData.getData()), false);
-	}
-
-	// Apply zoom and redraw (called by zoom)
-	savWaveChart.zoom({xAxis:[{min:saves[activeTab-2].range.xRange[0],max:saves[activeTab-2].range.xRange[1], axis:savWaveChart.xAxis[0]}], yAxis:[{min:saves[activeTab-2].range.yRange[0],max:saves[activeTab-2].range.yRange[1], axis:savWaveChart.yAxis[0]}]});
-	if(simpleMode == false){
 		savFourierChart.zoom({xAxis:[{min:saves[activeTab-2].fourierRange.xRange[0],max:saves[activeTab-2].fourierRange.xRange[1], axis:savFourierChart.xAxis[0]}], yAxis:[{min:saves[activeTab-2].fourierRange.yRange[0],max:saves[activeTab-2].fourierRange.yRange[1], axis:savFourierChart.yAxis[0]}]});
+	}
+	if(saves[activeTab-2].fourierType == 1 && simpleMode == false){
+		$("#savRegularFourierCard").style.display = "none";
+		$("#savTemporalFourierCard").style.display = "block";
+		savTemporalFourierChart.series[0].setData(saves[activeTab-2].fTemporalData);
+		savTemporalFourierChart.zoom({xAxis:[{min:saves[activeTab-2].fourierRange.xRange[0],max:saves[activeTab-2].fourierRange.xRange[1], axis:savTemporalFourierChart.xAxis[0]}], yAxis:[{min:saves[activeTab-2].fourierRange.yRange[0],max:saves[activeTab-2].fourierRange.yRange[1], axis:savTemporalFourierChart.yAxis[0]}]});
 	}
 }
 
@@ -624,7 +694,7 @@ function computeFourier(_wave, _sampleRate, _range){
 	}
 
 	// Select the needed datas
-	let fftInput = new LinearData(_wave.getData(baseSampleRate/_sampleRate).slice(startIndex, stopIndex));
+	let fftInput = new LinearData(_wave.getData(baseSampleRate / _sampleRate).slice(startIndex, stopIndex));
 
 	// limit dft to 10 kHz
 	let maxIndex = fftInput.data.length / 2;
@@ -636,6 +706,29 @@ function computeFourier(_wave, _sampleRate, _range){
 	fourier.computeNormalizedFft(fftInput, result, _sampleRate, false);
 	return result;
 
+}
+
+function computeTemporalFourier(_wave, _sampleRate, _range){
+	let startIndex;
+	let stopIndex;
+	if(_range == undefined){
+		startIndex = 0;
+		stopIndex = _wave.data.length;
+	}
+	else{
+		startIndex = Math.floor(_range[0] * baseSampleRate);
+		stopIndex = Math.floor(_range[1] * baseSampleRate);
+	}
+
+	// Select the needed datas
+	let data = new LinearData(_wave.getData().slice(startIndex, stopIndex), 1 / baseSampleRate);
+
+	// Split the data in chunks and perform dft on them
+	let chunks = []
+	for(let i = 0; (i+1) < data.getDuration() / chunkLength; i++){
+		chunks[i] = computeFourier(new LinearData(data.getData().slice(i * chunkLength * baseSampleRate, (i+1) * chunkLength * baseSampleRate)), _sampleRate);
+	}
+	return chunks;
 }
 
 /*----------------------------------------------------------------------------------------------
@@ -687,7 +780,7 @@ function populateTabs(){
 	secondHalf.appendChild(closeIcon);
 	
 	newButton.className ="w3-bar-item savTab phy-tab w3-hover-none";
-	firstHalf.className ="w3-button w3-hover-none phy-tab-alt";
+	firstHalf.className ="w3-button w3-hover-none phy-tab-alt w3-padding-small";
 	secondHalf.className ="w3-button w3-hover-none phy-tab-close-button";
 
 	newButton.style.padding = 0;
@@ -708,14 +801,16 @@ function populateTabs(){
 ----------------------------------------------------------------------------------------------*/
 function audioPlayback(_data, _sr, _callback){
 	// Prepare the datas if the samplerate is not default
-	if(_sr != baseSampleRate){
-		let factor = baseSampleRate / _sr; 
-		let prepData = [];
-		for(let i = 0; i < _data.length; i++){
-			for(let j = i * factor; j < i * factor + factor; j++){
-				prepData[j] = _data[i];
+		if(_sr != baseSampleRate){
+			let factor = baseSampleRate / _sr; 
+			let prepData = [];
+			for(let i = 0; i < _data.length; i++){
+				prepData[i * factor] = _data[i];
+				for(let j = 1; j < factor; j++){
+					prepData[i * factor + j] =  (_data[i + 1] - _data[i]) / factor * j + _data[i + 1];
+				}
 			}
-		}
+		
 		// Play the recorded sound
 		audio.play(prepData);
 	}
@@ -742,6 +837,16 @@ function onSavWaveGraphSelection(event){
 }
 
 function onSavFourierGraphSelection(event){
+	if (event.xAxis != undefined){ // handmade selection
+		saves[activeTab-2].fourierRange.xRange = [event.xAxis[0].min, event.xAxis[0].max];
+		saves[activeTab-2].fourierRange.yRange = [event.yAxis[0].min, event.yAxis[0].max];
+	} else{ // Reset zoom button
+		saves[activeTab-2].fourierRange.xRange = [undefined, undefined];
+		saves[activeTab-2].fourierRange.yRange = [undefined, undefined];
+	}
+}
+
+function onSavTemporalFourierGraphSelection(event){
 	if (event.xAxis != undefined){ // handmade selection
 		saves[activeTab-2].fourierRange.xRange = [event.xAxis[0].min, event.xAxis[0].max];
 		saves[activeTab-2].fourierRange.yRange = [event.yAxis[0].min, event.yAxis[0].max];
@@ -828,10 +933,12 @@ function onValidateSaveButtonClick() {
 			name: text,
 			linearData: rtWaveData,
 			fLinearData: rtFourierData,
+			fTemporalData: [],
 			recordedSampleRateLvl: 1,
 			displaySampleRateLvl: 1,
 			range: {xRange: [undefined, undefined], yRange: [undefined, undefined]},
 			fourierRange: {xRange: [undefined, undefined], yRange: [undefined, undefined]},
+			fourierType: 0
 		});
 	}
 	else{
@@ -839,10 +946,12 @@ function onValidateSaveButtonClick() {
 			name: text,
 			linearData: recWaveData,
 			fLinearData: recFourierData,
+			fTemporalData: [],
 			recordedSampleRateLvl: baseSampleRate / recordedSampleRate,
 			displaySampleRateLvl: baseSampleRate / recordedSampleRate,
 			range: {xRange: [undefined, undefined], yRange: [undefined, undefined]},
 			fourierRange: {xRange: [undefined, undefined], yRange: [undefined, undefined]},
+			fourierType: 0
 		});
 	}
 	// Redraw tabs
@@ -871,9 +980,9 @@ function onSelectModeButtonClick(_id){
 		$("#fourierCard").style.display = "none";
 
 		// Resize wave charts to full height
-		$("#rtGraphContainer").style.height = "calc(100vh - 145px)";
-		$("#recGraphContainer").style.height = "calc(100vh - 145px)";
-		$("#savGraphContainer").style.height = "calc(100vh - 145px)";
+		$("#rtGraphContainer").style.height = "calc(100vh - 124px)";
+		$("#recGraphContainer").style.height = "calc(100vh - 124px)";
+		$("#savGraphContainer").style.height = "calc(100vh - 124px)";
 	} else{
 		simpleMode = false;
 	}
@@ -908,12 +1017,62 @@ function onFourierReplotButtonClick() {
 	// Save the ranges
 	saves[activeTab-2].fourierPlottingRange = [savWaveChart.xAxis[0].min,savWaveChart.xAxis[0].max];
 
-	// Compute the dft
-	saves[activeTab-2].fLinearData = computeFourier(saves[activeTab-2].linearData, baseSampleRate / saves[activeTab-2].displaySampleRateLvl, saves[activeTab-2].fourierPlottingRange);
-	
-	// Update and redraw
-	savFourierChart.series[0].pointInterval = saves[activeTab-2].fLinearData.step;
-	savFourierChart.series[0].setData(arrayCopy(saves[activeTab-2].fLinearData.getData()));
+	if($("#fourierTypeChoice0").checked){
+		// display the regular dft
+		$("#savRegularFourierCard").style.display = "block";
+		$("#savTemporalFourierCard").style.display = "none";
+
+		// Compute the dft
+		saves[activeTab-2].fLinearData = computeFourier(saves[activeTab-2].linearData, baseSampleRate / saves[activeTab-2].displaySampleRateLvl, saves[activeTab-2].fourierPlottingRange);
+
+		// Update and redraw
+		savFourierChart.series[0].pointInterval = saves[activeTab-2].fLinearData.step;
+		savFourierChart.series[0].setData(arrayCopy(saves[activeTab-2].fLinearData.getData()));
+		if(saves[activeTab-2].fourierType != 0){
+			// User changed fourier type => reset zoom
+			savFourierChart.zoom({xAxis:[{min:undefined,max:undefined, axis:savFourierChart.xAxis[0]}], yAxis:[{min:undefined,max:undefined, axis:savFourierChart.yAxis[0]}]});
+		}
+		// Log fourier type displayed
+		saves[activeTab-2].fourierType = 0;
+	}
+	else{
+		// check data size and return if too short
+		if(saves[activeTab-2].fourierPlottingRange[1] - saves[activeTab-2].fourierPlottingRange[0] < 0.5){
+			alert("La durée doit être supérieure à 0,5s pour réaliser une analyse spectrale temporelle.");
+			return;
+		}
+		// display the temporal dft
+		$("#savRegularFourierCard").style.display = "none";
+		$("#savTemporalFourierCard").style.display = "block";
+
+		let chunks = computeTemporalFourier(saves[activeTab-2].linearData, baseSampleRate / saves[activeTab-2].displaySampleRateLvl, saves[activeTab-2].fourierPlottingRange);
+		// Format data
+		let highestAmplitude = 0;
+		saves[activeTab-2].fTemporalData = [];
+		for(let i = 0; i < chunks.length; i++){
+			for(let j = 0; j < chunks[i].data.length; j++){
+				saves[activeTab-2].fTemporalData[i * chunks[0].data.length + j] = [j * chunks[0].step, i * chunkLength, chunks[i].data[j]];
+				if(chunks[i].data[j] > highestAmplitude){ // check for the highest amplitude
+					highestAmplitude = chunks[i].data[j];
+				}
+			}
+		}
+		// Update boundaries
+		savTemporalFourierChart.update({
+			yAxis:{max:chunks.length * chunkLength},
+			colorAxis:{max:highestAmplitude}
+		});
+
+		// Set the new datas and draw
+		console.log(saves[activeTab-2].fTemporalData);
+		savTemporalFourierChart.series[0].setData(saves[activeTab-2].fTemporalData);
+		if(saves[activeTab-2].fourierType != 1){
+			// User changed fourier type => reset zoom
+			savTemporalFourierChart.zoom({xAxis:[{min:undefined,max:undefined, axis:savTemporalFourierChart.xAxis[0]}], yAxis:[{min:undefined,max:undefined, axis:savTemporalFourierChart.yAxis[0]}]});
+		}
+		// Log fourier type displayed
+		saves[activeTab-2].fourierType = 1;
+	}
 }
 
 function ondownloadButtonClick() {
@@ -1115,7 +1274,6 @@ window.onload = function() {
 
 // TODO LIST:
 // - plot lines to show playback
-// - temporal fourier
 
 </script>
 </body>

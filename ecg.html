@@ -29,7 +29,6 @@
 	-->
 
 	<title>Electrocardiogrammes</title>
-
 	<link rel="icon" href="img/ecg.ico" />
 
 	<link rel="stylesheet" href="lib/w3.css"> 
@@ -45,17 +44,13 @@
 	<script src="lib/ecg.js"></script>
 
 	<script src="lib/phy.js"></script>
-	<script src="lib/infomodal.js"></script>
+	<script src="lib/common.js"></script>
 
 </head>
 <body class="w3-light-grey">
 	<!-- Header bar -->
-	<div class="header w3-theme">
-		<div class="w3-bar w3-card-4 w3-center">
-			<span class="w3-bar-item w3-display-topmiddle w3-xlarge"><b>Electrocardiogrammes</b></span>
-			<button class="w3-bar-item w3-button w3-right w3-xlarge" id="infoButton"><i class="fas fa-info-circle fa-lg"></i></button>
-			<a href="index.html" class="w3-bar-item w3-button w3-left w3-xlarge" id="homeButton"><i class="fas fa-home fa-lg"></i></a>
-		</div> 
+	<div class="w3-card-4 w3-white">
+		<script>headerWrite("Electrocardiogrammes");</script>
 	</div>
 	<div class="w3-row">
 		<div class="w3-col w3-right" style="width: 285px">
@@ -90,7 +85,7 @@
 		</div>
 		<!-- Canvas card -->
 		<div class="w3-card-4 w3-rest w3-margin w3-white">
-			<div id="graph" class="w3-container w3-margin" style="height: calc(100vh - 120px)">
+			<div id="graph" class="w3-container w3-margin" style="height: calc(100vh - 108px)">
 			</div>
 		</div>
 	</div>
