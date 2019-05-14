@@ -539,7 +539,7 @@ function realtimeDraw() {
 
 	// Compute the fourier
 	if(simpleMode == false){
-		rtFourierData = computeFourier(rtWaveData, baseSampleRate) // TODO really needed to perform a fourier???
+		rtFourierData = computeFourier(rtWaveData, baseSampleRate);
 	} else{
 		rtFourierData = null;
 	}
@@ -1274,7 +1274,6 @@ window.onload = function() {
 
 // TODO LIST:
 // - plot lines to show playback
-// - temporal fourier
 
 </script>
 </body>
